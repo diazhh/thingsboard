@@ -1,0 +1,87 @@
+/**
+ * Copyright © 2016-2025 The Thingsboard Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "../../../../../../scss/constants";
+
+.tb-role-users-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+
+.tb-role-users-toolbar {
+  background-color: #305680;
+  color: white;
+  padding: 16px 24px;
+  min-height: 64px;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+  }
+}
+
+.tb-role-users-content {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tb-role-users-actions {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tb-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+}
+
+.tb-table-container {
+  flex: 1;
+  overflow: auto;
+}
+
+.tb-users-table {
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  .mat-column-actions {
+    width: 100px;
+    text-align: center;
+  }
+}
+
+.tb-no-data {
+  padding: 24px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.54);
+  font-style: italic;
+}
+
+.tb-role-users-footer {
+  display: flex;
+  justify-content: flex-start;
+  padding: 16px 0;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 16px;
+}

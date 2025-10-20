@@ -1,0 +1,81 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<form [formGroup]="formGroup" (ngSubmit)="create()">
+  <mat-toolbar color="primary">
+    <h2>{{ 'role.create-from-template' | translate }}</h2>
+    <span class="flex-1"></span>
+    <button mat-icon-button
+            (click)="cancel()"
+            type="button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-toolbar>
+  <div mat-dialog-content>
+    <div *ngIf="isLoading" class="tb-loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+    <div *ngIf="!isLoading">
+      <mat-form-field class="mat-block">
+        <mat-label translate>role.select-template</mat-label>
+        <mat-select formControlName="templateId" required>
+          <mat-option *ngFor="let template of templates" [value]="template.id.id">
+            {{ template.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="formGroup.get('templateId').hasError('required')">
+          {{ 'role.template-required' | translate }}
+        </mat-error>
+      </mat-form-field>
+
+      <div *ngIf="selectedTemplate" class="tb-template-info">
+        <h3 translate>role.template-description</h3>
+        <p>{{ selectedTemplate.description }}</p>
+        <div class="tb-template-details">
+          <div><strong translate>role.category</strong>: {{ selectedTemplate.category }}</div>
+        </div>
+      </div>
+
+      <mat-form-field class="mat-block">
+        <mat-label translate>role.new-role-name</mat-label>
+        <input matInput formControlName="roleName" required>
+        <mat-error *ngIf="formGroup.get('roleName').hasError('required')">
+          {{ 'role.name-required' | translate }}
+        </mat-error>
+        <mat-error *ngIf="formGroup.get('roleName').hasError('maxlength')">
+          {{ 'role.name-max-length' | translate }}
+        </mat-error>
+        <mat-hint translate>role.template-name-hint</mat-hint>
+      </mat-form-field>
+    </div>
+  </div>
+  <div mat-dialog-actions align="end">
+    <button mat-button
+            type="button"
+            (click)="cancel()"
+            [disabled]="isLoading">
+      {{ 'action.cancel' | translate }}
+    </button>
+    <button mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="formGroup.invalid || isLoading">
+      <mat-spinner *ngIf="isLoading" diameter="20" class="tb-inline-spinner"></mat-spinner>
+      <span *ngIf="!isLoading">{{ 'action.create' | translate }}</span>
+    </button>
+  </div>
+</form>

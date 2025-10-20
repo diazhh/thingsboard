@@ -16,30 +16,28 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SecurityComponent } from './security.component';
 import { SharedModule } from '@shared/shared.module';
-import { SecurityRoutingModule } from './security-routing.module';
-import { TotpAuthDialogComponent } from './authentication-dialog/totp-auth-dialog.component';
-import { SMSAuthDialogComponent } from '@home/pages/security/authentication-dialog/sms-auth-dialog.component';
-import { EmailAuthDialogComponent } from '@home/pages/security/authentication-dialog/email-auth-dialog.component';
-import {
-  BackupCodeAuthDialogComponent
-} from '@home/pages/security/authentication-dialog/backup-code-auth-dialog.component';
-import { RoleModule } from './role/role.module';
+import { HomeComponentsModule } from '@modules/home/components/home-components.module';
+import { RoleComponent } from './role.component';
+import { RolePermissionsComponent } from './role-permissions.component';
+import { RoleUsersComponent } from './role-users.component';
+import { CreateRoleFromTemplateDialogComponent } from './create-role-from-template-dialog.component';
+import { AssignUserDialogComponent } from './assign-user-dialog.component';
+import { RoleRoutingModule } from './role-routing.module';
 
 @NgModule({
   declarations: [
-    SecurityComponent,
-    TotpAuthDialogComponent,
-    SMSAuthDialogComponent,
-    EmailAuthDialogComponent,
-    BackupCodeAuthDialogComponent
+    RoleComponent,
+    RolePermissionsComponent,
+    RoleUsersComponent,
+    CreateRoleFromTemplateDialogComponent,
+    AssignUserDialogComponent
   ],
   imports: [
     CommonModule,
     SharedModule,
-    SecurityRoutingModule,
-    RoleModule
+    HomeComponentsModule,
+    RoleRoutingModule
   ]
 })
-export class SecurityModule { }
+export class RoleModule { }

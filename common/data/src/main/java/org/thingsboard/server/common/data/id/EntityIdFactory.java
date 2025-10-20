@@ -84,6 +84,9 @@ public class EntityIdFactory {
             case JOB -> new JobId(uuid);
             case ADMIN_SETTINGS -> new AdminSettingsId(uuid);
             case AI_MODEL -> new AiModelId(uuid);
+            case ROLE -> new RoleId(uuid);
+            case PERMISSION -> new PermissionId(uuid);
+            case ROLE_TEMPLATE -> new RoleTemplateId(uuid);
         };
     }
 

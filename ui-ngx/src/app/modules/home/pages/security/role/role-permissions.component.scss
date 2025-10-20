@@ -1,0 +1,158 @@
+/**
+ * Copyright © 2016-2025 The Thingsboard Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "../../../../../../scss/constants";
+
+.tb-permissions-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+
+.tb-permissions-toolbar {
+  background-color: #305680;
+  color: white;
+  padding: 16px 24px;
+  min-height: 64px;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+  }
+}
+
+.tb-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+}
+
+.tb-permissions-content {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+}
+
+.tb-permissions-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  background-color: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  border-radius: 4px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+
+  mat-icon {
+    color: #2196f3;
+  }
+}
+
+.tb-permissions-matrix-container {
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+.tb-permissions-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  th, td {
+    padding: 12px 16px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+  }
+
+  thead {
+    background-color: #f5f5f5;
+
+    th {
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.87);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: #f5f5f5;
+    }
+  }
+
+  .tb-resource-header {
+    text-align: left;
+    min-width: 200px;
+    background-color: #e8eaf6;
+  }
+
+  .tb-operation-header {
+    min-width: 100px;
+    background-color: #e8eaf6;
+
+    .tb-header-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+
+      span {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .tb-all-header {
+    min-width: 80px;
+    background-color: #e8eaf6;
+  }
+
+  .tb-resource-cell {
+    text-align: left;
+    font-weight: 500;
+    background-color: #fafafa;
+  }
+
+  .tb-permission-cell,
+  .tb-all-cell {
+    background-color: white;
+
+    mat-checkbox {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  .tb-permission-row {
+    &:hover {
+      background-color: #f9f9f9;
+    }
+  }
+}
+
+.tb-permissions-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid #e0e0e0;
+}
+
+.tb-inline-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}

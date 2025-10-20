@@ -760,6 +760,43 @@ public class ModelConstants {
     public static final String AI_MODEL_NAME_COLUMN_NAME = NAME_PROPERTY;
     public static final String AI_MODEL_CONFIGURATION_COLUMN_NAME = "configuration";
 
+    /**
+     * Role constants.
+     */
+    public static final String ROLE_TABLE_NAME = "role";
+    public static final String ROLE_ID_PROPERTY = ID_PROPERTY;
+    public static final String ROLE_TENANT_ID_PROPERTY = TENANT_ID_PROPERTY;
+    public static final String ROLE_NAME_PROPERTY = NAME_PROPERTY;
+    public static final String ROLE_DESCRIPTION_PROPERTY = "description";
+    public static final String ROLE_IS_SYSTEM_ROLE_PROPERTY = "is_system_role";
+    public static final String ROLE_SEARCH_TEXT_PROPERTY = SEARCH_TEXT_PROPERTY;
+
+    /**
+     * Permission constants.
+     */
+    public static final String PERMISSION_TABLE_NAME = "permission";
+    public static final String PERMISSION_ID_PROPERTY = ID_PROPERTY;
+    public static final String PERMISSION_ROLE_ID_PROPERTY = "role_id";
+    public static final String PERMISSION_RESOURCE_PROPERTY = "resource";
+    public static final String PERMISSION_OPERATION_PROPERTY = "operation";
+
+    /**
+     * User Role constants.
+     */
+    public static final String USER_ROLE_TABLE_NAME = "user_role";
+    public static final String USER_ROLE_USER_ID_PROPERTY = USER_ID_PROPERTY;
+    public static final String USER_ROLE_ROLE_ID_PROPERTY = "role_id";
+
+    /**
+     * Role Template constants.
+     */
+    public static final String ROLE_TEMPLATE_TABLE_NAME = "role_template";
+    public static final String ROLE_TEMPLATE_ID_PROPERTY = ID_PROPERTY;
+    public static final String ROLE_TEMPLATE_NAME_PROPERTY = NAME_PROPERTY;
+    public static final String ROLE_TEMPLATE_DESCRIPTION_PROPERTY = "description";
+    public static final String ROLE_TEMPLATE_PERMISSIONS_JSON_PROPERTY = "permissions_json";
+    public static final String ROLE_TEMPLATE_CATEGORY_PROPERTY = "category";
+
     protected static final String[] NONE_AGGREGATION_COLUMNS = new String[]{LONG_VALUE_COLUMN, DOUBLE_VALUE_COLUMN, BOOLEAN_VALUE_COLUMN, STRING_VALUE_COLUMN, JSON_VALUE_COLUMN, KEY_COLUMN, TS_COLUMN};
 
     protected static final String[] COUNT_AGGREGATION_COLUMNS = new String[]{count(LONG_VALUE_COLUMN), count(DOUBLE_VALUE_COLUMN), count(BOOLEAN_VALUE_COLUMN), count(STRING_VALUE_COLUMN), count(JSON_VALUE_COLUMN), max(TS_COLUMN)};
