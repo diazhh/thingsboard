@@ -1,0 +1,43 @@
+<div class="feet-inches-fraction-input">
+  <label class="input-label">{{ label }}<span *ngIf="required" class="required">*</span></label>
+  
+  <div class="input-group">
+    <mat-form-field appearance="outline" class="feet-field">
+      <mat-label>Pies</mat-label>
+      <input matInput 
+             type="number" 
+             [value]="feet"
+             (blur)="onFeetChange($event.target.value)"
+             [readonly]="readonly"
+             min="0"
+             step="1"
+             placeholder="0">
+      <span matSuffix>ft</span>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="inches-field">
+      <mat-label>Pulgadas</mat-label>
+      <input matInput 
+             type="number" 
+             [value]="inches"
+             (blur)="onInchesChange($event.target.value)"
+             [readonly]="readonly"
+             min="0"
+             max="11"
+             step="1"
+             placeholder="0">
+      <span matSuffix>in</span>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="fraction-field">
+      <mat-label>Fracción</mat-label>
+      <mat-select [value]="fraction || 0"
+                  (selectionChange)="onFractionChange($event.value)"
+                  [disabled]="readonly">
+        <mat-option *ngFor="let opt of fractionOptions" [value]="opt.value">
+          {{ opt.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

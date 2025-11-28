@@ -1,0 +1,320 @@
+<div class="radar-config">
+  <!-- Header -->
+  <div class="config-header">
+    <h3>Configuración de Radar</h3>
+    <p class="subtitle">Configurar atributos del dispositivo radar TRL/2</p>
+  </div>
+
+  <!-- Radar Selector -->
+  <div class="radar-selector-section">
+    <label for="radar-select">Seleccionar Radar:</label>
+    <select 
+      id="radar-select"
+      [(ngModel)]="selectedRadarId" 
+      (change)="selectRadar(selectedRadarId)"
+      class="radar-select">
+      <option value="">-- Seleccione un radar --</option>
+      <option *ngFor="let radar of availableRadars" [value]="radar.id!.id">
+        {{ radar.name }} ({{ radar.label || 'Sin etiqueta' }})
+      </option>
+    </select>
+
+  </div>
+
+  <!-- Scrollable Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span>✓ {{ successMessage }}</span>
+    <button class="btn-close-alert" (click)="clearMessages()">✕</button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-error">
+    <span>⚠ {{ error }}</span>
+    <button class="btn-close-alert" (click)="clearMessages()">✕</button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner">⟳</div>
+    <p>Cargando configuración...</p>
+  </div>
+
+  <!-- No Radar Selected -->
+  <div *ngIf="!selectedRadarId && !loading" class="empty-state">
+    <div class="empty-icon">📡</div>
+    <p>Seleccione un radar para configurar sus parámetros</p>
+  </div>
+
+  <!-- Radar Selected - Configuration Loaded -->
+  <div *ngIf="selectedRadarId && !loading && hasConfig && radarConfig" class="config-section">
+    
+    <!-- Radar Info -->
+    <div class="radar-info-box">
+      <div class="info-row">
+        <span class="info-label">Nombre del Radar:</span>
+        <span class="info-value" *ngIf="!editMode">{{ radarConfig.radarName }}</span>
+        <input 
+          *ngIf="editMode"
+          type="text"
+          class="info-input"
+          [(ngModel)]="radarConfig.radarName"
+          placeholder="Nombre del Radar">
+      </div>
+      <div class="info-row">
+        <span class="info-label">Dirección Modbus:</span>
+        <span class="info-value" *ngIf="!editMode">{{ radarConfig.modbusAddress }}</span>
+        <input 
+          *ngIf="editMode"
+          type="number"
+          class="info-input"
+          [(ngModel)]="radarConfig.modbusAddress"
+          min="1"
+          max="247"
+          placeholder="Dirección Modbus">
+      </div>
+      <div class="info-row">
+        <span class="info-label">Última Actualización:</span>
+        <span class="info-value">{{ formatDate(radarConfig.lastUpdate) }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Estado de Conexión:</span>
+        <span class="status-badge" [class.status-online]="radarConfig.connectionStatus === 'online'"
+              [class.status-offline]="radarConfig.connectionStatus === 'offline'"
+              [class.status-error]="radarConfig.connectionStatus === 'error'">
+          {{ radarConfig.connectionStatus === 'online' ? 'EN LÍNEA' : radarConfig.connectionStatus === 'offline' ? 'DESCONECTADO' : 'ERROR' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Parameters Form -->
+    <div class="parameters-section">
+      <div class="section-header">
+        <h4>Parámetros TRL/2 (Registros 1000-1015)</h4>
+        <div class="header-actions">
+          <button 
+            *ngIf="!editMode"
+            class="btn-secondary"
+            (click)="enableEditMode()">
+            ✏ Editar Parámetros
+          </button>
+          <button 
+            *ngIf="editMode"
+            class="btn-secondary"
+            (click)="cancelEdit()">
+            Cancelar
+          </button>
+          <button 
+            *ngIf="editMode"
+            class="btn-primary"
+            (click)="prepareWrite()"
+            [disabled]="!hasModifications || saving">
+            {{ saving ? 'Guardando...' : '💾 Guardar' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Parameter Cards -->
+      <div class="parameters-grid">
+        <div *ngFor="let paramKey of parameterKeys" class="parameter-card"
+             [class.modified]="editMode && isParameterModified(paramKey)">
+          <div class="param-header">
+            <h5>{{ radarConfig.parameters[paramKey].label }}</h5>
+            <span class="param-register">
+              Reg {{ radarConfig.parameters[paramKey].writeRegister }}-{{ radarConfig.parameters[paramKey].readRegisterEnd }}
+            </span>
+          </div>
+
+          <p class="param-description">{{ radarConfig.parameters[paramKey].description }}</p>
+
+          <div class="param-values">
+            <div class="value-row">
+              <label>Valor Actual:</label>
+              <span class="current-value">
+                {{ radarConfig.parameters[paramKey].currentValue | number:'1.3-3' }} 
+                {{ radarConfig.parameters[paramKey].unit }}
+              </span>
+            </div>
+
+            <div *ngIf="editMode" class="value-row edit-row">
+              <label>Nuevo Valor:</label>
+              <div class="input-group">
+                <input 
+                  type="number" 
+                  [ngModel]="getEditedValue(paramKey)"
+                  (ngModelChange)="setEditedValue(paramKey, $event)"
+                  [step]="0.001"
+                  [min]="radarConfig.parameters[paramKey].minValue"
+                  [max]="radarConfig.parameters[paramKey].maxValue"
+                  class="param-input">
+                <span class="input-unit">{{ radarConfig.parameters[paramKey].unit }}</span>
+              </div>
+            </div>
+
+            <div class="param-range">
+              <small>
+                Rango: {{ radarConfig.parameters[paramKey].minValue }} - 
+                {{ radarConfig.parameters[paramKey].maxValue }} 
+                {{ radarConfig.parameters[paramKey].unit }}
+              </small>
+            </div>
+          </div>
+
+          <div *ngIf="editMode && isParameterModified(paramKey)" class="modification-indicator">
+            <span class="indicator-icon">⚠</span>
+            <span class="indicator-text">Modificado</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  </div><!-- End content-wrapper -->
+
+  <!-- MODAL: Write Confirmation -->
+  <div *ngIf="showWriteConfirmation" class="modal-overlay" (click)="cancelWrite()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>⚠ Confirmar Operación de Guardado</h3>
+        <button class="btn-close" (click)="cancelWrite()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="changes-summary">
+          <h4>Parámetros a Guardar:</h4>
+          <table class="changes-table">
+            <thead>
+              <tr>
+                <th>Parámetro</th>
+                <th>Valor Actual</th>
+                <th>Nuevo Valor</th>
+                <th>Cambio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let param of parametersToWrite">
+                <td><strong>{{ param.label }}</strong></td>
+                <td *ngIf="param.key === 'radarName'">{{ originalRadarName }}</td>
+                <td *ngIf="param.key !== 'radarName'">{{ param.currentValue | number:'1.3-3' }}</td>
+                <td class="new-value" *ngIf="param.key === 'radarName'">{{ radarConfig?.radarName }}</td>
+                <td class="new-value" *ngIf="param.key !== 'radarName'">{{ param.newValue | number:'1.3-3' }}</td>
+                <td class="change-value" *ngIf="param.key === 'radarName'">Modificado</td>
+                <td class="change-value" *ngIf="param.key !== 'radarName'">
+                  {{ (param.newValue - param.currentValue) >= 0 ? '+' : '' }}{{ (param.newValue - param.currentValue) | number:'1.3-3' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="confirmation-checkbox">
+          <label>
+            <input type="checkbox" #confirmCheckbox>
+            <span>Confirmo estos cambios en los atributos del dispositivo</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cancelWrite()">
+          Cancelar
+        </button>
+        <button 
+          class="btn-danger"
+          (click)="executeWrite()"
+          [disabled]="!confirmCheckbox.checked">
+          Confirmar y Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Operation Result -->
+  <div *ngIf="showOperationResult && currentOperation" class="modal-overlay" (click)="closeOperationResult()">
+    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>
+          {{ currentOperation.status === 'completed' ? '✓' : '✗' }}
+          Resultado de la Operación
+        </h3>
+        <button class="btn-close" (click)="closeOperationResult()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="operation-summary" 
+             [class.success]="currentOperation.status === 'completed'"
+             [class.failed]="currentOperation.status === 'failed'">
+          <div class="summary-icon">
+            {{ currentOperation.status === 'completed' ? '✓' : '✗' }}
+          </div>
+          <div class="summary-text">
+            <h4>{{ currentOperation.status === 'completed' ? 'Operación Exitosa' : 'Operación Fallida' }}</h4>
+            <p>{{ currentOperation.status === 'completed' ? 'Todos los atributos se guardaron correctamente' : 'Error al guardar algunos atributos' }}</p>
+          </div>
+        </div>
+
+        <div class="operation-details">
+          <div class="detail-row">
+            <span class="detail-label">ID de Operación:</span>
+            <span class="detail-value">{{ currentOperation.operationId }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Radar:</span>
+            <span class="detail-value">{{ currentOperation.radarName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Iniciado:</span>
+            <span class="detail-value">{{ formatDate(currentOperation.startedAt) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Completado:</span>
+            <span class="detail-value">{{ formatDate(currentOperation.completedAt) }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="currentOperation.results && currentOperation.results.length > 0" class="results-table-container">
+          <h4>Resultados de Parámetros:</h4>
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Estado</th>
+                <th>Parámetro</th>
+                <th>Escrito</th>
+                <th>Leído</th>
+                <th>Verificado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let result of currentOperation.results"
+                  [class.success-row]="result.success"
+                  [class.error-row]="!result.success">
+                <td>
+                  <span class="status-icon">{{ result.success ? '✓' : '✗' }}</span>
+                </td>
+                <td><strong>{{ result.parameterLabel }}</strong></td>
+                <td>{{ result.valueWritten | number:'1.3-3' }}</td>
+                <td>{{ result.valueRead | number:'1.3-3' }}</td>
+                <td>
+                  <span class="verification-badge" [class.verified]="result.verified">
+                    {{ result.verified ? 'SÍ' : 'NO' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="currentOperation.error" class="operation-error">
+          <strong>Error:</strong>
+          <p>{{ currentOperation.error }}</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="closeOperationResult()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

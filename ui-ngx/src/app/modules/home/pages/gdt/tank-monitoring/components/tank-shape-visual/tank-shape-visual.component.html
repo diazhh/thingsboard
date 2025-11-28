@@ -1,0 +1,113 @@
+<div class="tank-shape-container" [style.width.px]="width" [style.height.px]="height">
+  <svg [attr.viewBox]="viewBox" preserveAspectRatio="xMidYMid meet" class="tank-svg">
+    <!-- Definiciones de gradientes y filtros -->
+    <defs>
+      <!-- Gradiente para el líquido -->
+      <linearGradient [id]="'liquidGradient-' + tankName" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" [attr.stop-color]="fillColor" stop-opacity="0.8"/>
+        <stop offset="50%" [attr.stop-color]="fillColor" stop-opacity="1"/>
+        <stop offset="100%" [attr.stop-color]="fillColor" stop-opacity="0.8"/>
+      </linearGradient>
+
+      <!-- Gradiente para el tanque -->
+      <linearGradient [id]="'tankGradient-' + tankName" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#546e7a" stop-opacity="0.3"/>
+        <stop offset="50%" stop-color="#78909c" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#546e7a" stop-opacity="0.3"/>
+      </linearGradient>
+
+      <!-- Efecto de brillo -->
+      <filter [id]="'glow-' + tankName" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+
+      <!-- Patrón de olas para animación -->
+      <pattern [id]="'wavePattern-' + tankName" x="0" y="0" width="40" height="10" patternUnits="userSpaceOnUse">
+        <path d="M0 5 Q10 0, 20 5 T40 5" fill="none" [attr.stroke]="fillColor" stroke-width="1" opacity="0.3"/>
+      </pattern>
+    </defs>
+
+    <!-- Fondo del tanque -->
+    <path
+      [attr.d]="tankPath"
+      fill="#e8e8e8"
+      stroke="#9e9e9e"
+      stroke-width="2"
+      class="tank-body"
+    />
+
+    <!-- Líquido -->
+    <path
+      *ngIf="liquidPath"
+      [attr.d]="liquidPath"
+      [attr.fill]="fillColor"
+      [attr.stroke]="strokeColor"
+      stroke-width="1"
+      [class.animate-liquid]="animate"
+      class="liquid-fill"
+    />
+
+    <!-- Efecto de olas en la superficie (solo para tanques con líquido) -->
+    <g *ngIf="liquidPath && animate && tankShape === 'vertical_cylinder'">
+      <line
+        [attr.x1]="16"
+        [attr.y1]="liquidY"
+        [attr.x2]="84"
+        [attr.y2]="liquidY"
+        [attr.stroke]="strokeColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        class="surface-line"
+      />
+      <!-- Olas animadas -->
+      <path
+        [attr.d]="'M 20 ' + liquidY + ' Q 35 ' + (liquidY - 2) + ', 50 ' + liquidY + ' T 80 ' + liquidY"
+        fill="none"
+        [attr.stroke]="fillColor"
+        stroke-width="1"
+        opacity="0.6"
+        class="wave wave-1"
+      />
+    </g>
+
+    <!-- Contorno del tanque -->
+    <path
+      [attr.d]="tankPath"
+      fill="none"
+      stroke="#757575"
+      stroke-width="2.5"
+      class="tank-outline"
+    />
+
+    <!-- Indicadores de nivel (marcas) -->
+    <g class="level-marks" *ngIf="tankShape === 'vertical_cylinder'">
+      <line x1="10" y1="35" x2="14" y2="35" stroke="#9e9e9e" stroke-width="1"/>
+      <line x1="10" y1="75" x2="14" y2="75" stroke="#9e9e9e" stroke-width="1"/>
+      <line x1="10" y1="115" x2="14" y2="115" stroke="#9e9e9e" stroke-width="1"/>
+    </g>
+
+    <!-- Porcentaje en el centro -->
+    <text
+      *ngIf="showLabels"
+      x="50%"
+      y="50%"
+      text-anchor="middle"
+      dominant-baseline="middle"
+      class="percent-label"
+      [attr.fill]="levelPercent > 50 ? '#ffffff' : '#37474f'"
+      font-size="14"
+      font-weight="bold"
+    >
+      {{ levelPercent | number:'1.0-0' }}%
+    </text>
+  </svg>
+
+  <!-- Etiqueta de forma (opcional) -->
+  <div *ngIf="showLabels" class="shape-label">
+    {{ getShapeLabel() }}
+  </div>
+</div>

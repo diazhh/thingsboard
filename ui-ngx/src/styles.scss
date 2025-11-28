@@ -15,6 +15,8 @@
  */
 /* You can add global styles to this file, and also import other style files */
 
+/* GDT - Guardian de Tanques - Custom Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import 'typeface-roboto/index.css';
 @import 'font-awesome/css/font-awesome.min.css';
 @import 'theme.scss';
@@ -40,7 +42,7 @@ body, html {
 body {
   margin: 0;
   padding: 0;
-  background-color: #eee;
+  background-color: #f8fafb;
   overflow: hidden;
 }
 
@@ -70,8 +72,10 @@ select,
 textarea,
 td,
 th {
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -79,18 +83,18 @@ body {
 }
 
 a:not(.mat-mdc-button-base, .mdc-tab) {
-  font-weight: 400;
-  color: #106cc8;
+  font-weight: 500;
+  color: #0d7377;
   text-decoration: none;
-  border-bottom: 1px solid rgba(64, 84, 178, .25);
-
-  transition: border-bottom .35s;
+  border-bottom: 1px solid rgba(13, 115, 119, .25);
+  transition: all .25s ease;
 }
 
 a:hover,
 a:focus {
   &:not(.mat-mdc-button-base, .mdc-tab) {
-    border-bottom: 1px solid #4054b2;
+    color: #14919b;
+    border-bottom: 1px solid #14919b;
   }
 }
 
@@ -1314,3 +1318,252 @@ pre.tb-highlight {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/***************
+ * GDT CUSTOM STYLES
+ * Guardian de Tanques - Industrial Theme
+ ***************/
+
+// GDT Color Variables as CSS Custom Properties
+:root {
+  --gdt-primary: #0d7377;
+  --gdt-primary-light: #14919b;
+  --gdt-primary-dark: #0a5c5f;
+  --gdt-accent: #ff6b35;
+  --gdt-accent-light: #ff8a5c;
+  --gdt-cyan: #32e0c4;
+  --gdt-success: #2ecc71;
+  --gdt-warning: #f39c12;
+  --gdt-danger: #e74c3c;
+  --gdt-background: #f8fafb;
+  --gdt-surface: #ffffff;
+  --gdt-text-primary: #212529;
+  --gdt-text-secondary: #6c757d;
+  --gdt-border: rgba(0, 0, 0, 0.08);
+  --gdt-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --gdt-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --gdt-radius: 12px;
+  --gdt-radius-sm: 8px;
+  --gdt-radius-lg: 16px;
+}
+
+// GDT Card Styles
+.tb-default, .tb-dark {
+  // Modern card styling
+  .mat-mdc-card {
+    border-radius: var(--gdt-radius) !important;
+    box-shadow: var(--gdt-shadow) !important;
+    border: 1px solid var(--gdt-border);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    
+    &:hover {
+      box-shadow: var(--gdt-shadow-hover) !important;
+    }
+  }
+
+  // Modern button styling
+  .mat-mdc-raised-button, .mat-mdc-unelevated-button {
+    border-radius: var(--gdt-radius-sm) !important;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    padding: 0 20px;
+    transition: all 0.2s ease;
+    
+    &.mat-primary {
+      background: linear-gradient(135deg, var(--gdt-primary) 0%, var(--gdt-primary-light) 100%);
+      
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--gdt-primary-light) 0%, var(--gdt-primary) 100%);
+        transform: translateY(-1px);
+      }
+    }
+    
+    &.mat-accent {
+      background: linear-gradient(135deg, var(--gdt-accent) 0%, var(--gdt-accent-light) 100%);
+    }
+  }
+
+  // FAB button styling
+  .mat-mdc-fab, .mat-mdc-mini-fab {
+    box-shadow: var(--gdt-shadow) !important;
+    
+    &.mat-primary {
+      background: linear-gradient(135deg, var(--gdt-primary) 0%, var(--gdt-primary-light) 100%);
+    }
+    
+    &:hover {
+      box-shadow: var(--gdt-shadow-hover) !important;
+      transform: scale(1.05);
+    }
+  }
+
+  // Toolbar styling
+  .mat-toolbar.mat-primary {
+    background: linear-gradient(135deg, var(--gdt-primary) 0%, var(--gdt-primary-dark) 100%);
+  }
+
+  // Sidenav styling
+  mat-sidenav.tb-site-sidenav {
+    background: linear-gradient(180deg, var(--gdt-primary-dark) 0%, #052e30 100%);
+    
+    .mat-mdc-list-item {
+      border-radius: var(--gdt-radius-sm);
+      margin: 4px 8px;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      
+      &.active, &.mdc-list-item--activated {
+        background: rgba(50, 224, 196, 0.2);
+        border-left: 3px solid var(--gdt-cyan);
+      }
+    }
+  }
+
+  // Dialog styling
+  .mat-mdc-dialog-container {
+    border-radius: var(--gdt-radius-lg) !important;
+    
+    .mdc-dialog__surface {
+      border-radius: var(--gdt-radius-lg) !important;
+    }
+  }
+
+  // Input field styling
+  .mat-mdc-form-field {
+    .mdc-text-field--outlined {
+      .mdc-notched-outline {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__trailing {
+          border-radius: var(--gdt-radius-sm);
+        }
+        .mdc-notched-outline__leading {
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+        }
+        .mdc-notched-outline__trailing {
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+        }
+      }
+    }
+    
+    .mdc-text-field--filled {
+      border-radius: var(--gdt-radius-sm) var(--gdt-radius-sm) 0 0;
+    }
+  }
+
+  // Chip styling
+  .mat-mdc-chip {
+    border-radius: var(--gdt-radius) !important;
+  }
+
+  // Tab styling
+  .mat-mdc-tab-group {
+    .mat-mdc-tab-header {
+      border-bottom: 2px solid var(--gdt-border);
+    }
+    
+    .mat-mdc-tab.mdc-tab--active {
+      .mdc-tab__text-label {
+        color: var(--gdt-primary);
+        font-weight: 600;
+      }
+    }
+    
+    .mat-mdc-tab-body-wrapper {
+      padding-top: 16px;
+    }
+  }
+
+  // Table styling
+  .mat-mdc-table {
+    border-radius: var(--gdt-radius);
+    overflow: hidden;
+    box-shadow: var(--gdt-shadow);
+    
+    .mat-mdc-header-row {
+      background: linear-gradient(135deg, #f8fafb 0%, #eef2f5 100%);
+      
+      .mat-mdc-header-cell {
+        font-weight: 600;
+        color: var(--gdt-text-primary);
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+      }
+    }
+    
+    .mat-mdc-row {
+      &:hover {
+        background-color: rgba(13, 115, 119, 0.04);
+      }
+    }
+  }
+
+  // Menu styling
+  .mat-mdc-menu-panel {
+    border-radius: var(--gdt-radius) !important;
+    box-shadow: var(--gdt-shadow-hover) !important;
+  }
+
+  // Snackbar styling
+  .mat-mdc-snack-bar-container {
+    .mdc-snackbar__surface {
+      border-radius: var(--gdt-radius-sm);
+    }
+  }
+
+  // Progress bar styling
+  .mat-mdc-progress-bar {
+    border-radius: 4px;
+    overflow: hidden;
+    
+    .mdc-linear-progress__bar-inner {
+      border-radius: 4px;
+    }
+  }
+
+  // Expansion panel styling
+  .mat-expansion-panel {
+    border-radius: var(--gdt-radius) !important;
+    box-shadow: var(--gdt-shadow) !important;
+    margin-bottom: 12px;
+    
+    &:not(.mat-expanded) {
+      border-radius: var(--gdt-radius) !important;
+    }
+    
+    .mat-expansion-panel-header {
+      border-radius: var(--gdt-radius) var(--gdt-radius) 0 0;
+      font-weight: 600;
+    }
+  }
+
+  // Scrollbar styling
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(13, 115, 119, 0.3);
+    border-radius: 4px;
+    
+    &:hover {
+      background: rgba(13, 115, 119, 0.5);
+    }
+  }
+
+  // Selection color
+  ::selection {
+    background: rgba(50, 224, 196, 0.3);
+    color: var(--gdt-text-primary);
+  }
+}

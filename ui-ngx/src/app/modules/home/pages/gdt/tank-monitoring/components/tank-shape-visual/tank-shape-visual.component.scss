@@ -1,0 +1,113 @@
+.tank-shape-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.tank-svg {
+  width: 100%;
+  height: 100%;
+
+  .tank-body {
+    transition: fill 0.3s ease;
+  }
+
+  .tank-outline {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+
+  .liquid-fill {
+    transition: d 0.5s ease-out, fill 0.3s ease;
+
+    &.animate-liquid {
+      animation: liquidPulse 3s ease-in-out infinite;
+    }
+  }
+
+  .surface-line {
+    opacity: 0.8;
+  }
+
+  .wave {
+    animation: waveMove 2s ease-in-out infinite;
+
+    &.wave-1 {
+      animation-delay: 0s;
+    }
+
+    &.wave-2 {
+      animation-delay: 0.5s;
+    }
+  }
+
+  .level-marks {
+    opacity: 0.5;
+  }
+
+  .percent-label {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    font-family: 'Roboto', 'Arial', sans-serif;
+  }
+}
+
+.shape-label {
+  margin-top: 4px;
+  font-size: 10px;
+  color: #78909c;
+  text-align: center;
+  font-family: 'Roboto', 'Arial', sans-serif;
+}
+
+// Animaciones
+@keyframes liquidPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes waveMove {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+// Estilos para diferentes tamaños
+:host-context(.size-small) {
+  .tank-shape-container {
+    transform: scale(0.8);
+  }
+
+  .shape-label {
+    font-size: 8px;
+  }
+}
+
+:host-context(.size-large) {
+  .tank-shape-container {
+    transform: scale(1.2);
+  }
+
+  .shape-label {
+    font-size: 12px;
+  }
+}
+
+// Tema oscuro
+:host-context(.dark-theme) {
+  .tank-svg {
+    .tank-outline {
+      stroke: #90a4ae;
+    }
+  }
+
+  .shape-label {
+    color: #b0bec5;
+  }
+}

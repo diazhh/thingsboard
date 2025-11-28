@@ -1,0 +1,396 @@
+<div class="strapping-table-config">
+  <!-- Header -->
+  <div class="config-header">
+    <h3>Configuración de Tabla de Calibración</h3>
+    <p class="subtitle">Gestionar tablas de calibración (strapping tables) para cálculo de volumen</p>
+  </div>
+
+  <!-- Tank Selector -->
+  <div class="tank-selector-section">
+    <label for="tank-select">Seleccionar Tanque:</label>
+    <select
+      id="tank-select"
+      [(ngModel)]="selectedTankId"
+      (change)="selectTank(selectedTankId)"
+      class="tank-select">
+      <option value="">-- Seleccione un tanque --</option>
+      <option *ngFor="let tank of availableTanks" [value]="tank.asset.id!.id">
+        {{ tank.attributes.tankTag || tank.asset.name }} - {{ tank.attributes.tankName }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Scrollable Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- Messages -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      <span>✓ {{ successMessage }}</span>
+      <button class="btn-close-alert" (click)="clearMessages()">✕</button>
+    </div>
+
+    <div *ngIf="error" class="alert alert-error">
+      <span>⚠ {{ error }}</span>
+      <button class="btn-close-alert" (click)="clearMessages()">✕</button>
+    </div>
+
+    <div *ngIf="validationErrors.length > 0" class="alert alert-warning">
+      <strong>⚠ Validation Issues:</strong>
+      <ul>
+        <li *ngFor="let err of validationErrors">{{ err }}</li>
+      </ul>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+    <div class="spinner">⟳</div>
+    <p>Cargando tabla de calibración...</p>
+  </div>
+
+  <!-- No Tank Selected -->
+  <div *ngIf="!selectedTankId && !loading" class="empty-state">
+    <div class="empty-icon">📊</div>
+    <p>Seleccione un tanque para gestionar su tabla de calibración</p>
+  </div>
+
+  <!-- Tank Selected - No Table -->
+  <div *ngIf="selectedTankId && !loading && !hasTable" class="no-table-state">
+    <div class="info-box">
+      <div class="info-icon">📋</div>
+      <h4>Sin Tabla de Calibración</h4>
+      <p>Este tanque no tiene una tabla de calibración configurada.</p>
+      <p>Importe un archivo CSV para configurar la tabla.</p>
+      <button class="btn-primary" (click)="openImportModal()">
+        📥 Importar CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Tank Selected - Has Table -->
+  <div *ngIf="selectedTankId && !loading && hasTable && currentTable" class="table-info-section">
+    
+    <!-- Table Metadata -->
+    <div class="table-metadata">
+      <h4>Tabla de Calibración Actual</h4>
+
+      <div class="metadata-grid">
+        <div class="metadata-item">
+          <label>Tag del Tanque:</label>
+          <span>{{ currentTable.tankTag }}</span>
+        </div>
+        <div class="metadata-item">
+          <label>Versión:</label>
+          <span>{{ currentTable.version }}</span>
+        </div>
+        <div class="metadata-item">
+          <label>Fecha de Calibración:</label>
+          <span>{{ formatDate(currentTable.calibrationDate) }}</span>
+        </div>
+        <div class="metadata-item">
+          <label>Agencia de Calibración:</label>
+          <span>{{ currentTable.calibrationAgency }}</span>
+        </div>
+        <div class="metadata-item">
+          <label>Número de Certificado:</label>
+          <span>{{ currentTable.certificateNumber }}</span>
+        </div>
+        <div class="metadata-item">
+          <label>Estándar de Calibración:</label>
+          <span>{{ currentTable.calibrationStandard }}</span>
+        </div>
+        <div class="metadata-item">
+          <label>Total de Entradas:</label>
+          <span>{{ currentTable.entries.length }} filas</span>
+        </div>
+        <div class="metadata-item">
+          <label>Factor por Defecto:</label>
+          <span>{{ currentTable.defaultFactorCode || 'N/A' }}</span>
+        </div>
+        <div class="metadata-item">
+          <label>Unidad de Altura:</label>
+          <span>{{ currentTable.heightUnit === 'ft' ? 'Pies' : currentTable.heightUnit }}</span>
+        </div>
+        <div class="metadata-item">
+          <label>Unidad de Volumen:</label>
+          <span>{{ currentTable.volumeUnit === 'bbl' ? 'Barriles' : currentTable.volumeUnit }}</span>
+        </div>
+        <div class="metadata-item">
+          <label>Última Modificación:</label>
+          <span>{{ formatDate(currentTable.lastModified) }}</span>
+        </div>
+        <div class="metadata-item">
+          <label>Modificado Por:</label>
+          <span>{{ currentTable.createdBy }}</span>
+        </div>
+      </div>
+
+      <div *ngIf="currentTable.notes" class="notes-section">
+        <label>Notas:</label>
+        <p>{{ currentTable.notes }}</p>
+      </div>
+    </div>
+
+    <!-- Table Preview (First 10 rows) -->
+    <div class="table-preview">
+      <div class="preview-header">
+        <h4>Tabla de Calibración (Primeras 10 entradas)</h4>
+        <button class="btn-secondary btn-sm" (click)="enableEditMode()">
+          ✏ Editar Tabla
+        </button>
+      </div>
+
+      <div class="table-scroll">
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th>Pies</th>
+              <th>Pulgadas</th>
+              <th>Barriles</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let entry of currentTable.entries.slice(0, 10)">
+              <td>{{ entry.feet }}</td>
+              <td>{{ entry.inches }}</td>
+              <td>{{ getVolumeForEntry(entry) | number:'1.0-0' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="preview-note" *ngIf="currentTable.entries.length > 10">
+        Mostrando 10 de {{ currentTable.entries.length }} entradas.
+        <a (click)="openPreview()" class="link-button">Ver todas las entradas</a>
+      </p>
+    </div>
+
+    <!-- Fraction Table Preview -->
+    <div class="fraction-table-preview" *ngIf="currentTable.fractionTable && currentTable.fractionTable.length > 0">
+      <div class="preview-header">
+        <h4>Tabla de Fracciones</h4>
+        <button class="btn-secondary btn-sm" (click)="enableFractionEditMode()">
+          ✏ Editar Fracciones
+        </button>
+      </div>
+
+      <div class="fraction-grid">
+        <div *ngFor="let fraction of currentTable.fractionTable" class="fraction-item">
+          <span class="fraction-label">{{ fraction.fraction }}</span>
+          <span class="fraction-value">{{ fraction.barrels }} bbl</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn-secondary" (click)="openPreview()" title="Ver tabla completa">
+        👁 Ver Tabla Completa
+      </button>
+      <button class="btn-secondary" (click)="exportToCSV()" title="Exportar a CSV">
+        📤 Exportar CSV
+      </button>
+      <button class="btn-secondary" (click)="openImportModal()" title="Reemplazar tabla">
+        🔄 Reemplazar Tabla
+      </button>
+      <button class="btn-danger" (click)="deleteTable()" title="Eliminar tabla" [disabled]="saving">
+        🗑 Eliminar Tabla
+      </button>
+    </div>
+  </div>
+  
+  </div><!-- End content-wrapper -->
+
+  <!-- MODAL: Import CSV -->
+  <div *ngIf="showImportModal" class="modal-overlay" (click)="closeImportModal()">
+    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Importar Tabla de Calibración desde CSV</h3>
+        <button class="btn-close" (click)="closeImportModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="import-instructions">
+          <h4>📋 Formato del Archivo CSV</h4>
+          <p>El archivo CSV debe contener las columnas: <strong>PIES, PULG., [FACTOR]</strong></p>
+          <p>Factores soportados: 135X1, 165X1, 260X1, 260X2, 260X3, 260X4, 470X1</p>
+          <p><small>Los números pueden usar coma como separador de miles (ej: "1,169" = 1169 barriles)</small></p>
+
+          <div class="example-box">
+            <strong>Ejemplo de formato:</strong>
+            <pre>PIES,PULG.,135X1
+0,0,18
+0,1,52
+0,7,"1,169"
+1,0,"2,377"</pre>
+          </div>
+        </div>
+
+        <div class="file-input-section">
+          <label class="file-section-title">📊 Tabla Principal de Calibración (Requerido)</label>
+          <label for="csv-file-input" class="file-label">
+            <span class="file-icon">📁</span>
+            <span>Seleccionar Archivo CSV Principal</span>
+          </label>
+          <input
+            id="csv-file-input"
+            type="file"
+            accept=".csv"
+            (change)="onFileSelected($event)"
+            class="file-input">
+
+          <div *ngIf="csvContent" class="file-selected">
+            ✓ Tabla principal cargada ({{ csvContent.split('\n').length }} líneas)
+          </div>
+        </div>
+
+        <div class="file-input-section">
+          <label class="file-section-title">🔢 Tabla de Fracciones (Opcional)</label>
+          <label for="fractions-file-input" class="file-label">
+            <span class="file-icon">📁</span>
+            <span>Seleccionar Archivo CSV de Fracciones</span>
+          </label>
+          <input
+            id="fractions-file-input"
+            type="file"
+            accept=".csv"
+            (change)="onFractionsFileSelected($event)"
+            class="file-input">
+
+          <div *ngIf="fractionsCsvContent" class="file-selected">
+            ✓ Fracciones cargadas ({{ fractionsCsvContent.split('\n').length }} líneas)
+          </div>
+          <div *ngIf="!fractionsCsvContent" class="file-hint">
+            Opcional: Proporciona cálculos de volumen más precisos entre pulgadas (1/16, 1/8, 1/4, etc.)
+          </div>
+          <div class="example-box" style="margin-top: 8px;">
+            <strong>Formato de fracciones:</strong>
+            <pre>FRACCION,135X1
+0,0
+1/16,15
+1/8,30
+1/4,60</pre>
+          </div>
+        </div>
+
+        <div *ngIf="importError" class="alert alert-error">
+          ⚠ {{ importError }}
+        </div>
+
+        <div *ngIf="csvContent && !importError" class="csv-preview">
+          <h4>Vista Previa del CSV (Primeras 5 líneas)</h4>
+          <pre>{{ csvContent.split('\n').slice(0, 5).join('\n') }}</pre>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeImportModal()" [disabled]="saving">
+          Cancelar
+        </button>
+        <button
+          class="btn-primary"
+          (click)="importCSV()"
+          [disabled]="!csvContent || saving">
+          {{ saving ? 'Importando...' : 'Importar y Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Full Table Preview -->
+  <div *ngIf="showPreviewModal" class="modal-overlay" (click)="closePreview()">
+    <div class="modal-content modal-xlarge" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Tabla de Calibración Completa - {{ currentTable?.tankTag }}</h3>
+        <button class="btn-close" (click)="closePreview()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="table-scroll">
+          <table class="preview-table">
+            <thead>
+              <tr>
+                <th>Pies</th>
+                <th>Pulgadas</th>
+                <th>Barriles</th>
+                <th *ngIf="editMode">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let entry of paginatedPreviewEntries; let i = index">
+                <td *ngIf="!editMode || editingIndex !== (previewCurrentPage * previewPageSize + i)">{{ entry.feet }}</td>
+                <td *ngIf="!editMode || editingIndex !== (previewCurrentPage * previewPageSize + i)">{{ entry.inches }}</td>
+                <td *ngIf="!editMode || editingIndex !== (previewCurrentPage * previewPageSize + i)">{{ getVolumeForEntry(entry) | number:'1.0-0' }}</td>
+                
+                <td *ngIf="editMode && editingIndex === (previewCurrentPage * previewPageSize + i)">
+                  <input type="number" [(ngModel)]="editedEntry.feet" class="edit-input" min="0">
+                </td>
+                <td *ngIf="editMode && editingIndex === (previewCurrentPage * previewPageSize + i)">
+                  <input type="number" [(ngModel)]="editedEntry.inches" class="edit-input" min="0" max="11">
+                </td>
+                <td *ngIf="editMode && editingIndex === (previewCurrentPage * previewPageSize + i)">
+                  <input type="number" [(ngModel)]="editedEntry.volume" class="edit-input" min="0">
+                </td>
+                
+                <td *ngIf="editMode">
+                  <button *ngIf="editingIndex !== (previewCurrentPage * previewPageSize + i)" 
+                          class="btn-icon" (click)="editEntry(previewCurrentPage * previewPageSize + i)" title="Editar">
+                    ✏
+                  </button>
+                  <button *ngIf="editingIndex === (previewCurrentPage * previewPageSize + i)" 
+                          class="btn-icon btn-success" (click)="saveEntry()" title="Guardar">
+                    ✓
+                  </button>
+                  <button *ngIf="editingIndex === (previewCurrentPage * previewPageSize + i)" 
+                          class="btn-icon btn-cancel" (click)="cancelEditEntry()" title="Cancelar">
+                    ✕
+                  </button>
+                  <button *ngIf="editingIndex !== (previewCurrentPage * previewPageSize + i)" 
+                          class="btn-icon btn-danger" (click)="deleteEntry(previewCurrentPage * previewPageSize + i)" title="Eliminar">
+                    🗑
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div *ngIf="editMode" class="edit-actions">
+          <button class="btn-primary" (click)="addNewEntry()">
+            ➕ Agregar Nueva Fila
+          </button>
+          <button class="btn-success" (click)="saveAllChanges()" [disabled]="saving">
+            {{ saving ? 'Guardando...' : '💾 Guardar Cambios' }}
+          </button>
+          <button class="btn-secondary" (click)="cancelEditMode()">
+            Cancelar Edición
+          </button>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <button
+            class="btn-pagination"
+            (click)="previewPreviousPage()"
+            [disabled]="previewCurrentPage === 0">
+            ← Anterior
+          </button>
+          <span class="pagination-info">
+            Página {{ previewCurrentPage + 1 }} de {{ totalPreviewPages }}
+            ({{ previewEntries.length }} entradas totales)
+          </span>
+          <button
+            class="btn-pagination"
+            (click)="previewNextPage()"
+            [disabled]="previewCurrentPage >= totalPreviewPages - 1">
+            Siguiente →
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closePreview()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

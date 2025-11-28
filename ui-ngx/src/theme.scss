@@ -21,26 +21,27 @@
 @include mat.all-component-typographies();
 @include mat.core();
 
+// GDT Teal Color Palette - Industrial Tank Management Theme
 $tb-mat-indigo: (
-  50: #e8eaf6,
-  100: #c5cae9,
-  200: #9fa8da,
-  300: $tb-primary-color-light,
-  400: #5c6bc0,
-  500: $tb-primary-color,
-  600: $tb-secondary-color,
-  700: #303f9f,
-  800: #283593,
-  900: #1a237e,
-  A100: $tb-hue3-color,
-  A200: #536dfe,
-  A400: #3d5afe,
-  A700: #304ffe,
+  50: #e0f7f7,
+  100: #b3ebeb,
+  200: #80dede,
+  300: #4dd1d1,
+  400: #26c6c6,
+  500: $tb-primary-color,    // #0d7377 - Deep teal
+  600: $tb-secondary-color,  // #14919b - Medium teal
+  700: #0a5c5f,
+  800: #084547,
+  900: #052e30,
+  A100: $tb-hue3-color,      // #32e0c4 - Bright cyan
+  A200: #26d9bd,
+  A400: #1ad2b6,
+  A700: #0ecbaf,
   contrast: (
     50: rgba(black, 0.87),
     100: rgba(black, 0.87),
     200: rgba(black, 0.87),
-    300: white,
+    300: rgba(black, 0.87),
     400: white,
     500: white,
     600: white,
@@ -48,16 +49,50 @@ $tb-mat-indigo: (
     800: white,
     900: white,
     A100: rgba(black, 0.87),
-    A200: white,
-    A400: white,
-    A700: white,
+    A200: rgba(black, 0.87),
+    A400: rgba(black, 0.87),
+    A700: rgba(black, 0.87),
   )
 );
 
 $tb-primary: mat.m2-define-palette($tb-mat-indigo);
-$tb-accent: mat.m2-define-palette(mat.$m2-deep-orange-palette);
 
-$background: (background: map_get(mat.$m2-grey-palette, 200));
+// GDT Orange Accent Palette
+$gdt-orange-palette: (
+  50: #fff3e0,
+  100: #ffe0b2,
+  200: #ffcc80,
+  300: #ffb74d,
+  400: #ffa726,
+  500: #ff6b35,
+  600: #fb8c00,
+  700: #f57c00,
+  800: #ef6c00,
+  900: #e65100,
+  A100: #ffd180,
+  A200: #ffab40,
+  A400: #ff9100,
+  A700: #ff6d00,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: rgba(black, 0.87),
+    A400: rgba(black, 0.87),
+    A700: white,
+  )
+);
+$tb-accent: mat.m2-define-palette($gdt-orange-palette);
+
+$background: (background: #f8fafb);
 
 $tb-theme-background: map_merge(mat.$m2-light-theme-background-palette, $background);
 
@@ -66,8 +101,21 @@ $tb-mat-theme: mat.m2-define-light-theme((
     primary: $tb-primary,
     accent: $tb-accent
   ),
+  // GDT Typography - Using Inter font for modern look
   typography: mat.m2-define-typography-config(
-    $button: mat.m2-define-typography-level(14px, 36px, 500, $letter-spacing: 0.03125em)
+    $font-family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    $button: mat.m2-define-typography-level(14px, 36px, 600, $letter-spacing: 0.02em),
+    $headline-1: mat.m2-define-typography-level(36px, 44px, 700),
+    $headline-2: mat.m2-define-typography-level(30px, 38px, 700),
+    $headline-3: mat.m2-define-typography-level(24px, 32px, 600),
+    $headline-4: mat.m2-define-typography-level(20px, 28px, 600),
+    $headline-5: mat.m2-define-typography-level(18px, 26px, 600),
+    $headline-6: mat.m2-define-typography-level(16px, 24px, 600),
+    $body-1: mat.m2-define-typography-level(16px, 26px, 400),
+    $body-2: mat.m2-define-typography-level(14px, 22px, 400),
+    $subtitle-1: mat.m2-define-typography-level(16px, 24px, 500),
+    $subtitle-2: mat.m2-define-typography-level(14px, 20px, 500),
+    $caption: mat.m2-define-typography-level(12px, 18px, 400)
   ),
   density: 0
 ));
@@ -80,21 +128,22 @@ $tb-theme: map_merge($tb-mat-theme, $color);
 $primary: mat.m2-get-color-from-palette($tb-primary);
 $accent: mat.m2-get-color-from-palette($tb-accent);
 
+// GDT Dark Theme Palette
 $tb-dark-mat-indigo: (
-  50: #e8eaf6,
-  100: #c5cae9,
-  200: #9fa8da,
-  300: #7986cb,
-  400: #5c6bc0,
-  500: $tb-dark-primary-color,
+  50: #e0f7f7,
+  100: #b3ebeb,
+  200: #80dede,
+  300: #4dd1d1,
+  400: #26c6c6,
+  500: $tb-dark-primary-color,  // #32e0c4 - Bright cyan
   600: $tb-secondary-color,
-  700: #303f9f,
+  700: #0a5c5f,
   800: $tb-primary-color,
-  900: #1a237e,
+  900: #052e30,
   A100: $tb-hue3-color,
-  A200: #536dfe,
-  A400: #3d5afe,
-  A700: #304ffe,
+  A200: #26d9bd,
+  A400: #1ad2b6,
+  A700: #0ecbaf,
   contrast: (
     50: rgba(black, 0.87),
     100: rgba(black, 0.87),
@@ -115,22 +164,23 @@ $tb-dark-mat-indigo: (
 
 $tb-dark-primary: mat.m2-define-palette($tb-dark-mat-indigo);
 
+// GDT Dark Theme Background - Teal-tinted dark
 $tb-dark-theme-background: (
-  status-bar: black,
+  status-bar: #0a1f1f,
   app-bar:    map_get($tb-dark-mat-indigo, 900),
-  background: map_get($tb-dark-mat-indigo, 800),
-  hover:      rgba(white, 0.04),
-  card:       map_get($tb-dark-mat-indigo, 800),
-  dialog:     map_get($tb-dark-mat-indigo, 800),
+  background: #0f2a2a,
+  hover:      rgba(white, 0.06),
+  card:       #153535,
+  dialog:     #153535,
   disabled-button: rgba(white, 0.12),
   raised-button: map-get($tb-dark-mat-indigo, 50),
   focused-button: rgba(white, 0.12),
   selected-button: map_get($tb-dark-mat-indigo, 900),
-  selected-disabled-button: map_get($tb-dark-mat-indigo, 800),
-  disabled-button-toggle: black,
+  selected-disabled-button: #0d2525,
+  disabled-button-toggle: #0a1f1f,
   unselected-chip: map_get($tb-dark-mat-indigo, 700),
-  disabled-list-option: black,
-  tooltip: map_get(mat.$m2-grey-palette, 700),
+  disabled-list-option: #0a1f1f,
+  tooltip: #1a4040,
 );
 
 $tb-dark-theme: mat.m2-define-dark-theme((

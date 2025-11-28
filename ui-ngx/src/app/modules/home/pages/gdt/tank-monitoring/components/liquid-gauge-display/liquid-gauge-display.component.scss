@@ -1,0 +1,107 @@
+.simple-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  
+  .gauge-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1e4d7b;
+  }
+  
+  .gauge-bar {
+    width: 60px;
+    height: 200px;
+    background: #e0e0e0;
+    border-radius: 30px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #1e4d7b;
+    
+    .gauge-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, #2a6ba8, #4a9bd8);
+      transition: height 0.5s ease;
+      border-radius: 0 0 28px 28px;
+    }
+  }
+}
+
+.liquid-gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  &.size-small {
+    lib-ngx-liquid-gauge {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  &.size-medium {
+    lib-ngx-liquid-gauge {
+      width: 120px;
+      height: 120px;
+    }
+  }
+
+  &.size-large {
+    lib-ngx-liquid-gauge {
+      width: 180px;
+      height: 180px;
+    }
+  }
+}
+
+.gauge-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.gauge-status {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 10px;
+
+  &.status-none {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.status-low {
+    background: #fffde7;
+    color: #f57f17;
+  }
+
+  &.status-high {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
+  &.status-critical {
+    background: #ffebee;
+    color: #c62828;
+    animation: pulse-critical 1s infinite;
+  }
+}
+
+@keyframes pulse-critical {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

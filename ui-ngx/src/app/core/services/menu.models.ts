@@ -108,7 +108,11 @@ export enum MenuId {
   version_control = 'version_control',
   api_usage = 'api_usage',
   trendz_settings = 'trendz_settings',
-  ai_models = 'ai_models'
+  ai_models = 'ai_models',
+  gdt = 'gdt',
+  gdt_tank_monitoring = 'gdt_tank_monitoring',
+  gdt_tank_configuration = 'gdt_tank_configuration',
+  gdt_user_management = 'gdt_user_management'
 }
 
 declare type MenuFilter = (authState: AuthState) => boolean;
@@ -297,6 +301,76 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
       type: 'link',
       path: '/settings/ai-models',
       icon: 'auto_awesome'
+    }
+  ],
+  [
+    MenuId.gdt,
+    {
+      id: MenuId.gdt,
+      name: 'Guardian de Tanques',
+      type: 'toggle',
+      path: '/gdt',
+      icon: 'mdi:tank',
+      customTranslate: true,
+      pages: [
+        {
+          id: MenuId.gdt_tank_monitoring,
+          name: 'Monitoreo de Tanques',
+          type: 'link',
+          path: '/gdt/monitoring',
+          icon: 'mdi:gauge',
+          customTranslate: true
+        },
+        {
+          id: MenuId.gdt_tank_configuration,
+          name: 'Configuración de Tanques',
+          type: 'link',
+          path: '/gdt/configuration',
+          icon: 'settings',
+          customTranslate: true
+        },
+        {
+          id: MenuId.gdt_user_management,
+          name: 'Gestión de Usuarios',
+          type: 'link',
+          path: '/gdt/users',
+          icon: 'group',
+          customTranslate: true
+        }
+      ]
+    }
+  ],
+  [
+    MenuId.gdt_tank_monitoring,
+    {
+      id: MenuId.gdt_tank_monitoring,
+      name: 'Monitoreo de Tanques',
+      type: 'link',
+      path: '/gdt/monitoring',
+      icon: 'mdi:gauge',
+      customTranslate: true
+    }
+  ],
+  [
+    MenuId.gdt_tank_configuration,
+    {
+      id: MenuId.gdt_tank_configuration,
+      name: 'Configuración de Tanques',
+      type: 'link',
+      path: '/gdt/configuration',
+      icon: 'settings',
+      customTranslate: true
+    }
+  ],
+  [
+    MenuId.gdt_user_management,
+    {
+      id: MenuId.gdt_user_management,
+      name: 'Gestión de Usuarios',
+      type: 'link',
+      path: '/gdt/users',
+      icon: 'group',
+      customTranslate: true
     }
   ],
   [
@@ -823,6 +897,14 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       },
       {id: MenuId.dashboards},
       {
+        id: MenuId.gdt,
+        pages: [
+          {id: MenuId.gdt_tank_monitoring},
+          {id: MenuId.gdt_tank_configuration},
+          {id: MenuId.gdt_user_management}
+        ]
+      },
+      {
         id: MenuId.entities,
         pages: [
           {id: MenuId.devices},
@@ -919,6 +1001,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       {id: MenuId.home},
       {id: MenuId.alarms},
       {id: MenuId.dashboards},
+      {id: MenuId.gdt_tank_monitoring},
       {
         id: MenuId.entities,
         pages: [
@@ -932,6 +1015,70 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
         id: MenuId.notifications_center,
         pages: [
           {id: MenuId.notification_inbox}
+        ]
+      }
+    ]
+  ],
+  [
+    Authority.OPERADOR,
+    [
+      {id: MenuId.home},
+      {id: MenuId.alarms},
+      {id: MenuId.dashboards},
+      {id: MenuId.gdt_tank_monitoring},
+      {
+        id: MenuId.entities,
+        pages: [
+          {id: MenuId.devices},
+          {id: MenuId.assets}
+        ]
+      }
+    ]
+  ],
+  [
+    Authority.INGENIERO,
+    [
+      {id: MenuId.home},
+      {id: MenuId.alarms},
+      {id: MenuId.dashboards},
+      {
+        id: MenuId.gdt,
+        pages: [
+          {id: MenuId.gdt_tank_monitoring},
+          {id: MenuId.gdt_tank_configuration},
+          {id: MenuId.gdt_user_management}
+        ]
+      },
+      {
+        id: MenuId.entities,
+        pages: [
+          {id: MenuId.devices},
+          {id: MenuId.assets},
+          {id: MenuId.entity_views}
+        ]
+      },
+      {id: MenuId.rule_chains}
+    ]
+  ],
+  [
+    Authority.REPORTES,
+    [
+      {id: MenuId.home},
+      {id: MenuId.dashboards},
+      {id: MenuId.gdt_tank_monitoring},
+      {id: MenuId.audit_log}
+    ]
+  ],
+  [
+    Authority.LABORATORIO,
+    [
+      {id: MenuId.home},
+      {id: MenuId.dashboards},
+      {id: MenuId.gdt_tank_monitoring},
+      {
+        id: MenuId.entities,
+        pages: [
+          {id: MenuId.assets}
         ]
       }
     ]

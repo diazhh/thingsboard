@@ -1,0 +1,247 @@
+///
+/// Copyright © 2016-2025 The Thingsboard Authors
+///
+/// Licensed under the Apache License, Version 2.0 (the "License");
+/// you may not use this file except in compliance with the License.
+/// You may obtain a copy of the License at
+///
+///     http://www.apache.org/licenses/LICENSE-2.0
+///
+/// Unless required by applicable law or agreed to in writing, software
+/// distributed under the License is distributed on an "AS IS" BASIS,
+/// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+/// See the License for the specific language governing permissions and
+/// limitations under the License.
+///
+
+.gdt-user-management {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  // Header
+  .page-header {
+    margin-bottom: 24px;
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .header-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #0d7377;
+        background: rgba(13, 115, 119, 0.1);
+        border-radius: 12px;
+        padding: 8px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #212529;
+      }
+
+      .subtitle {
+        margin: 4px 0 0 0;
+        font-size: 14px;
+        color: #6c757d;
+      }
+    }
+  }
+
+  // Stats Row
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #0d7377;
+    }
+
+    &.active mat-icon {
+      color: #2ecc71;
+    }
+
+    &.pending mat-icon {
+      color: #f39c12;
+    }
+
+    .stat-content {
+      display: flex;
+      flex-direction: column;
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #212529;
+      }
+
+      .stat-label {
+        font-size: 13px;
+        color: #6c757d;
+      }
+    }
+  }
+
+  // Table Container
+  .table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+
+  .table-toolbar {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+    .search-field {
+      width: 300px;
+
+      ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+    }
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .users-table {
+    width: 100%;
+
+    .user-email {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .user-avatar {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #0d7377;
+      }
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+
+      &.role-tenant_admin {
+        background: rgba(13, 115, 119, 0.15);
+        color: #0d7377;
+      }
+
+      &.role-ingeniero {
+        background: rgba(52, 152, 219, 0.15);
+        color: #2980b9;
+      }
+
+      &.role-operador {
+        background: rgba(155, 89, 182, 0.15);
+        color: #8e44ad;
+      }
+
+      &.role-reportes {
+        background: rgba(241, 196, 15, 0.15);
+        color: #d68910;
+      }
+
+      &.role-laboratorio {
+        background: rgba(46, 204, 113, 0.15);
+        color: #27ae60;
+      }
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+
+      &.status-active {
+        background: rgba(46, 204, 113, 0.15);
+        color: #27ae60;
+      }
+
+      &.status-pending {
+        background: rgba(241, 196, 15, 0.15);
+        color: #d68910;
+      }
+
+      &.status-disabled {
+        background: rgba(231, 76, 60, 0.15);
+        color: #c0392b;
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 4px;
+
+      button {
+        mat-icon {
+          font-size: 20px;
+        }
+      }
+    }
+
+    .no-data {
+      padding: 48px;
+      text-align: center;
+
+      .no-data-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        color: #6c757d;
+
+        mat-icon {
+          font-size: 48px;
+          width: 48px;
+          height: 48px;
+          opacity: 0.5;
+        }
+      }
+    }
+  }
+
+  mat-paginator {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+}

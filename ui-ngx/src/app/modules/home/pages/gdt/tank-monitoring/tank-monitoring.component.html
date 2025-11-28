@@ -1,0 +1,241 @@
+<div class="tank-fleet-container" *ngIf="!selectedTank">
+  <!-- Header con controles -->
+  <div class="fleet-header">
+    <div class="fleet-title">
+      <h3>Monitoreo de Flota de Tanques</h3>
+      <span class="tank-count">{{ filteredTanks.length }} tanque(s)</span>
+    </div>
+
+    <div class="fleet-controls">
+      <!-- Toggle de Modo de Vista -->
+      <div class="view-mode-toggle">
+        <button
+          class="btn-view-mode"
+          [class.active]="viewMode === 'grid'"
+          (click)="changeViewMode('grid')"
+          title="Vista de Cuadrícula">
+          ⊞ Cuadrícula
+        </button>
+        <button
+          class="btn-view-mode"
+          [class.active]="viewMode === 'list'"
+          (click)="changeViewMode('list')"
+          title="Vista de Lista">
+          ☰ Lista
+        </button>
+      </div>
+
+      <!-- Controles de Ordenamiento -->
+      <div class="sort-controls">
+        <label>Ordenar por:</label>
+        <select [(ngModel)]="sortBy" (change)="applyFiltersAndSort(); ctx.detectChanges()">
+          <option value="name">Nombre</option>
+          <option value="level">Nivel</option>
+          <option value="alarm">Alarma</option>
+          <option value="volume">Volumen</option>
+        </select>
+        <button
+          class="btn-sort-order"
+          (click)="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'; applyFiltersAndSort(); ctx.detectChanges()"
+          [title]="sortOrder === 'asc' ? 'Ascendente' : 'Descendente'">
+          {{ sortOrder === 'asc' ? '↑' : '↓' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado de Carga -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner">⟳</div>
+    <p>Cargando tanques...</p>
+  </div>
+
+  <!-- Estado de Error -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-icon">⚠</div>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Vista de Cuadrícula -->
+  <div *ngIf="!loading && !error && viewMode === 'grid'" class="tank-grid">
+    <div *ngFor="let tank of filteredTanks"
+         class="tank-card"
+         [class.alarm-critical]="tank.currentAlarmLevel === 'critical'"
+         [class.alarm-high]="tank.currentAlarmLevel === 'high'"
+         [class.alarm-low]="tank.currentAlarmLevel === 'low'"
+         (click)="onTankClick(tank)">
+
+      <!-- Encabezado del Tanque -->
+      <div class="tank-card-header">
+        <div class="tank-info">
+          <h4 class="tank-name">{{ tank.tankName }}</h4>
+          <span class="tank-tag">{{ tank.tankTag }}</span>
+        </div>
+        <div class="tank-status">
+          <span class="radar-status" [class]="'status-' + tank.radarStatus">
+            {{ tank.radarStatus === 'online' ? '📡' : '📴' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Visual del Tanque según su forma configurada -->
+      <div class="tank-visual-compact">
+        <svg viewBox="0 0 100 140" class="tank-grid-svg">
+          <!-- Tank Shell -->
+          <path [attr.d]="getTankSvgPathCompact(tank)" class="tank-shell-compact" />
+          
+          <!-- Roof -->
+          <path [attr.d]="getRoofSvgPathCompact(tank)" class="tank-roof-compact" />
+          
+          <!-- Liquid Level -->
+          <path *ngIf="tank.levelPercent > 0" 
+                [attr.d]="getLiquidPathCompact(tank)" 
+                [class]="'tank-liquid-compact ' + (tank.currentAlarmLevel || 'none')" />
+          
+          <!-- Level percentage -->
+          <text x="50" y="75" text-anchor="middle" class="level-percent-compact">
+            {{ tank.levelPercent | number:'1.0-0' }}%
+          </text>
+        </svg>
+      </div>
+
+      <!-- Indicadores del Tanque -->
+      <div class="tank-indicators-compact">
+        <div class="indicator">
+          <span class="label">Nivel:</span>
+          <span class="value">{{ tank.levelPercent | number:'1.1-1' }}% ({{ tank.level | levelFormat }})</span>
+        </div>
+        <div class="indicator">
+          <span class="label">Volumen:</span>
+          <span class="value">{{ tank.volumeCurrent | number:'1.0-0' }} {{ tank.volumeGSV ? 'bbl' : 'm³' }}</span>
+        </div>
+        <div class="indicator">
+          <span class="label">Producto:</span>
+          <span class="value">{{ tank.productName }}</span>
+        </div>
+        <div class="indicator">
+          <span class="label">Temp:</span>
+          <span class="value">{{ tank.temperatureAvg | number:'1.1-1' }}°C</span>
+        </div>
+        <div class="indicator api-indicator" *ngIf="tank.apiGravity">
+          <span class="label">API:</span>
+          <span class="value">{{ tank.apiGravity | number:'1.1-1' }}°</span>
+        </div>
+      </div>
+
+      <!-- Badge de Alarma -->
+      <div *ngIf="tank.activeAlarms && tank.activeAlarms.length > 0" class="alarm-badge">
+        <span>⚠ {{ tank.activeAlarms.length }} alarma(s)</span>
+      </div>
+
+      <!-- Indicador de Ver Detalle -->
+      <div class="view-detail-hint">
+        Click para ver detalle →
+      </div>
+    </div>
+  </div>
+
+  <!-- Vista de Lista -->
+  <div *ngIf="!loading && !error && viewMode === 'list'" class="tank-list">
+    <table class="tank-table">
+      <thead>
+        <tr>
+          <th (click)="changeSortBy('name')" class="sortable">
+            Tanque
+            <span *ngIf="sortBy === 'name'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th>Producto</th>
+          <th (click)="changeSortBy('level')" class="sortable">
+            Nivel
+            <span *ngIf="sortBy === 'level'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="changeSortBy('volume')" class="sortable">
+            Volumen
+            <span *ngIf="sortBy === 'volume'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th>Temperatura</th>
+          <th>API Gravity</th>
+          <th>Estado</th>
+          <th (click)="changeSortBy('alarm')" class="sortable">
+            Alarmas
+            <span *ngIf="sortBy === 'alarm'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tank of filteredTanks"
+            class="tank-row"
+            [class.alarm-critical]="tank.currentAlarmLevel === 'critical'"
+            [class.alarm-high]="tank.currentAlarmLevel === 'high'"
+            [class.alarm-low]="tank.currentAlarmLevel === 'low'"
+            (click)="onTankClick(tank)">
+          <td class="tank-name-cell">
+            <div class="tank-name">{{ tank.tankName }}</div>
+            <div class="tank-tag">{{ tank.tankTag }}</div>
+          </td>
+          <td>{{ tank.productName }}</td>
+          <td>
+            <div class="level-cell">
+              <div class="level-bar">
+                <div class="level-fill"
+                     [style.width.%]="tank.levelPercent"
+                     [class.level-critical]="tank.currentAlarmLevel === 'critical'"
+                     [class.level-high]="tank.currentAlarmLevel === 'high'"
+                     [class.level-low]="tank.currentAlarmLevel === 'low'">
+                </div>
+              </div>
+              <span class="level-text">{{ tank.levelPercent | number:'1.1-1' }}%</span>
+            </div>
+          </td>
+          <td>
+            {{ tank.volumeCurrent | number:'1.0-0' }} {{ tank.volumeGSV ? 'bbl' : 'm³' }}
+          </td>
+          <td>
+            {{ tank.temperatureAvg | number:'1.1-1' }}°C
+          </td>
+          <td>
+            {{ tank.apiGravity ? (tank.apiGravity | number:'1.1-1') + '°' : '-' }}
+          </td>
+          <td>
+            <span class="status-badge" [class]="'status-' + tank.radarStatus">
+              {{ getRadarStatusText(tank.radarStatus) }}
+            </span>
+          </td>
+          <td>
+            <span *ngIf="tank.activeAlarms && tank.activeAlarms.length > 0"
+                  class="alarm-count"
+                  [class]="'alarm-' + tank.currentAlarmLevel">
+              ⚠ {{ tank.activeAlarms.length }}
+            </span>
+            <span *ngIf="!tank.activeAlarms || tank.activeAlarms.length === 0" class="no-alarm">
+              ✓
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Estado Vacío -->
+  <div *ngIf="!loading && !error && filteredTanks.length === 0" class="empty-state">
+    <div class="empty-icon">📦</div>
+    <p>No se encontraron tanques</p>
+    <small>Configure los datasources o verifique el filtro de perfil de activos</small>
+  </div>
+</div>
+
+<!-- Vista de Detalle del Tanque -->
+<tb-tank-detail
+  *ngIf="selectedTank"
+  [ctx]="ctx"
+  [tank]="selectedTank"
+  (back)="closeTankDetail()">
+</tb-tank-detail>

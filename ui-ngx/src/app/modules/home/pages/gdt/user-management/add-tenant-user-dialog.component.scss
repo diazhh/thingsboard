@@ -1,0 +1,139 @@
+///
+/// Copyright © 2016-2025 The Thingsboard Authors
+///
+/// Licensed under the Apache License, Version 2.0 (the "License");
+/// you may not use this file except in compliance with the License.
+/// You may obtain a copy of the License at
+///
+///     http://www.apache.org/licenses/LICENSE-2.0
+///
+/// Unless required by applicable law or agreed to in writing, software
+/// distributed under the License is distributed on an "AS IS" BASIS,
+/// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+/// See the License for the specific language governing permissions and
+/// limitations under the License.
+///
+
+.gdt-add-user-dialog {
+  min-width: 500px;
+  max-width: 600px;
+
+  mat-toolbar {
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+
+  .dialog-content {
+    padding: 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .form-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f8fafb;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0d7377;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .form-row {
+    margin-bottom: 16px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.two-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+  }
+
+  .mat-block {
+    width: 100%;
+  }
+
+  .role-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .role-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #0d7377;
+    }
+  }
+
+  .role-description {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(13, 115, 119, 0.08);
+    border-radius: 8px;
+    margin-top: 12px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #0d7377;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    span {
+      font-size: 13px;
+      color: #6c757d;
+      line-height: 1.5;
+    }
+  }
+
+  .password-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(13, 115, 119, 0.3);
+  }
+
+  .dialog-actions {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    button {
+      mat-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+}

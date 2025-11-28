@@ -1,0 +1,34 @@
+<div class="liquid-gauge-container" [class]="'size-' + size">
+  <!-- Gauge con ngx-liquid-gauge -->
+  <lib-ngx-liquid-gauge
+    [value]="value"
+    [minValue]="minValue"
+    [maxValue]="maxValue"
+    [circleThickness]="gaugeConfig.circleThickness"
+    [circleFillGap]="gaugeConfig.circleFillGap"
+    [circleColor]="gaugeConfig.circleColor"
+    [waveHeight]="gaugeConfig.waveHeight"
+    [waveCount]="gaugeConfig.waveCount"
+    [waveRiseTime]="gaugeConfig.waveRiseTime"
+    [waveAnimateTime]="gaugeConfig.waveAnimateTime"
+    [waveRise]="gaugeConfig.waveRise"
+    [waveHeightScaling]="gaugeConfig.waveHeightScaling"
+    [waveAnimate]="gaugeConfig.waveAnimate"
+    [waveColor]="gaugeConfig.waveColor"
+    [waveOffset]="gaugeConfig.waveOffset"
+    [textVertPosition]="gaugeConfig.textVertPosition"
+    [textSize]="gaugeConfig.textSize"
+    [valueCountUp]="gaugeConfig.valueCountUp"
+    [displayPercent]="gaugeConfig.displayPercent"
+    [textColor]="gaugeConfig.textColor"
+    [waveTextColor]="gaugeConfig.waveTextColor">
+  </lib-ngx-liquid-gauge>
+
+  <!-- Etiqueta opcional -->
+  <div *ngIf="label" class="gauge-label">{{ label }}</div>
+
+  <!-- Indicador de estado -->
+  <div class="gauge-status" [class]="getStatusClass()">
+    {{ getStatusText() }}
+  </div>
+</div>

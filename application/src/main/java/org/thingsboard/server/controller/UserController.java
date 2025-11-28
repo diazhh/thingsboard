@@ -182,16 +182,21 @@ public class UserController extends BaseController {
                     "Referencing non-existing User Id will cause 'Not Found' error." +
                     "\n\nDevice email is unique for entire platform setup." +
                     "Remove 'id', 'tenantId' and optionally 'customerId' from the request body example (below) to create new User entity." +
-                    "\n\nAvailable for users with 'SYS_ADMIN', 'TENANT_ADMIN' or 'CUSTOMER_USER' authority.")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+                    "\n\nAvailable for users with 'SYS_ADMIN', 'TENANT_ADMIN', 'INGENIERO' or 'CUSTOMER_USER' authority.")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO')")
     @PostMapping(value = "/user")
     public User saveUser(
             @Parameter(description = "A JSON value representing the User.", required = true)
             @RequestBody User user,
             @Parameter(description = "Send activation email (or use activation link)", schema = @Schema(defaultValue = "true"))
             @RequestParam(required = false, defaultValue = "true") boolean sendActivationMail, HttpServletRequest request) throws ThingsboardException {
-        if (!Authority.SYS_ADMIN.equals(getCurrentUser().getAuthority())) {
+        Authority currentAuthority = getCurrentUser().getAuthority();
+        if (!Authority.SYS_ADMIN.equals(currentAuthority)) {
             user.setTenantId(getCurrentUser().getTenantId());
+        }
+        // INGENIERO can only create users with lower privileges (not TENANT_ADMIN)
+        if (Authority.INGENIERO.equals(currentAuthority) && Authority.TENANT_ADMIN.equals(user.getAuthority())) {
+            throw new ThingsboardException("Engineers cannot create Tenant Admin users", ThingsboardErrorCode.PERMISSION_DENIED);
         }
         checkEntity(user.getId(), user, Resource.USER);
         return tbUserService.save(getTenantId(), getCurrentUser().getCustomerId(), user, sendActivationMail, request, getCurrentUser());
@@ -268,7 +273,7 @@ public class UserController extends BaseController {
     @ApiOperation(value = "Get Users (getUsers)",
             notes = "Returns a page of users owned by tenant or customer. The scope depends on authority of the user that performs the request." +
                     PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO')")
     @GetMapping(value = "/users", params = {"pageSize", "page"})
     public PageData<User> getUsers(
             @Parameter(description = PAGE_SIZE_DESCRIPTION, required = true)
@@ -283,7 +288,9 @@ public class UserController extends BaseController {
             @RequestParam(required = false) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
         SecurityUser currentUser = getCurrentUser();
-        if (Authority.TENANT_ADMIN.equals(currentUser.getAuthority())) {
+        // TENANT_ADMIN and INGENIERO can see all tenant users
+        if (Authority.TENANT_ADMIN.equals(currentUser.getAuthority()) || 
+            Authority.INGENIERO.equals(currentUser.getAuthority())) {
             return checkNotNull(userService.findUsersByTenantId(currentUser.getTenantId(), pageLink));
         } else {
             return checkNotNull(userService.findCustomerUsers(currentUser.getTenantId(), currentUser.getCustomerId(), pageLink));

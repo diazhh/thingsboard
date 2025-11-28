@@ -1,0 +1,196 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<form [formGroup]="userForm" (ngSubmit)="add()" class="gdt-add-user-dialog">
+  <mat-toolbar color="primary">
+    <h2>Agregar Usuario</h2>
+    <span class="flex-1"></span>
+    <button mat-icon-button (click)="cancel()" type="button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-toolbar>
+  
+  <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading$ | async"></mat-progress-bar>
+  <div style="height: 4px;" *ngIf="!(isLoading$ | async)"></div>
+  
+  <div mat-dialog-content class="dialog-content">
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>person</mat-icon>
+        Información del Usuario
+      </h3>
+      
+      <div class="form-row">
+        <mat-form-field class="mat-block" appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" required>
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="userForm.get('email').hasError('required')">
+            El email es requerido
+          </mat-error>
+          <mat-error *ngIf="userForm.get('email').hasError('email')">
+            Ingrese un email válido
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row two-columns">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="firstName" required>
+          <mat-icon matPrefix>badge</mat-icon>
+          <mat-error *ngIf="userForm.get('firstName').hasError('required')">
+            El nombre es requerido
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Apellido</mat-label>
+          <input matInput formControlName="lastName" required>
+          <mat-icon matPrefix>badge</mat-icon>
+          <mat-error *ngIf="userForm.get('lastName').hasError('required')">
+            El apellido es requerido
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field class="mat-block" appearance="outline">
+          <mat-label>Teléfono</mat-label>
+          <input matInput formControlName="phone" type="tel">
+          <mat-icon matPrefix>phone</mat-icon>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>security</mat-icon>
+        Rol y Permisos
+      </h3>
+      
+      <div class="form-row">
+        <mat-form-field class="mat-block" appearance="outline">
+          <mat-label>Rol del Usuario</mat-label>
+          <mat-select formControlName="authority" required>
+            <mat-option *ngFor="let role of data.availableRoles" [value]="role.value">
+              <div class="role-option">
+                <mat-icon class="role-icon">{{ getRoleIcon(role.value) }}</mat-icon>
+                <span>{{ role.label }}</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>admin_panel_settings</mat-icon>
+          <mat-hint>Seleccione el rol que determinará los permisos del usuario</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="role-description" *ngIf="userForm.get('authority').value">
+        <mat-icon>info</mat-icon>
+        <span>{{ getRoleDescription(userForm.get('authority').value) }}</span>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>vpn_key</mat-icon>
+        Método de Activación
+      </h3>
+      
+      <div class="form-row">
+        <mat-form-field class="mat-block" appearance="outline">
+          <mat-label>Método de Activación</mat-label>
+          <mat-select [(ngModel)]="activationMethod" [ngModelOptions]="{standalone: true}" 
+                      (selectionChange)="onActivationMethodChange()">
+            <mat-option *ngFor="let method of extendedActivationMethods" [value]="method.value">
+              {{ method.label }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>send</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Campos de contraseña (solo si se selecciona establecer contraseña directamente) -->
+      <div *ngIf="requiresPassword" class="password-section">
+        <div class="form-row">
+          <mat-form-field class="mat-block" appearance="outline">
+            <mat-label>Contraseña</mat-label>
+            <input matInput formControlName="password" 
+                   [type]="hidePassword ? 'password' : 'text'" required>
+            <mat-icon matPrefix>lock</mat-icon>
+            <button mat-icon-button matSuffix type="button" 
+                    (click)="hidePassword = !hidePassword">
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="userForm.get('password').hasError('required')">
+              La contraseña es requerida
+            </mat-error>
+            <mat-error *ngIf="userForm.get('password').hasError('minlength')">
+              La contraseña debe tener al menos 6 caracteres
+            </mat-error>
+            <mat-hint>Mínimo 6 caracteres</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field class="mat-block" appearance="outline">
+            <mat-label>Confirmar Contraseña</mat-label>
+            <input matInput formControlName="confirmPassword" 
+                   [type]="hideConfirmPassword ? 'password' : 'text'" required>
+            <mat-icon matPrefix>lock_outline</mat-icon>
+            <button mat-icon-button matSuffix type="button" 
+                    (click)="hideConfirmPassword = !hideConfirmPassword">
+              <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="userForm.get('confirmPassword').hasError('required')">
+              Confirme la contraseña
+            </mat-error>
+            <mat-error *ngIf="userForm.get('confirmPassword').hasError('passwordMismatch')">
+              Las contraseñas no coinciden
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>description</mat-icon>
+        Información Adicional
+      </h3>
+      
+      <div class="form-row">
+        <mat-form-field class="mat-block" appearance="outline">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+          <mat-hint>Notas adicionales sobre el usuario (opcional)</mat-hint>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-button color="primary" type="button" (click)="cancel()">
+      Cancelar
+    </button>
+    <button mat-raised-button color="primary" type="submit" 
+            [disabled]="(isLoading$ | async) || userForm.invalid">
+      <mat-icon>person_add</mat-icon>
+      Crear Usuario
+    </button>
+  </div>
+</form>

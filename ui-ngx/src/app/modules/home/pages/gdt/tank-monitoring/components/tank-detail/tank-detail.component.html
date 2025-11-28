@@ -1,0 +1,637 @@
+<div class="tank-detail-container">
+  <!-- Header -->
+  <div class="detail-header">
+    <button class="btn-back" (click)="goBack()">
+      ← Volver
+    </button>
+    <div class="tank-title">
+      <h2>{{ tank?.tankName }}</h2>
+      <span class="tank-tag">{{ tank?.tankTag }}</span>
+      <span class="product-badge">{{ tank?.productName }}</span>
+    </div>
+    <div class="radar-status" [class]="'status-' + tank?.radarStatus">
+      <span class="status-dot"></span>
+      {{ getRadarStatusText() }}
+    </div>
+  </div>
+
+  <!-- Tabs de navegación -->
+  <div class="detail-tabs">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'resumen'"
+      (click)="setActiveTab('resumen')">
+      📊 Resumen
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'historico'"
+      (click)="setActiveTab('historico')">
+      📈 Histórico
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'info'"
+      (click)="setActiveTab('info')">
+      ⚙️ Información
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'registro'"
+      (click)="setActiveTab('registro')">
+      ✏️ Registro Manual
+    </button>
+  </div>
+
+  <!-- Contenido de tabs -->
+  <div class="tab-content">
+
+    <!-- Tab: Resumen -->
+    <div *ngIf="activeTab === 'resumen'" class="tab-panel resumen-panel">
+      <div class="resumen-grid">
+        <!-- Visual del Tanque según su forma configurada -->
+        <div class="gauge-section">
+          <div class="tank-svg-preview">
+            <svg viewBox="0 0 300 380" class="tank-detail-svg">
+              <!-- Tank Shell -->
+              <path [attr.d]="getTankSvgPath()" class="tank-shell" />
+
+              <!-- Roof (separate for different color) -->
+              <path *ngIf="getRoofSvgPath()" [attr.d]="getRoofSvgPath()" class="tank-roof" />
+
+              <!-- Liquid Level -->
+              <path *ngIf="getLiquidPath()" [attr.d]="getLiquidPath()" [class]="'tank-liquid ' + (tank?.currentAlarmLevel || 'none')" />
+
+              <!-- Dimensions annotations -->
+              <g class="dimension-labels" *ngIf="tank?.tankShape === 'vertical_cylinder' || tank?.tankShape === 'vertical'">
+                <!-- Height dimension -->
+                <line x1="270" y1="70" x2="270" y2="310" class="dimension-line"/>
+                <line x1="265" y1="70" x2="275" y2="70" class="dimension-line"/>
+                <line x1="265" y1="310" x2="275" y2="310" class="dimension-line"/>
+                <text x="280" y="190" class="dimension-text">{{ (tank?.tankHeight * 1000) | levelFormat }}</text>
+
+                <!-- Diameter dimension -->
+                <line x1="50" y1="325" x2="250" y2="325" class="dimension-line"/>
+                <line x1="50" y1="320" x2="50" y2="330" class="dimension-line"/>
+                <line x1="250" y1="320" x2="250" y2="330" class="dimension-line"/>
+                <text x="130" y="345" class="dimension-text">Ø {{ (tank?.tankDiameter * 1000) | levelFormat }}</text>
+              </g>
+
+              <!-- Tank info -->
+              <g class="tank-info-labels">
+                <text x="150" y="20" text-anchor="middle" class="tank-type-label">
+                  {{ getTankShapeLabel() }}
+                </text>
+              </g>
+
+              <!-- Level percentage -->
+              <text x="150" y="200" text-anchor="middle" class="level-percentage-label">
+                {{ tank?.levelPercent | number:'1.0-0' }}%
+              </text>
+            </svg>
+          </div>
+          <div class="gauge-info">
+            <div class="main-value">{{ tank?.level | levelFormat }}</div>
+            <div class="sub-value">Nivel actual ({{ tank?.levelPercent | number:'1.0-0' }}%)</div>
+          </div>
+        </div>
+
+        <!-- Indicadores -->
+        <div class="indicators-section">
+          <div class="indicator-card">
+            <div class="indicator-label">Volumen GOV</div>
+            <div class="indicator-value">{{ tank?.volumeGOV | number:'1.0-0' }} <small>bbl</small></div>
+          </div>
+          <div class="indicator-card">
+            <div class="indicator-label">Volumen GSV</div>
+            <div class="indicator-value">{{ tank?.volumeGSV | number:'1.0-0' }} <small>bbl</small></div>
+          </div>
+          <div class="indicator-card">
+            <div class="indicator-label">Volumen NSV</div>
+            <div class="indicator-value">{{ tank?.volumeNSV | number:'1.0-0' }} <small>bbl</small></div>
+          </div>
+          <div class="indicator-card">
+            <div class="indicator-label">Temperatura Prom.</div>
+            <div class="indicator-value">{{ tank?.temperatureAvg | number:'1.1-1' }} <small>°C</small></div>
+          </div>
+          <div class="indicator-card">
+            <div class="indicator-label">Ullage</div>
+            <div class="indicator-value">{{ ((tank?.ullageMeters || (tank?.tankHeight - (tank?.levelMeters || 0))) * 1000) | levelFormat }}</div>
+          </div>
+          <div class="indicator-card">
+            <div class="indicator-label">Tasa de Cambio</div>
+            <div class="indicator-value" [class.positive]="(tank?.levelRate || 0) > 0" [class.negative]="(tank?.levelRate || 0) < 0">
+              {{ tank?.levelRate | number:'1.2-2' }} <small>cm/h</small>
+            </div>
+          </div>
+          <div class="indicator-card highlight">
+            <div class="indicator-label">API Gravity</div>
+            <div class="indicator-value">
+              {{ lastApiGravity?.value || tank?.apiGravity | number:'1.1-1' }}
+              <small>°API</small>
+            </div>
+            <div class="indicator-date" *ngIf="lastApiGravity">
+              {{ formatDateShort(lastApiGravity.timestamp) }}
+            </div>
+          </div>
+          <div class="indicator-card">
+            <div class="indicator-label">Capacidad</div>
+            <div class="indicator-value">{{ tank?.tankCapacity | number:'1.0-0' }} <small>m³</small></div>
+          </div>
+          <!-- BSW Card -->
+          <div class="indicator-card bsw-card">
+            <div class="indicator-label">BS&W</div>
+            <div class="indicator-value">{{ getBswValue() }} <small>%</small></div>
+            <div class="indicator-date" *ngIf="lastBswEntry">
+              {{ formatDateShort(lastBswEntry.timestamp) }}
+            </div>
+            <div class="indicator-date" *ngIf="!lastBswEntry && tank?.bsw !== undefined">
+              Desde atributos
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alarmas activas -->
+      <div class="alarms-section" *ngIf="tank?.activeAlarms && tank.activeAlarms.length > 0">
+        <h4>⚠️ Alarmas Activas</h4>
+        <div class="alarm-list">
+          <div *ngFor="let alarm of tank.activeAlarms" class="alarm-item" [class]="'severity-' + alarm.severity">
+            <span class="alarm-type">{{ alarm.type }}</span>
+            <span class="alarm-message">{{ alarm.message }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Última actualización -->
+      <div class="last-update">
+        Última actualización: {{ formatDate(tank?.lastUpdate?.getTime() || 0) }}
+      </div>
+    </div>
+
+    <!-- Tab: Histórico -->
+    <div *ngIf="activeTab === 'historico'" class="tab-panel historico-panel">
+      <!-- Selector de rango -->
+      <div class="time-range-selector">
+        <label>Período:</label>
+        <select [(ngModel)]="selectedTimeRange" (change)="onTimeRangeChange()">
+          <option *ngFor="let range of timeRanges" [value]="range.value">{{ range.label }}</option>
+        </select>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loadingHistory" class="loading-state">
+        <div class="spinner">⟳</div>
+        <p>Cargando histórico...</p>
+      </div>
+
+      <!-- Gráfico de Nivel Histórico -->
+      <div class="history-section chart-section" *ngIf="!loadingHistory">
+        <div class="chart-header">
+          <h4>📈 Histórico de Nivel</h4>
+          <div class="chart-controls">
+            <button class="btn-chart-control" (click)="resetChartZoom()" title="Resetear Zoom">
+              🔍 Reset
+            </button>
+          </div>
+        </div>
+        <div class="chart-container">
+          <div #levelChart style="width: 100%; height: 400px;"></div>
+        </div>
+      </div>
+
+      <!-- Historial de API Gravity -->
+      <div class="history-section" *ngIf="!loadingHistory">
+        <h4>📊 Historial de API Gravity</h4>
+        <div *ngIf="apiGravityHistory.length === 0" class="empty-history">
+          No hay registros de API Gravity en el período seleccionado
+        </div>
+        <table *ngIf="apiGravityHistory.length > 0" class="history-table">
+          <thead>
+            <tr>
+              <th>Fecha/Hora</th>
+              <th>Valor (°API)</th>
+              <th>Anterior</th>
+              <th>Operador</th>
+              <th>Fuente</th>
+              <th>Notas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let entry of apiGravityHistory">
+              <td>{{ formatDate(entry.timestamp) }}</td>
+              <td class="value-cell">{{ entry.value | number:'1.1-1' }}</td>
+              <td>{{ entry.previousValue ? (entry.previousValue | number:'1.1-1') : '-' }}</td>
+              <td>{{ entry.operatorName }}</td>
+              <td>{{ entry.source }}</td>
+              <td>{{ entry.notes || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Historial de Registros Manuales -->
+      <div class="history-section" *ngIf="!loadingHistory">
+        <h4>📝 Registros Manuales</h4>
+        <div *ngIf="manualEntries.length === 0" class="empty-history">
+          No hay registros manuales en el período seleccionado
+        </div>
+        <table *ngIf="manualEntries.length > 0" class="history-table">
+          <thead>
+            <tr>
+              <th>Fecha/Hora</th>
+              <th>API Gravity</th>
+              <th>Nivel Manual</th>
+              <th>Temperatura</th>
+              <th>BS&W</th>
+              <th>Desviación</th>
+              <th>Operador</th>
+              <th>Fuente</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let entry of manualEntries">
+              <td>{{ formatDate(entry.timestamp) }}</td>
+              <td>{{ entry.apiGravity ? (entry.apiGravity | number:'1.1-1') + ' °API' : '-' }}</td>
+              <td>{{ entry.manualLevel ? ((entry.manualLevel | levelFormat)) : '-' }}</td>
+              <td>{{ entry.manualTemperature ? (entry.manualTemperature | number:'1.1-1') + ' °C' : '-' }}</td>
+              <td>{{ entry.bsw !== undefined && entry.bsw !== null ? (entry.bsw | number:'1.2-2') + ' %' : '-' }}</td>
+              <td [class.warning]="entry.deviation && entry.deviation > 50">
+                {{ entry.deviation ? ((entry.deviation | levelFormat)) : '-' }}
+              </td>
+              <td>{{ entry.operatorName }}</td>
+              <td>{{ entry.source }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Información del Tanque -->
+    <div *ngIf="activeTab === 'info'" class="tab-panel info-panel">
+      <div class="info-grid">
+        <!-- Identificación -->
+        <div class="info-section">
+          <h4>🏷️ Identificación</h4>
+          <div class="info-row">
+            <span class="info-label">Tag del Tanque:</span>
+            <span class="info-value">{{ tank?.tankTag }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Nombre del Tanque:</span>
+            <span class="info-value">{{ tank?.tankName }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Ubicación:</span>
+            <span class="info-value">{{ getTankAttribute('location') || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Descripción:</span>
+            <span class="info-value">{{ getTankAttribute('description') || 'N/A' }}</span>
+          </div>
+        </div>
+
+        <!-- Estructura -->
+        <div class="info-section">
+          <h4>🏗️ Estructura</h4>
+          <div class="info-row">
+            <span class="info-label">Forma del Tanque:</span>
+            <span class="info-value">{{ getTankShapeLabel() }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Altura:</span>
+            <span class="info-value">{{ (tank?.tankHeight * 1000) | levelFormat }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Diámetro:</span>
+            <span class="info-value">{{ (tank?.tankDiameter * 1000) | levelFormat }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Capacidad:</span>
+            <span class="info-value">{{ tank?.tankCapacity | number:'1.0-0' }} m³</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Tipo de Techo:</span>
+            <span class="info-value">{{ getRoofTypeLabel() }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Tipo de Fondo:</span>
+            <span class="info-value">{{ getBottomTypeLabel() }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Material del Casco:</span>
+            <span class="info-value">{{ getShellMaterialLabel() }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Número de Virolas:</span>
+            <span class="info-value">{{ getTankAttribute('shellCourses') || 'N/A' }}</span>
+          </div>
+        </div>
+
+        <!-- Producto -->
+        <div class="info-section">
+          <h4>🛢️ Producto</h4>
+          <div class="info-row">
+            <span class="info-label">Producto:</span>
+            <span class="info-value">{{ tank?.productName }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Servicio:</span>
+            <span class="info-value">{{ getTankServiceLabel() }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">API Gravity Base:</span>
+            <span class="info-value">{{ tank?.apiGravity | number:'1.1-1' }} °API</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Gravedad Específica:</span>
+            <span class="info-value">{{ getTankAttribute('specificGravity') | number:'1.4-4' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Punto de Inflamación:</span>
+            <span class="info-value">{{ getTankAttribute('flashPoint') ? (getTankAttribute('flashPoint') + ' °C') : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Temp. Operación Normal:</span>
+            <span class="info-value">{{ getTankAttribute('productTempNormal') ? (getTankAttribute('productTempNormal') + ' °C') : 'N/A' }}</span>
+          </div>
+        </div>
+
+        <!-- Niveles de Alarma -->
+        <div class="info-section">
+          <h4>⚠️ Niveles de Alarma</h4>
+          <div class="info-row alarm-hh">
+            <span class="info-label">HH (Muy Alto):</span>
+            <span class="info-value">{{ (tank?.alarmLevels?.hh * 1000) | levelFormat }}</span>
+          </div>
+          <div class="info-row alarm-h">
+            <span class="info-label">H (Alto):</span>
+            <span class="info-value">{{ (tank?.alarmLevels?.h * 1000) | levelFormat }}</span>
+          </div>
+          <div class="info-row alarm-l">
+            <span class="info-label">L (Bajo):</span>
+            <span class="info-value">{{ (tank?.alarmLevels?.l * 1000) | levelFormat }}</span>
+          </div>
+          <div class="info-row alarm-ll">
+            <span class="info-label">LL (Muy Bajo):</span>
+            <span class="info-value">{{ (tank?.alarmLevels?.ll * 1000) | levelFormat }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Nivel Máximo Seguro:</span>
+            <span class="info-value">{{ getTankAttribute('maxSafeLevel') ? ((getTankAttribute('maxSafeLevel') * 1000) | levelFormat) : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Nivel Mínimo Operativo:</span>
+            <span class="info-value">{{ getTankAttribute('minOperatingLevel') ? ((getTankAttribute('minOperatingLevel') * 1000) | levelFormat) : 'N/A' }}</span>
+          </div>
+        </div>
+
+        <!-- Construcción -->
+        <div class="info-section">
+          <h4>🏗️ Construcción</h4>
+          <div class="info-row">
+            <span class="info-label">Fabricante:</span>
+            <span class="info-value">{{ getTankAttribute('manufacturer') || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Año de Construcción:</span>
+            <span class="info-value">{{ getTankAttribute('yearBuilt') || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Estándar de Diseño:</span>
+            <span class="info-value">{{ getTankAttribute('designStandard') || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Espesor Virola Inferior:</span>
+            <span class="info-value">{{ getTankAttribute('shellThicknessBottom') ? (getTankAttribute('shellThicknessBottom') + ' mm') : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Espesor Virola Superior:</span>
+            <span class="info-value">{{ getTankAttribute('shellThicknessTop') ? (getTankAttribute('shellThicknessTop') + ' mm') : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Tolerancia Corrosión:</span>
+            <span class="info-value">{{ getTankAttribute('corrosionAllowance') ? (getTankAttribute('corrosionAllowance') + ' mm') : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Espesor Placa Fondo:</span>
+            <span class="info-value">{{ getTankAttribute('bottomPlateThickness') ? (getTankAttribute('bottomPlateThickness') + ' mm') : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Espesor Placa Anular:</span>
+            <span class="info-value">{{ getTankAttribute('annularPlateThickness') ? (getTankAttribute('annularPlateThickness') + ' mm') : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Espesor Placa Techo:</span>
+            <span class="info-value">{{ getTankAttribute('roofPlateThickness') ? (getTankAttribute('roofPlateThickness') + ' mm') : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Peso Vacío:</span>
+            <span class="info-value">{{ getTankAttribute('emptyWeight') ? (getTankAttribute('emptyWeight') | number:'1.0-0') + ' kg' : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Presión de Diseño:</span>
+            <span class="info-value">{{ getTankAttribute('designPressure') ? (getTankAttribute('designPressure') + ' kPa') : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Temp. Diseño Min/Max:</span>
+            <span class="info-value">{{ getTankAttribute('designTemperatureMin') || 'N/A' }} / {{ getTankAttribute('designTemperatureMax') || 'N/A' }} °C</span>
+          </div>
+        </div>
+
+        <!-- Configuración del Radar -->
+        <div class="info-section">
+          <h4>📡 Configuración del Radar</h4>
+          <div class="info-row">
+            <span class="info-label">Offset Distance:</span>
+            <span class="info-value">{{ tank?.offsetDistance ? ((tank.offsetDistance * 1000) | levelFormat) : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Calibration Distance:</span>
+            <span class="info-value">{{ tank?.calibrationDistance ? ((tank.calibrationDistance * 1000) | levelFormat) : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Bottom Head Distance:</span>
+            <span class="info-value">{{ tank?.bottomHeadDistance ? ((tank.bottomHeadDistance * 1000) | levelFormat) : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Hold Off Distance:</span>
+            <span class="info-value">{{ tank?.holdOffDistance ? ((tank.holdOffDistance * 1000) | levelFormat) : 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">TCL:</span>
+            <span class="info-value">{{ tank?.tcl ? ((tank.tcl * 1000) | levelFormat) : 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Registro Manual -->
+    <div *ngIf="activeTab === 'registro'" class="tab-panel registro-panel">
+      <div class="registro-intro">
+        <h4>✏️ Registro Manual de Telemetría</h4>
+        <p>Ingrese los valores manuales para este tanque. Puede dejar campos vacíos si no tiene el valor.</p>
+      </div>
+
+      <!-- Mensajes -->
+      <div *ngIf="errorMessage" class="message error-message">
+        ❌ {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="message success-message">
+        ✅ {{ successMessage }}
+      </div>
+
+      <form class="registro-form" (ngSubmit)="saveManualEntry()">
+        <!-- Fecha y Hora -->
+        <div class="form-group">
+          <label>Fecha y Hora del Registro:</label>
+          <input
+            type="datetime-local"
+            [(ngModel)]="entryDateTimeLocal"
+            name="entryDateTime"
+            [max]="maxDateTimeLocal">
+          <small>Seleccione la fecha/hora a la que corresponde el registro</small>
+        </div>
+
+        <!-- Fuente -->
+        <div class="form-group">
+          <label>Fuente del Registro:</label>
+          <select [(ngModel)]="manualEntry.source" name="source">
+            <option *ngFor="let opt of sourceOptions" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+
+        <!-- API Gravity -->
+        <div class="form-group">
+          <label>API Gravity (del Laboratorio):</label>
+          <div class="input-with-unit">
+            <input
+              type="number"
+              [(ngModel)]="manualEntry.apiGravity"
+              name="apiGravity"
+              step="0.1"
+              min="0"
+              max="100"
+              placeholder="Ej: 35.5">
+            <span class="unit">°API</span>
+          </div>
+          <small>Gravedad API reportada por el laboratorio</small>
+        </div>
+
+        <!-- Nivel Manual -->
+        <div class="form-group">
+          <label>Nivel Manual (Aforo):</label>
+          
+          <!-- Modo Métrico (mm) -->
+          <div *ngIf="!isImperialUnits()" class="input-with-unit">
+            <input
+              type="number"
+              [(ngModel)]="manualEntry.manualLevel"
+              name="manualLevel"
+              step="1"
+              min="0"
+              placeholder="Ej: 8500">
+            <span class="unit">mm</span>
+          </div>
+          
+          <!-- Modo Imperial (ft/in) -->
+          <div *ngIf="isImperialUnits()" class="level-imperial-inputs">
+            <div class="input-group-imperial">
+              <div class="input-with-label">
+                <input
+                  type="number"
+                  [(ngModel)]="manualLevelFeet"
+                  name="manualLevelFeet"
+                  step="1"
+                  min="0"
+                  placeholder="0">
+                <span class="unit">ft</span>
+              </div>
+              <div class="input-with-label">
+                <input
+                  type="number"
+                  [(ngModel)]="manualLevelInches"
+                  name="manualLevelInches"
+                  step="1"
+                  min="0"
+                  max="11"
+                  placeholder="0">
+                <span class="unit">in</span>
+              </div>
+              <div class="input-with-label">
+                <select [(ngModel)]="manualLevelFraction" name="manualLevelFraction">
+                  <option *ngFor="let opt of fractionOptions" [value]="opt.value">{{ opt.label }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <small *ngIf="!isImperialUnits()">Nivel medido físicamente en milímetros</small>
+          <small *ngIf="isImperialUnits()">Nivel medido físicamente en pies, pulgadas y fracción</small>
+          
+          <div class="auto-value" *ngIf="tank?.level && !isImperialUnits()">
+            Nivel actual del radar: {{ tank.level | number:'1.0-0' }} mm
+          </div>
+          <div class="auto-value" *ngIf="tank?.level && isImperialUnits()">
+            Nivel actual del radar: {{ mmToFeetInches(tank.level).feet }}' {{ mmToFeetInches(tank.level).inches }}" {{ mmToFeetInches(tank.level).fraction }}
+          </div>
+        </div>
+
+        <!-- Temperatura Manual -->
+        <div class="form-group">
+          <label>Temperatura Manual:</label>
+          <div class="input-with-unit">
+            <input
+              type="number"
+              [(ngModel)]="manualEntry.manualTemperature"
+              name="manualTemperature"
+              step="0.1"
+              min="-50"
+              max="150"
+              placeholder="Ej: 28.5">
+            <span class="unit">°C</span>
+          </div>
+          <small>Temperatura medida manualmente</small>
+        </div>
+
+        <!-- BS&W (Basic Sediment and Water) -->
+        <div class="form-group">
+          <label>BS&W (Agua y Sedimentos):</label>
+          <div class="input-with-unit">
+            <input
+              type="number"
+              [(ngModel)]="manualEntry.bsw"
+              name="bsw"
+              step="0.1"
+              min="0"
+              max="100"
+              placeholder="Ej: 0.5">
+            <span class="unit">%</span>
+          </div>
+          <small>Porcentaje de agua y sedimentos (Basic Sediment and Water)</small>
+        </div>
+
+        <!-- Notas -->
+        <div class="form-group">
+          <label>Notas (opcional):</label>
+          <textarea
+            [(ngModel)]="manualEntry.notes"
+            name="notes"
+            rows="3"
+            placeholder="Observaciones adicionales..."></textarea>
+        </div>
+
+        <!-- Botones -->
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="resetManualEntryForm()">
+            Limpiar
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="savingEntry">
+            {{ savingEntry ? 'Guardando...' : 'Guardar Registro' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>

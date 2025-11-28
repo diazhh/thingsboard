@@ -1,0 +1,202 @@
+<div class="cylinder-gauge-container" [style.width.px]="width" [style.height.px]="height">
+  <svg #svgElement
+       [attr.width]="width"
+       [attr.height]="height"
+       [attr.viewBox]="'0 0 ' + width + ' ' + height"
+       class="cylinder-gauge-svg">
+
+    <!-- Definitions: Gradients and Clip Paths -->
+    <defs>
+      <!-- Cylinder body gradient (metallic/glass effect) -->
+      <linearGradient [attr.id]="cylinderGradientId" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#e0e0e0;stop-opacity:1" />
+        <stop offset="15%" style="stop-color:#f5f5f5;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:#ffffff;stop-opacity:1" />
+        <stop offset="85%" style="stop-color:#f5f5f5;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#bdbdbd;stop-opacity:1" />
+      </linearGradient>
+
+      <!-- Fill gradient (liquid effect) -->
+      <linearGradient [attr.id]="fillGradientId" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" [attr.style]="'stop-color:' + fillColorDark + ';stop-opacity:0.9'" />
+        <stop offset="30%" [attr.style]="'stop-color:' + fillColor + ';stop-opacity:1'" />
+        <stop offset="50%" [attr.style]="'stop-color:' + fillColor + ';stop-opacity:1'" />
+        <stop offset="70%" [attr.style]="'stop-color:' + fillColor + ';stop-opacity:1'" />
+        <stop offset="100%" [attr.style]="'stop-color:' + fillColorDark + ';stop-opacity:0.9'" />
+      </linearGradient>
+
+      <!-- Clip path for the cylinder body -->
+      <clipPath [attr.id]="uniqueId + '_clip'">
+        <rect
+          [attr.x]="cylinderX"
+          [attr.y]="cylinderY + ellipseRy"
+          [attr.width]="cylinderWidth"
+          [attr.height]="cylinderHeight - ellipseRy * 2" />
+      </clipPath>
+
+      <!-- Shadow filter -->
+      <filter [attr.id]="uniqueId + '_shadow'" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#00000033"/>
+      </filter>
+
+      <!-- Inner shadow for depth -->
+      <filter [attr.id]="uniqueId + '_inner_shadow'">
+        <feOffset dx="0" dy="2"/>
+        <feGaussianBlur stdDeviation="2" result="offset-blur"/>
+        <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+        <feFlood flood-color="#000" flood-opacity="0.2" result="color"/>
+        <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
+        <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
+      </filter>
+    </defs>
+
+    <!-- Scale markers on the left side -->
+    <g *ngIf="showScale" class="scale-markers">
+      <ng-container *ngFor="let marker of scaleMarkers; let i = index">
+        <!-- Scale line -->
+        <line
+          [attr.x1]="cylinderX - 10"
+          [attr.y1]="marker.y"
+          [attr.x2]="cylinderX - 3"
+          [attr.y2]="marker.y"
+          stroke="#666"
+          stroke-width="1" />
+        <!-- Scale label (only for first and last) -->
+        <text
+          *ngIf="marker.label"
+          [attr.x]="cylinderX - 12"
+          [attr.y]="marker.y + 4"
+          text-anchor="end"
+          class="scale-label">
+          {{ marker.label }}
+        </text>
+      </ng-container>
+    </g>
+
+    <!-- Cylinder shadow -->
+    <ellipse
+      [attr.cx]="cylinderX + cylinderWidth/2 + 3"
+      [attr.cy]="cylinderY + cylinderHeight - ellipseRy + 5"
+      [attr.rx]="cylinderWidth/2 + 2"
+      [attr.ry]="ellipseRy + 2"
+      fill="rgba(0,0,0,0.15)"
+      class="cylinder-shadow" />
+
+    <!-- Cylinder body (background) -->
+    <path
+      [attr.d]="cylinderBodyPath"
+      [attr.fill]="'url(#' + cylinderGradientId + ')'"
+      stroke="#bdbdbd"
+      stroke-width="1"
+      class="cylinder-body" />
+
+    <!-- Bottom ellipse (base) -->
+    <ellipse
+      [attr.cx]="cylinderX + cylinderWidth/2"
+      [attr.cy]="cylinderY + cylinderHeight - ellipseRy"
+      [attr.rx]="cylinderWidth/2"
+      [attr.ry]="ellipseRy"
+      [attr.fill]="'url(#' + cylinderGradientId + ')'"
+      stroke="#bdbdbd"
+      stroke-width="1"
+      class="cylinder-base" />
+
+    <!-- Fill (liquid) - Clipped rectangle -->
+    <g [attr.clip-path]="fillClipPath">
+      <rect
+        [attr.x]="cylinderX"
+        [attr.y]="fillY"
+        [attr.width]="cylinderWidth"
+        [attr.height]="fillHeight + ellipseRy"
+        [attr.fill]="'url(#' + fillGradientId + ')'"
+        [class.animate-fill]="animate"
+        class="fill-rect">
+        <!-- Animate fill height changes -->
+        <animate
+          *ngIf="animate"
+          attributeName="height"
+          [attr.to]="fillHeight + ellipseRy"
+          dur="0.5s"
+          fill="freeze" />
+      </rect>
+    </g>
+
+    <!-- Fill top surface (ellipse at liquid level) -->
+    <ellipse
+      *ngIf="value > 0"
+      [attr.cx]="cylinderX + cylinderWidth/2"
+      [attr.cy]="fillY"
+      [attr.rx]="cylinderWidth/2 - 1"
+      [attr.ry]="ellipseRy - 1"
+      [attr.fill]="fillColor"
+      opacity="0.8"
+      [class.animate-fill]="animate"
+      class="fill-surface">
+    </ellipse>
+
+    <!-- Highlight reflection (glass effect) -->
+    <rect
+      [attr.x]="cylinderX + cylinderWidth * 0.1"
+      [attr.y]="cylinderY + ellipseRy + 5"
+      [attr.width]="cylinderWidth * 0.15"
+      [attr.height]="cylinderHeight * 0.6"
+      [attr.rx]="3"
+      fill="rgba(255,255,255,0.3)"
+      class="highlight" />
+
+    <!-- Top ellipse (cap) -->
+    <ellipse
+      [attr.cx]="cylinderX + cylinderWidth/2"
+      [attr.cy]="cylinderY + ellipseRy"
+      [attr.rx]="cylinderWidth/2"
+      [attr.ry]="ellipseRy"
+      [attr.fill]="'url(#' + cylinderGradientId + ')'"
+      stroke="#bdbdbd"
+      stroke-width="1"
+      class="cylinder-top" />
+
+    <!-- Top cap inner ring -->
+    <ellipse
+      [attr.cx]="cylinderX + cylinderWidth/2"
+      [attr.cy]="cylinderY + ellipseRy"
+      [attr.rx]="cylinderWidth/2 - 5"
+      [attr.ry]="ellipseRy - 2"
+      fill="none"
+      stroke="#9e9e9e"
+      stroke-width="1"
+      opacity="0.5"
+      class="cylinder-top-ring" />
+
+    <!-- Value display -->
+    <g *ngIf="showValue" class="value-display">
+      <text
+        [attr.x]="width / 2"
+        [attr.y]="cylinderY + cylinderHeight + ellipseRy + 20"
+        text-anchor="middle"
+        class="value-text">
+        {{ displayString }}
+      </text>
+    </g>
+
+    <!-- Labels -->
+    <g *ngIf="showLabels" class="labels">
+      <text
+        *ngIf="label"
+        [attr.x]="width / 2"
+        [attr.y]="height - 20"
+        text-anchor="middle"
+        class="label-text">
+        {{ label }}
+      </text>
+      <text
+        *ngIf="subLabel"
+        [attr.x]="width / 2"
+        [attr.y]="height - 5"
+        text-anchor="middle"
+        class="sub-label-text">
+        {{ subLabel }}
+      </text>
+    </g>
+
+  </svg>
+</div>

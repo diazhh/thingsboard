@@ -31,9 +31,23 @@ $mat-md-lg: "screen and (min-width: 960px) and (max-width: 1819px)";
 
 $primary-hue-3: rgb(207, 216, 220) !default;
 
-$tb-primary-color: #305680;
-$tb-secondary-color: #527dad;
-$tb-hue3-color: #a7c1de;
+// GDT - Guardian de Tanques - Industrial Teal/Green Theme
+// Completely different from ThingsBoard's blue palette
+$tb-primary-color: #0d7377;        // Deep teal - primary
+$tb-secondary-color: #14919b;      // Medium teal - secondary
+$tb-hue3-color: #32e0c4;           // Bright cyan accent
 
-$tb-dark-primary-color: #9fa8da;
-$tb-primary-color-light: #7986cb;
+$tb-dark-primary-color: #32e0c4;   // Bright cyan for dark theme
+$tb-primary-color-light: #14919b;  // Light variant
+
+// GDT Custom Variables
+$gdt-accent-color: #ff6b35;        // Orange accent for alerts/actions
+$gdt-success-color: #2ecc71;       // Green for success states
+$gdt-warning-color: #f39c12;       // Amber for warnings
+$gdt-danger-color: #e74c3c;        // Red for danger/errors
+$gdt-background: #f8fafb;          // Light gray-blue background
+$gdt-surface: #ffffff;             // White surface
+$gdt-text-primary: #212529;        // Dark text
+$gdt-text-secondary: #6c757d;      // Muted text
+$gdt-border-radius: 12px;          // Rounded corners
+$gdt-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);

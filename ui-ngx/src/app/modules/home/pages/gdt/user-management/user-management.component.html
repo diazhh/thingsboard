@@ -1,0 +1,168 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="gdt-user-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <mat-icon class="header-icon">group</mat-icon>
+        <div>
+          <h1>Gestión de Usuarios</h1>
+          <p class="subtitle">Administre los usuarios del sistema y sus roles</p>
+        </div>
+      </div>
+      <button mat-raised-button color="primary" (click)="addUser()">
+        <mat-icon>person_add</mat-icon>
+        Agregar Usuario
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <mat-icon>people</mat-icon>
+      <div class="stat-content">
+        <span class="stat-value">{{ totalElements }}</span>
+        <span class="stat-label">Total Usuarios</span>
+      </div>
+    </div>
+    <div class="stat-card active">
+      <mat-icon>check_circle</mat-icon>
+      <div class="stat-content">
+        <span class="stat-value">{{ getActiveUsersCount() }}</span>
+        <span class="stat-label">Activos</span>
+      </div>
+    </div>
+    <div class="stat-card pending">
+      <mat-icon>schedule</mat-icon>
+      <div class="stat-content">
+        <span class="stat-value">{{ getPendingUsersCount() }}</span>
+        <span class="stat-label">Pendientes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <div class="table-toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar usuarios</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Email, nombre...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <div class="table-wrapper">
+      <mat-progress-bar *ngIf="isLoading" mode="indeterminate" color="primary"></mat-progress-bar>
+      
+      <table mat-table [dataSource]="dataSource" matSort class="users-table">
+        
+        <!-- Email Column -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+          <td mat-cell *matCellDef="let user">
+            <div class="user-email">
+              <mat-icon class="user-avatar">account_circle</mat-icon>
+              <span>{{ user.email }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- First Name Column -->
+        <ng-container matColumnDef="firstName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+          <td mat-cell *matCellDef="let user">{{ user.firstName }}</td>
+        </ng-container>
+
+        <!-- Last Name Column -->
+        <ng-container matColumnDef="lastName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Apellido</th>
+          <td mat-cell *matCellDef="let user">{{ user.lastName }}</td>
+        </ng-container>
+
+        <!-- Authority Column -->
+        <ng-container matColumnDef="authority">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Rol</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="role-badge" [ngClass]="'role-' + user.authority.toLowerCase()">
+              {{ getRoleLabel(user.authority) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="status-badge" [ngClass]="getUserStatus(user).class">
+              {{ getUserStatus(user).label }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let user">
+            <div class="action-buttons">
+              <button mat-icon-button matTooltip="Ver enlace de activación" 
+                      (click)="displayActivationLink(user)"
+                      *ngIf="!user.additionalInfo?.userActivated">
+                <mat-icon>link</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Reenviar activación" 
+                      (click)="resendActivation(user)"
+                      *ngIf="!user.additionalInfo?.userActivated">
+                <mat-icon>send</mat-icon>
+              </button>
+              <button mat-icon-button 
+                      [matTooltip]="user.additionalInfo?.userCredentialsEnabled !== false ? 'Deshabilitar' : 'Habilitar'"
+                      (click)="toggleUserStatus(user)">
+                <mat-icon>{{ user.additionalInfo?.userCredentialsEnabled !== false ? 'block' : 'check_circle' }}</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Eliminar" color="warn" (click)="deleteUser(user)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <!-- No Data Row -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+            <div class="no-data-content">
+              <mat-icon>person_off</mat-icon>
+              <span>No se encontraron usuarios</span>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <mat-paginator [length]="totalElements"
+                   [pageSize]="pageSize"
+                   [pageSizeOptions]="[5, 10, 25, 50]"
+                   (page)="onPageChange($event)"
+                   showFirstLastButtons>
+    </mat-paginator>
+  </div>
+</div>

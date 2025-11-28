@@ -20,6 +20,10 @@ public enum Authority {
     SYS_ADMIN(0),
     TENANT_ADMIN(1),
     CUSTOMER_USER(2),
+    OPERADOR(3),
+    INGENIERO(4),
+    REPORTES(5),
+    LABORATORIO(6),
 
     REFRESH_TOKEN(10),
     PRE_VERIFICATION_TOKEN(11),

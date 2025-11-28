@@ -1,0 +1,1586 @@
+<div class="tank-configuration-widget">
+
+  <!-- MAIN MENU - Only shown when no section is selected -->
+  <div *ngIf="activeSection === null" class="main-menu">
+    <div class="menu-header">
+      <h1>Configuración del Sistema</h1>
+      <p class="subtitle">Selecciona el módulo que deseas configurar</p>
+    </div>
+
+    <div class="menu-cards">
+      <mat-card class="menu-card tanks" (click)="setActiveSection('tanks')">
+        <mat-card-content>
+          <div class="card-icon">
+            <mat-icon>storage</mat-icon>
+          </div>
+          <h2>Configuración de Tanques</h2>
+          <p>Gestiona tanques, asigna radares y configura tablas de calibración</p>
+          <div class="card-stats">
+            <span><strong>{{ tanks.length }}</strong> Tanques</span>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">
+            Abrir
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <mat-card class="menu-card radars" (click)="setActiveSection('radars')">
+        <mat-card-content>
+          <div class="card-icon">
+            <mat-icon>sensors</mat-icon>
+          </div>
+          <h2>Configuración de Radares</h2>
+          <p>Configura parámetros Modbus y valida comunicación con radares</p>
+          <div class="card-stats">
+            <span><strong>{{ radars.length }}</strong> Radares</span>
+            <span><strong>{{ unassignedRadars.length }}</strong> Disponibles</span>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">
+            Abrir
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <mat-card class="menu-card general" (click)="setActiveSection('general')">
+        <mat-card-content>
+          <div class="card-icon">
+            <mat-icon>settings</mat-icon>
+          </div>
+          <h2>Configuración General</h2>
+          <p>Ajustes globales del sistema, formatos de visualización y escaneo Modbus</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">
+            Abrir
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Cargando configuración...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="loadAllData()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Content - Only shown when a section is selected -->
+  <div *ngIf="!loading && !error && activeSection !== null" class="config-content">
+
+    <!-- SECTION 1: TANK CONFIGURATION -->
+    <div *ngIf="activeSection === 'tanks'" class="section-content">
+
+      <!-- TANK FORM VIEW (Create/Edit) -->
+      <div *ngIf="tankFormMode === 'create' || tankFormMode === 'edit'" class="tank-form-view">
+        <!-- Header -->
+        <div class="form-view-header">
+          <button mat-icon-button (click)="closeTankModal()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div class="header-title">
+            <h2>{{ tankFormMode === 'create' ? 'Nuevo Tanque' : 'Editar Tanque' }}</h2>
+            <p class="subtitle">{{ tankFormMode === 'create' ? 'Complete la información para crear un nuevo tanque' : 'Modifique los datos del tanque: ' + tankForm.tankTag }}</p>
+          </div>
+          <div class="header-actions">
+            <button mat-button (click)="closeTankModal()">
+              <mat-icon>close</mat-icon>
+              Cancelar
+            </button>
+            <button mat-raised-button color="primary" (click)="saveTank()" [disabled]="saving">
+              <mat-icon>{{ saving ? 'hourglass_empty' : 'save' }}</mat-icon>
+              {{ saving ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Form Content with Visualization -->
+        <div class="form-view-content">
+          <!-- Left: Tank Visualization -->
+          <div class="tank-visualization-panel">
+            <mat-card class="visualization-card">
+              <mat-card-header>
+                <mat-card-title>Vista Previa del Tanque</mat-card-title>
+                <mat-card-subtitle>{{ tankForm.tankTag || 'Sin Tag' }} - {{ tankForm.tankName || 'Sin Nombre' }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="tank-svg-container">
+                  <svg viewBox="0 0 300 320" class="tank-preview-svg">
+                    <!-- Tank Shell -->
+                    <path [attr.d]="getTankSvgPath()" class="tank-shell" />
+
+                    <!-- Roof (separate for different color) -->
+                    <path *ngIf="getRoofSvgPath()" [attr.d]="getRoofSvgPath()" class="tank-roof" />
+
+                    <!-- Dimensions annotations -->
+                    <g class="dimension-labels" *ngIf="tankForm.tankShape === 'vertical_cylinder'">
+                      <!-- Height dimension -->
+                      <line x1="270" y1="70" x2="270" y2="290" class="dimension-line"/>
+                      <line x1="265" y1="70" x2="275" y2="70" class="dimension-line"/>
+                      <line x1="265" y1="290" x2="275" y2="290" class="dimension-line"/>
+                      <text x="280" y="180" class="dimension-text">{{ formatValueForSVG(tankForm.tankHeight) }}</text>
+
+                      <!-- Diameter dimension -->
+                      <line x1="50" y1="305" x2="250" y2="305" class="dimension-line"/>
+                      <line x1="50" y1="300" x2="50" y2="310" class="dimension-line"/>
+                      <line x1="250" y1="300" x2="250" y2="310" class="dimension-line"/>
+                      <text x="130" y="318" class="dimension-text">Ø {{ formatValueForSVG(tankForm.tankDiameter) }}</text>
+                    </g>
+
+                    <!-- Tank info -->
+                    <g class="tank-info-labels">
+                      <text x="150" y="15" text-anchor="middle" class="tank-type-label">
+                        {{ tankShapeOptions | find:'value':tankForm.tankShape:'label' }}
+                      </text>
+                    </g>
+                  </svg>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="tank-quick-stats">
+                  <div class="stat-item">
+                    <span class="stat-label">Capacidad</span>
+                    <span class="stat-value">{{ tankForm.tankCapacity | number:'1.0-0' }} m³</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Tipo Techo</span>
+                    <span class="stat-value">{{ roofTypeOptions | find:'value':tankForm.roofType:'label' }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Material</span>
+                    <span class="stat-value">{{ materialOptions | find:'value':tankForm.shellMaterial:'label' }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Peso Estimado</span>
+                    <span class="stat-value">{{ tankForm.emptyWeight || '-' }} kg</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Right: Form Tabs -->
+          <div class="tank-form-panel">
+            <mat-tab-group [(selectedIndex)]="formActiveTab" animationDuration="200ms">
+
+              <!-- TAB 1: Identificación y Geometría -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>info</mat-icon>
+                  Identificación
+                </ng-template>
+
+                <div class="tab-form-content">
+                  <!-- Identification Section -->
+                  <div class="form-section">
+                    <h4><mat-icon>label</mat-icon> Identificación</h4>
+                    <div class="form-grid-2">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tag del Tanque *</mat-label>
+                        <input matInput [(ngModel)]="tankForm.tankTag" placeholder="TK-101">
+                        <mat-hint>Identificador único (ej: TK-101)</mat-hint>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Nombre del Tanque *</mat-label>
+                        <input matInput [(ngModel)]="tankForm.tankName" placeholder="Tanque de Diesel #1">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Ubicación</mat-label>
+                        <input matInput [(ngModel)]="tankForm.location" placeholder="Área Norte - Zona 3">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Estándar de Diseño</mat-label>
+                        <mat-select [(ngModel)]="tankForm.designStandard">
+                          <mat-option value="API 650">API 650</mat-option>
+                          <mat-option value="API 620">API 620</mat-option>
+                          <mat-option value="ASME">ASME</mat-option>
+                          <mat-option value="EN 14015">EN 14015</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Descripción</mat-label>
+                        <textarea matInput [(ngModel)]="tankForm.description" rows="2" placeholder="Descripción del tanque"></textarea>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <!-- Geometry Section -->
+                  <div class="form-section">
+                    <h4><mat-icon>straighten</mat-icon> Geometría</h4>
+                    <div class="form-grid-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Forma del Tanque *</mat-label>
+                        <mat-select [(ngModel)]="tankForm.tankShape" (selectionChange)="calculateCapacity()">
+                          <mat-option *ngFor="let opt of tankShapeOptions" [value]="opt.value">
+                            <mat-icon>{{ opt.icon }}</mat-icon>
+                            {{ opt.label }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+
+                      <!-- Input Simple (mm, cm, m, in, ft) -->
+                      <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                        <mat-label>Altura ({{ getInputUnit() || selectedLevelFormat }}) *</mat-label>
+                        <input matInput 
+                               type="number" 
+                               [value]="formatValueForInput(tankForm.tankHeight)"
+                               [placeholder]="getInputPlaceholder()"
+                               (blur)="parseAndUpdateValue($event.target.value, 'tankHeight')"
+                               [step]="isIntegerInput() ? 1 : 0.1"
+                               [min]="0">
+                      </mat-form-field>
+
+                      <!-- Input Pies-Pulgadas (ft-in) -->
+                      <tb-feet-inches-input 
+                        *ngIf="getInputType() === 'feet-inches'"
+                        label="Altura"
+                        [valueInMeters]="tankForm.tankHeight"
+                        [required]="true"
+                        (valueChange)="tankForm.tankHeight = $event; calculateCapacity()">
+                      </tb-feet-inches-input>
+
+                      <!-- Input Pies-Pulgadas-Fracción (ft-in-1/8, ft-in-1/16, etc.) -->
+                      <tb-feet-inches-fraction-input 
+                        *ngIf="getInputType() === 'feet-inches-fraction'"
+                        label="Altura"
+                        [valueInMeters]="tankForm.tankHeight"
+                        [fractionFormat]="selectedLevelFormat"
+                        [required]="true"
+                        (valueChange)="tankForm.tankHeight = $event; calculateCapacity()">
+                      </tb-feet-inches-fraction-input>
+
+                      <!-- Input Simple (mm, cm, m, in, ft) -->
+                      <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                        <mat-label>Diámetro ({{ getInputUnit() || selectedLevelFormat }}) *</mat-label>
+                        <input matInput 
+                               type="number" 
+                               [value]="formatValueForInput(tankForm.tankDiameter)"
+                               [placeholder]="getInputPlaceholder()"
+                               (blur)="parseAndUpdateValue($event.target.value, 'tankDiameter')"
+                               [step]="isIntegerInput() ? 1 : 0.1"
+                               [min]="0">
+                      </mat-form-field>
+
+                      <!-- Input Pies-Pulgadas (ft-in) -->
+                      <tb-feet-inches-input 
+                        *ngIf="getInputType() === 'feet-inches'"
+                        label="Diámetro"
+                        [valueInMeters]="tankForm.tankDiameter"
+                        [required]="true"
+                        (valueChange)="tankForm.tankDiameter = $event; calculateCapacity()">
+                      </tb-feet-inches-input>
+
+                      <!-- Input Pies-Pulgadas-Fracción (ft-in-1/8, ft-in-1/16, etc.) -->
+                      <tb-feet-inches-fraction-input 
+                        *ngIf="getInputType() === 'feet-inches-fraction'"
+                        label="Diámetro"
+                        [valueInMeters]="tankForm.tankDiameter"
+                        [fractionFormat]="selectedLevelFormat"
+                        [required]="true"
+                        (valueChange)="tankForm.tankDiameter = $event; calculateCapacity()">
+                      </tb-feet-inches-fraction-input>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Capacidad Nominal (m³)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.tankCapacity" readonly>
+                        <mat-hint>Calculada automáticamente</mat-hint>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Capacidad de Trabajo (m³)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.workingCapacity" step="0.1">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Volumen Muerto (m³)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.deadStock" step="0.1">
+                        <mat-hint>Stock no utilizable</mat-hint>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+              </mat-tab>
+
+              <!-- TAB 2: Estructura -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>architecture</mat-icon>
+                  Estructura
+                </ng-template>
+
+                <div class="tab-form-content">
+                  <!-- Roof Section -->
+                  <div class="form-section">
+                    <h4><mat-icon>roofing</mat-icon> Configuración del Techo</h4>
+                    <div class="form-grid-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tipo de Techo</mat-label>
+                        <mat-select [(ngModel)]="tankForm.roofType">
+                          <mat-option *ngFor="let opt of roofTypeOptions" [value]="opt.value">
+                            {{ opt.label }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" *ngIf="tankForm.tankShape === 'vertical_cylinder'">
+                        <mat-label>Pendiente del Techo (°)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.roofSlope" step="0.1" min="0" max="45">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Espesor Placa Techo (mm)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.roofPlateThickness" step="0.5" min="3">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" *ngIf="isFloatingRoof()">
+                        <mat-label>Tipo de Cubierta Flotante</mat-label>
+                        <mat-select [(ngModel)]="tankForm.floatingDeckType">
+                          <mat-option *ngFor="let opt of floatingDeckOptions" [value]="opt.value">
+                            {{ opt.label }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Material del Techo</mat-label>
+                        <mat-select [(ngModel)]="tankForm.roofMaterial">
+                          <mat-option *ngFor="let opt of materialOptions" [value]="opt.value">
+                            {{ opt.label }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <!-- Shell Section -->
+                  <div class="form-section">
+                    <h4><mat-icon>view_column</mat-icon> Especificaciones del Casco</h4>
+                    <div class="form-grid-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Material del Casco</mat-label>
+                        <mat-select [(ngModel)]="tankForm.shellMaterial">
+                          <mat-option *ngFor="let opt of materialOptions" [value]="opt.value">
+                            {{ opt.label }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Número de Cursos</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.shellCourses" min="1" max="20">
+                        <mat-hint>Anillos horizontales del casco</mat-hint>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Espesor Curso Inferior (mm)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.shellThicknessBottom" step="0.5" min="6">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Espesor Curso Superior (mm)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.shellThicknessTop" step="0.5" min="6">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tolerancia Corrosión (mm)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.corrosionAllowance" step="0.5" min="0">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Peso Vacío (kg)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.emptyWeight" step="100">
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <!-- Bottom Section -->
+                  <div class="form-section">
+                    <h4><mat-icon>layers</mat-icon> Configuración del Fondo</h4>
+                    <div class="form-grid-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tipo de Fondo</mat-label>
+                        <mat-select [(ngModel)]="tankForm.bottomType">
+                          <mat-option *ngFor="let opt of bottomTypeOptions" [value]="opt.value">
+                            {{ opt.label }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" *ngIf="tankForm.bottomType !== 'flat'">
+                        <mat-label>Pendiente del Fondo (%)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.bottomSlope" step="0.1" min="0">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Espesor Placa Fondo (mm)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.bottomPlateThickness" step="0.5" min="6">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Espesor Placa Anular (mm)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.annularPlateThickness" step="0.5" min="6">
+                        <mat-hint>Placa perimetral de refuerzo</mat-hint>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Ancho Placa Anular (mm)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.annularPlateWidth" step="10" min="600">
+                        <mat-hint>Mín. 600mm según API 650</mat-hint>
+                      </mat-form-field>
+
+                      <div class="checkbox-field">
+                        <mat-checkbox [(ngModel)]="tankForm.hasHeatingCoils">
+                          Serpentines de Calentamiento
+                        </mat-checkbox>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </mat-tab>
+
+              <!-- TAB 3: Producto y Operación -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>local_gas_station</mat-icon>
+                  Producto
+                </ng-template>
+
+                <div class="tab-form-content">
+                  <!-- Product Section -->
+                  <div class="form-section">
+                    <h4><mat-icon>water_drop</mat-icon> Información del Producto</h4>
+                    <div class="form-grid-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Nombre del Producto *</mat-label>
+                        <input matInput [(ngModel)]="tankForm.productName" placeholder="Diesel">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Servicio/Clasificación</mat-label>
+                        <mat-select [(ngModel)]="tankForm.tankService">
+                          <mat-option *ngFor="let opt of tankServiceOptions" [value]="opt.value">
+                            {{ opt.label }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Gravedad API &#64; 60°F</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.apiGravityBase" step="0.1">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Gravedad Específica</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.specificGravity" step="0.001">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Punto de Inflamación (°C)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.flashPoint" step="1">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Temp. Normal Operación (°C)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.productTempNormal" step="1">
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <!-- Design Conditions -->
+                  <div class="form-section">
+                    <h4><mat-icon>engineering</mat-icon> Condiciones de Diseño</h4>
+                    <div class="form-grid-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Presión de Diseño (kPa)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.designPressure" step="0.1">
+                        <mat-hint>Máx. 2.5 kPa para API 650</mat-hint>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Temp. Mín. Diseño (°C)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.designTemperatureMin" step="1">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Temp. Máx. Diseño (°C)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.designTemperatureMax" step="1">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tasa Máx. Llenado (m³/h)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.maxFillRate" step="1">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tasa Máx. Vaciado (m³/h)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.maxDrawRate" step="1">
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <!-- Insulation -->
+                  <div class="form-section">
+                    <h4><mat-icon>thermostat</mat-icon> Aislamiento</h4>
+                    <div class="form-grid-3">
+                      <div class="checkbox-field">
+                        <mat-checkbox [(ngModel)]="tankForm.isInsulated">
+                          Tanque Aislado
+                        </mat-checkbox>
+                      </div>
+
+                      <mat-form-field appearance="outline" *ngIf="tankForm.isInsulated">
+                        <mat-label>Tipo de Aislamiento</mat-label>
+                        <input matInput [(ngModel)]="tankForm.insulationType" placeholder="Lana mineral">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" *ngIf="tankForm.isInsulated">
+                        <mat-label>Espesor Aislamiento (mm)</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.insulationThickness" step="5">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+              </mat-tab>
+
+              <!-- TAB 4: Niveles y Alarmas -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>notifications</mat-icon>
+                  Niveles
+                </ng-template>
+
+                <div class="tab-form-content">
+                  <!-- Alarm Levels -->
+                  <div class="form-section">
+                    <h4><mat-icon>warning</mat-icon> Niveles de Alarma</h4>
+                    <div class="alarm-levels-grid">
+                      <div class="alarm-input high-high">
+                        <div class="alarm-badge">
+                          <mat-icon>arrow_upward</mat-icon>
+                          <span>HH</span>
+                        </div>
+                        
+                        <!-- Input Simple -->
+                        <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                          <mat-label>Alto-Alto ({{ getInputUnit() || selectedLevelFormat }})</mat-label>
+                          <input matInput 
+                                 type="number" 
+                                 [value]="formatValueForInput(tankForm.alarmHH)"
+                                 (blur)="parseAndUpdateValue($event.target.value, 'alarmHH')"
+                                 [step]="isIntegerInput() ? 1 : 0.1"
+                                 [min]="0">
+                        </mat-form-field>
+
+                        <!-- Input Pies-Pulgadas -->
+                        <tb-feet-inches-input 
+                          *ngIf="getInputType() === 'feet-inches'"
+                          label="Alto-Alto"
+                          [valueInMeters]="tankForm.alarmHH"
+                          (valueChange)="tankForm.alarmHH = $event">
+                        </tb-feet-inches-input>
+
+                        <!-- Input Pies-Pulgadas-Fracción -->
+                        <tb-feet-inches-fraction-input 
+                          *ngIf="getInputType() === 'feet-inches-fraction'"
+                          label="Alto-Alto"
+                          [valueInMeters]="tankForm.alarmHH"
+                          [fractionFormat]="selectedLevelFormat"
+                          (valueChange)="tankForm.alarmHH = $event">
+                        </tb-feet-inches-fraction-input>
+                      </div>
+
+                      <div class="alarm-input high">
+                        <div class="alarm-badge">
+                          <mat-icon>arrow_upward</mat-icon>
+                          <span>H</span>
+                        </div>
+                        
+                        <!-- Input Simple -->
+                        <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                          <mat-label>Alto ({{ getInputUnit() || selectedLevelFormat }})</mat-label>
+                          <input matInput 
+                                 type="number" 
+                                 [value]="formatValueForInput(tankForm.alarmH)"
+                                 (blur)="parseAndUpdateValue($event.target.value, 'alarmH')"
+                                 [step]="isIntegerInput() ? 1 : 0.1"
+                                 [min]="0">
+                        </mat-form-field>
+
+                        <!-- Input Pies-Pulgadas -->
+                        <tb-feet-inches-input 
+                          *ngIf="getInputType() === 'feet-inches'"
+                          label="Alto"
+                          [valueInMeters]="tankForm.alarmH"
+                          (valueChange)="tankForm.alarmH = $event">
+                        </tb-feet-inches-input>
+
+                        <!-- Input Pies-Pulgadas-Fracción -->
+                        <tb-feet-inches-fraction-input 
+                          *ngIf="getInputType() === 'feet-inches-fraction'"
+                          label="Alto"
+                          [valueInMeters]="tankForm.alarmH"
+                          [fractionFormat]="selectedLevelFormat"
+                          (valueChange)="tankForm.alarmH = $event">
+                        </tb-feet-inches-fraction-input>
+                      </div>
+
+                      <div class="alarm-input low">
+                        <div class="alarm-badge">
+                          <mat-icon>arrow_downward</mat-icon>
+                          <span>L</span>
+                        </div>
+                        
+                        <!-- Input Simple -->
+                        <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                          <mat-label>Bajo ({{ getInputUnit() || selectedLevelFormat }})</mat-label>
+                          <input matInput 
+                                 type="number" 
+                                 [value]="formatValueForInput(tankForm.alarmL)"
+                                 (blur)="parseAndUpdateValue($event.target.value, 'alarmL')"
+                                 [step]="isIntegerInput() ? 1 : 0.1"
+                                 [min]="0">
+                        </mat-form-field>
+
+                        <!-- Input Pies-Pulgadas -->
+                        <tb-feet-inches-input 
+                          *ngIf="getInputType() === 'feet-inches'"
+                          label="Bajo"
+                          [valueInMeters]="tankForm.alarmL"
+                          (valueChange)="tankForm.alarmL = $event">
+                        </tb-feet-inches-input>
+
+                        <!-- Input Pies-Pulgadas-Fracción -->
+                        <tb-feet-inches-fraction-input 
+                          *ngIf="getInputType() === 'feet-inches-fraction'"
+                          label="Bajo"
+                          [valueInMeters]="tankForm.alarmL"
+                          [fractionFormat]="selectedLevelFormat"
+                          (valueChange)="tankForm.alarmL = $event">
+                        </tb-feet-inches-fraction-input>
+                      </div>
+
+                      <div class="alarm-input low-low">
+                        <div class="alarm-badge">
+                          <mat-icon>arrow_downward</mat-icon>
+                          <span>LL</span>
+                        </div>
+                        
+                        <!-- Input Simple -->
+                        <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                          <mat-label>Bajo-Bajo ({{ getInputUnit() || selectedLevelFormat }})</mat-label>
+                          <input matInput 
+                                 type="number" 
+                                 [value]="formatValueForInput(tankForm.alarmLL)"
+                                 (blur)="parseAndUpdateValue($event.target.value, 'alarmLL')"
+                                 [step]="isIntegerInput() ? 1 : 0.1"
+                                 [min]="0">
+                        </mat-form-field>
+
+                        <!-- Input Pies-Pulgadas -->
+                        <tb-feet-inches-input 
+                          *ngIf="getInputType() === 'feet-inches'"
+                          label="Bajo-Bajo"
+                          [valueInMeters]="tankForm.alarmLL"
+                          (valueChange)="tankForm.alarmLL = $event">
+                        </tb-feet-inches-input>
+
+                        <!-- Input Pies-Pulgadas-Fracción -->
+                        <tb-feet-inches-fraction-input 
+                          *ngIf="getInputType() === 'feet-inches-fraction'"
+                          label="Bajo-Bajo"
+                          [valueInMeters]="tankForm.alarmLL"
+                          [fractionFormat]="selectedLevelFormat"
+                          (valueChange)="tankForm.alarmLL = $event">
+                        </tb-feet-inches-fraction-input>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Operating Levels -->
+                  <div class="form-section">
+                    <h4><mat-icon>height</mat-icon> Niveles Operativos</h4>
+                    <div class="form-grid-3">
+                      <!-- Input Simple -->
+                      <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                        <mat-label>Nivel Máx. Seguro ({{ getInputUnit() || selectedLevelFormat }})</mat-label>
+                        <input matInput 
+                               type="number" 
+                               [value]="formatValueForInput(tankForm.maxSafeLevel)"
+                               (blur)="parseAndUpdateValue($event.target.value, 'maxSafeLevel')"
+                               [step]="isIntegerInput() ? 1 : 0.1"
+                               [min]="0">
+                      </mat-form-field>
+
+                      <!-- Input Pies-Pulgadas -->
+                      <tb-feet-inches-input 
+                        *ngIf="getInputType() === 'feet-inches'"
+                        label="Nivel Máx. Seguro"
+                        [valueInMeters]="tankForm.maxSafeLevel"
+                        (valueChange)="tankForm.maxSafeLevel = $event">
+                      </tb-feet-inches-input>
+
+                      <!-- Input Pies-Pulgadas-Fracción -->
+                      <tb-feet-inches-fraction-input 
+                        *ngIf="getInputType() === 'feet-inches-fraction'"
+                        label="Nivel Máx. Seguro"
+                        [valueInMeters]="tankForm.maxSafeLevel"
+                        [fractionFormat]="selectedLevelFormat"
+                        (valueChange)="tankForm.maxSafeLevel = $event">
+                      </tb-feet-inches-fraction-input>
+
+                      <!-- Input Simple -->
+                      <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                        <mat-label>Nivel Mín. Operativo ({{ getInputUnit() || selectedLevelFormat }})</mat-label>
+                        <input matInput 
+                               type="number" 
+                               [value]="formatValueForInput(tankForm.minOperatingLevel)"
+                               (blur)="parseAndUpdateValue($event.target.value, 'minOperatingLevel')"
+                               [step]="isIntegerInput() ? 1 : 0.1"
+                               [min]="0">
+                      </mat-form-field>
+
+                      <!-- Input Pies-Pulgadas -->
+                      <tb-feet-inches-input 
+                        *ngIf="getInputType() === 'feet-inches'"
+                        label="Nivel Mín. Operativo"
+                        [valueInMeters]="tankForm.minOperatingLevel"
+                        (valueChange)="tankForm.minOperatingLevel = $event">
+                      </tb-feet-inches-input>
+
+                      <!-- Input Pies-Pulgadas-Fracción -->
+                      <tb-feet-inches-fraction-input 
+                        *ngIf="getInputType() === 'feet-inches-fraction'"
+                        label="Nivel Mín. Operativo"
+                        [valueInMeters]="tankForm.minOperatingLevel"
+                        [fractionFormat]="selectedLevelFormat"
+                        (valueChange)="tankForm.minOperatingLevel = $event">
+                      </tb-feet-inches-fraction-input>
+
+                      <!-- Input Simple -->
+                      <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                        <mat-label>Altura Referencia ({{ getInputUnit() || selectedLevelFormat }})</mat-label>
+                        <input matInput 
+                               type="number" 
+                               [value]="formatValueForInput(tankForm.referenceHeight)"
+                               (blur)="parseAndUpdateValue($event.target.value, 'referenceHeight')"
+                               [step]="isIntegerInput() ? 1 : 0.1"
+                               [min]="0">
+                        <mat-hint>Para calibración/aforo</mat-hint>
+                      </mat-form-field>
+
+                      <!-- Input Pies-Pulgadas -->
+                      <tb-feet-inches-input 
+                        *ngIf="getInputType() === 'feet-inches'"
+                        label="Altura Referencia"
+                        [valueInMeters]="tankForm.referenceHeight"
+                        (valueChange)="tankForm.referenceHeight = $event">
+                      </tb-feet-inches-input>
+
+                      <!-- Input Pies-Pulgadas-Fracción -->
+                      <tb-feet-inches-fraction-input 
+                        *ngIf="getInputType() === 'feet-inches-fraction'"
+                        label="Altura Referencia"
+                        [valueInMeters]="tankForm.referenceHeight"
+                        [fractionFormat]="selectedLevelFormat"
+                        (valueChange)="tankForm.referenceHeight = $event">
+                      </tb-feet-inches-fraction-input>
+                    </div>
+                  </div>
+
+                  <!-- Nozzle Heights -->
+                  <div class="form-section">
+                    <h4><mat-icon>plumbing</mat-icon> Alturas de Boquillas</h4>
+                    <div class="form-grid-3">
+                      <!-- Input Simple -->
+                      <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                        <mat-label>Altura Escotilla Aforo ({{ getInputUnit() || selectedLevelFormat }})</mat-label>
+                        <input matInput 
+                               type="number" 
+                               [value]="formatValueForInput(tankForm.gaugeHatchHeight)"
+                               (blur)="parseAndUpdateValue($event.target.value, 'gaugeHatchHeight')"
+                               [step]="isIntegerInput() ? 1 : 0.1"
+                               [min]="0">
+                      </mat-form-field>
+
+                      <!-- Input Pies-Pulgadas -->
+                      <tb-feet-inches-input 
+                        *ngIf="getInputType() === 'feet-inches'"
+                        label="Altura Escotilla Aforo"
+                        [valueInMeters]="tankForm.gaugeHatchHeight"
+                        (valueChange)="tankForm.gaugeHatchHeight = $event">
+                      </tb-feet-inches-input>
+
+                      <!-- Input Pies-Pulgadas-Fracción -->
+                      <tb-feet-inches-fraction-input 
+                        *ngIf="getInputType() === 'feet-inches-fraction'"
+                        label="Altura Escotilla Aforo"
+                        [valueInMeters]="tankForm.gaugeHatchHeight"
+                        [fractionFormat]="selectedLevelFormat"
+                        (valueChange)="tankForm.gaugeHatchHeight = $event">
+                      </tb-feet-inches-fraction-input>
+
+                      <!-- Input Simple -->
+                      <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                        <mat-label>Altura Boquilla Entrada ({{ getInputUnit() || selectedLevelFormat }})</mat-label>
+                        <input matInput 
+                               type="number" 
+                               [value]="formatValueForInput(tankForm.inletNozzleHeight)"
+                               (blur)="parseAndUpdateValue($event.target.value, 'inletNozzleHeight')"
+                               [step]="isIntegerInput() ? 1 : 0.1"
+                               [min]="0">
+                      </mat-form-field>
+
+                      <!-- Input Pies-Pulgadas -->
+                      <tb-feet-inches-input 
+                        *ngIf="getInputType() === 'feet-inches'"
+                        label="Altura Boquilla Entrada"
+                        [valueInMeters]="tankForm.inletNozzleHeight"
+                        (valueChange)="tankForm.inletNozzleHeight = $event">
+                      </tb-feet-inches-input>
+
+                      <!-- Input Pies-Pulgadas-Fracción -->
+                      <tb-feet-inches-fraction-input 
+                        *ngIf="getInputType() === 'feet-inches-fraction'"
+                        label="Altura Boquilla Entrada"
+                        [valueInMeters]="tankForm.inletNozzleHeight"
+                        [fractionFormat]="selectedLevelFormat"
+                        (valueChange)="tankForm.inletNozzleHeight = $event">
+                      </tb-feet-inches-fraction-input>
+
+                      <!-- Input Simple -->
+                      <mat-form-field appearance="outline" *ngIf="getInputType() === 'simple'">
+                        <mat-label>Altura Boquilla Salida ({{ getInputUnit() || selectedLevelFormat }})</mat-label>
+                        <input matInput 
+                               type="number" 
+                               [value]="formatValueForInput(tankForm.outletNozzleHeight)"
+                               (blur)="parseAndUpdateValue($event.target.value, 'outletNozzleHeight')"
+                               [step]="isIntegerInput() ? 1 : 0.1"
+                               [min]="0">
+                      </mat-form-field>
+
+                      <!-- Input Pies-Pulgadas -->
+                      <tb-feet-inches-input 
+                        *ngIf="getInputType() === 'feet-inches'"
+                        label="Altura Boquilla Salida"
+                        [valueInMeters]="tankForm.outletNozzleHeight"
+                        (valueChange)="tankForm.outletNozzleHeight = $event">
+                      </tb-feet-inches-input>
+
+                      <!-- Input Pies-Pulgadas-Fracción -->
+                      <tb-feet-inches-fraction-input 
+                        *ngIf="getInputType() === 'feet-inches-fraction'"
+                        label="Altura Boquilla Salida"
+                        [valueInMeters]="tankForm.outletNozzleHeight"
+                        [fractionFormat]="selectedLevelFormat"
+                        (valueChange)="tankForm.outletNozzleHeight = $event">
+                      </tb-feet-inches-fraction-input>
+                    </div>
+                  </div>
+                </div>
+              </mat-tab>
+
+              <!-- TAB 5: Construcción y Mantenimiento -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>construction</mat-icon>
+                  Construcción
+                </ng-template>
+
+                <div class="tab-form-content">
+                  <!-- Construction -->
+                  <div class="form-section">
+                    <h4><mat-icon>build</mat-icon> Datos de Construcción</h4>
+                    <div class="form-grid-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Fabricante</mat-label>
+                        <input matInput [(ngModel)]="tankForm.manufacturer" placeholder="Nombre del fabricante">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Año de Construcción</mat-label>
+                        <input matInput type="number" [(ngModel)]="tankForm.yearBuilt" min="1900" max="2100">
+                      </mat-form-field>
+
+                      <div class="checkbox-field">
+                        <mat-checkbox [(ngModel)]="tankForm.isInService">
+                          En Servicio
+                        </mat-checkbox>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Calibration -->
+                  <div class="form-section">
+                    <h4><mat-icon>straighten</mat-icon> Calibración</h4>
+                    <div class="form-grid-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Método de Calibración</mat-label>
+                        <mat-select [(ngModel)]="tankForm.calibrationMethod">
+                          <mat-option value="strapping">Aforado (Strapping)</mat-option>
+                          <mat-option value="laser">Escaneo Láser 3D</mat-option>
+                          <mat-option value="calculated">Calculado (Teórico)</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Última Calibración</mat-label>
+                        <input matInput type="date" [(ngModel)]="tankForm.lastCalibrationDate">
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <!-- Inspection -->
+                  <div class="form-section">
+                    <h4><mat-icon>fact_check</mat-icon> Inspecciones</h4>
+                    <div class="form-grid-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Última Inspección</mat-label>
+                        <input matInput type="date" [(ngModel)]="tankForm.lastInspectionDate">
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Próxima Inspección</mat-label>
+                        <input matInput type="date" [(ngModel)]="tankForm.nextInspectionDate">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+              </mat-tab>
+
+            </mat-tab-group>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tank List View -->
+      <div *ngIf="tankFormMode === 'list' && !selectedTankForDetail" class="tank-dashboard">
+        <!-- Back to Menu Button -->
+        <div class="back-to-menu">
+          <button mat-button (click)="setActiveSection(null)">
+            <mat-icon>arrow_back</mat-icon>
+            Volver al Menú Principal
+          </button>
+        </div>
+
+        <div class="dashboard-header">
+          <div class="header-left">
+            <h3>Gestión de Tanques</h3>
+            <p class="subtitle">{{ tanks.length }} tanque(s) configurado(s)</p>
+          </div>
+          <div class="header-actions">
+            <button mat-raised-button color="primary" (click)="openCreateTankModal()">
+              <mat-icon>add</mat-icon>
+              Nuevo Tanque
+            </button>
+            <button mat-stroked-button (click)="exportToCSV()">
+              <mat-icon>download</mat-icon>
+              Exportar
+            </button>
+          </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="filters-section">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Buscar tanque</mat-label>
+            <input matInput [(ngModel)]="searchText" placeholder="Tag, nombre o producto...">
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Filtrar por estado</mat-label>
+            <mat-select [(ngModel)]="filterAssigned">
+              <mat-option value="all">Todos los tanques</mat-option>
+              <mat-option value="assigned">Con radar asignado</mat-option>
+              <mat-option value="unassigned">Sin radar</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <!-- Tanks Grid -->
+        <div class="tanks-grid">
+          <mat-card *ngFor="let tank of filteredTanks" class="tank-card" (click)="selectTankForDetail(tank)">
+            <mat-card-header>
+              <div mat-card-avatar class="tank-avatar">
+                <mat-icon>storage</mat-icon>
+              </div>
+              <mat-card-title>{{ tank.attributes.tankTag || tank.asset.name }}</mat-card-title>
+              <mat-card-subtitle>{{ tank.attributes.tankName || 'Sin nombre' }}</mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="tank-info-grid">
+                <div class="info-item">
+                  <span class="label">Producto:</span>
+                  <span class="value">{{ tank.attributes.productName || 'N/A' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Altura:</span>
+                  <span class="value">{{ (tank.attributes.tankHeight * 1000) | levelFormat }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Capacidad:</span>
+                  <span class="value">{{ tank.attributes.tankCapacity | number:'1.0-0' }} m³</span>
+                </div>
+                <div class="info-item full-width">
+                  <span class="label">Radar:</span>
+                  <span *ngIf="tank.radar" class="radar-badge assigned">
+                    <mat-icon>check_circle</mat-icon>
+                    {{ tank.radar.name }}
+                  </span>
+                  <span *ngIf="!tank.radar" class="radar-badge unassigned">
+                    <mat-icon>warning</mat-icon>
+                    Sin asignar
+                  </span>
+                </div>
+              </div>
+            </mat-card-content>
+            
+            <mat-card-actions>
+              <button mat-button color="primary">
+                <mat-icon>settings</mat-icon>
+                Configurar
+              </button>
+              <button mat-button (click)="openEditTankModal(tank); $event.stopPropagation()">
+                <mat-icon>edit</mat-icon>
+                Editar
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="filteredTanks.length === 0" class="empty-state">
+          <mat-icon class="empty-icon">inbox</mat-icon>
+          <h3>No se encontraron tanques</h3>
+          <p *ngIf="searchText || filterAssigned !== 'all'">
+            Intenta ajustar los filtros de búsqueda
+          </p>
+          <p *ngIf="!searchText && filterAssigned === 'all' && tanks.length === 0">
+            Comienza creando tu primer tanque
+          </p>
+          <button *ngIf="tanks.length === 0" mat-raised-button color="primary" (click)="openCreateTankModal()">
+            <mat-icon>add</mat-icon>
+            Crear Primer Tanque
+          </button>
+        </div>
+      </div>
+
+      <!-- Tank Detail View -->
+      <div *ngIf="selectedTankForDetail" class="tank-detail-dashboard">
+        <!-- Detail Header -->
+        <mat-toolbar class="detail-toolbar">
+          <button mat-icon-button (click)="backToTankList()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span class="toolbar-spacer"></span>
+          <h2>{{ selectedTankForDetail.attributes.tankTag || selectedTankForDetail.asset.name }}</h2>
+          <span class="flex-spacer"></span>
+          <button mat-raised-button color="primary" (click)="openEditTankModal(selectedTankForDetail)">
+            <mat-icon>edit</mat-icon>
+            Editar Tanque
+          </button>
+        </mat-toolbar>
+
+        <!-- Tabs -->
+        <mat-tab-group class="detail-tabs" animationDuration="300ms">
+          
+          <!-- Tab 1: Información General -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">info</mat-icon>
+              Información General
+            </ng-template>
+            
+            <div class="tab-content-dashboard">
+              <!-- Summary Cards -->
+              <div class="summary-cards">
+                <mat-card class="summary-card">
+                  <mat-card-content>
+                    <div class="card-icon">
+                      <mat-icon>straighten</mat-icon>
+                    </div>
+                    <div class="card-info">
+                      <span class="card-label">Altura</span>
+                      <span class="card-value">{{ (selectedTankForDetail.attributes.tankHeight * 1000) | levelFormat }}</span>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="summary-card">
+                  <mat-card-content>
+                    <div class="card-icon">
+                      <mat-icon>circle</mat-icon>
+                    </div>
+                    <div class="card-info">
+                      <span class="card-label">Diámetro</span>
+                      <span class="card-value">{{ (selectedTankForDetail.attributes.tankDiameter * 1000) | levelFormat }}</span>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="summary-card">
+                  <mat-card-content>
+                    <div class="card-icon">
+                      <mat-icon>water_drop</mat-icon>
+                    </div>
+                    <div class="card-info">
+                      <span class="card-label">Capacidad</span>
+                      <span class="card-value">{{ selectedTankForDetail.attributes.tankCapacity | number:'1.0-0' }} m³</span>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="summary-card">
+                  <mat-card-content>
+                    <div class="card-icon">
+                      <mat-icon>category</mat-icon>
+                    </div>
+                    <div class="card-info">
+                      <span class="card-label">Producto</span>
+                      <span class="card-value">{{ selectedTankForDetail.attributes.productName || 'N/A' }}</span>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+
+              <!-- Detailed Information -->
+              <div class="info-sections">
+                <mat-card class="info-card">
+                  <mat-card-header>
+                    <mat-card-title>Datos Básicos</mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="info-grid">
+                      <div class="info-row">
+                        <span class="info-label">Tag:</span>
+                        <span class="info-value">{{ selectedTankForDetail.attributes.tankTag }}</span>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-label">Nombre:</span>
+                        <span class="info-value">{{ selectedTankForDetail.attributes.tankName }}</span>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-label">Forma:</span>
+                        <span class="info-value">{{ selectedTankForDetail.attributes.tankShape }}</span>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-label">Ubicación:</span>
+                        <span class="info-value">{{ selectedTankForDetail.attributes.location || 'N/A' }}</span>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="info-card">
+                  <mat-card-header>
+                    <mat-card-title>Niveles de Alarma</mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="alarm-levels">
+                      <div class="alarm-item hh">
+                        <mat-icon>arrow_upward</mat-icon>
+                        <span class="alarm-label">HH (Alto-Alto)</span>
+                        <span class="alarm-value">{{ (selectedTankForDetail.attributes.alarmHH * 1000) | levelFormat }}</span>
+                      </div>
+                      <div class="alarm-item h">
+                        <mat-icon>arrow_upward</mat-icon>
+                        <span class="alarm-label">H (Alto)</span>
+                        <span class="alarm-value">{{ (selectedTankForDetail.attributes.alarmH * 1000) | levelFormat }}</span>
+                      </div>
+                      <div class="alarm-item l">
+                        <mat-icon>arrow_downward</mat-icon>
+                        <span class="alarm-label">L (Bajo)</span>
+                        <span class="alarm-value">{{ (selectedTankForDetail.attributes.alarmL * 1000) | levelFormat }}</span>
+                      </div>
+                      <div class="alarm-item ll">
+                        <mat-icon>arrow_downward</mat-icon>
+                        <span class="alarm-label">LL (Bajo-Bajo)</span>
+                        <span class="alarm-value">{{ (selectedTankForDetail.attributes.alarmLL * 1000) | levelFormat }}</span>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab 2: Asignación de Radar -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">sensors</mat-icon>
+              Asignación de Radar
+            </ng-template>
+            
+            <div class="tab-content-dashboard">
+              <mat-card class="assignment-card">
+                <mat-card-header>
+                  <mat-card-title>Configuración de Radar</mat-card-title>
+                  <mat-card-subtitle>Gestiona la asignación del radar para este tanque</mat-card-subtitle>
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <!-- Radar Assigned -->
+                  <div *ngIf="selectedTankForDetail.radar" class="radar-assigned-section">
+                    <div class="status-indicator success">
+                      <mat-icon>check_circle</mat-icon>
+                      <span>Radar Asignado</span>
+                    </div>
+                    
+                    <div class="radar-details">
+                      <div class="radar-info-row">
+                        <span class="label">Nombre del Radar:</span>
+                        <span class="value">{{ selectedTankForDetail.radar.name }}</span>
+                      </div>
+                      <div class="radar-info-row">
+                        <span class="label">ID del Dispositivo:</span>
+                        <span class="value mono">{{ selectedTankForDetail.radar.id?.id }}</span>
+                      </div>
+                      <div class="radar-info-row">
+                        <span class="label">Tipo:</span>
+                        <span class="value">{{ selectedTankForDetail.radar.type || 'Radar' }}</span>
+                      </div>
+                    </div>
+
+                    <div class="actions">
+                      <button mat-raised-button color="warn" (click)="unassignRadar(selectedTankForDetail)">
+                        <mat-icon>link_off</mat-icon>
+                        Desasignar Radar
+                      </button>
+                      <button mat-stroked-button color="primary" (click)="selectRadarForDetail(selectedTankForDetail.radar)">
+                        <mat-icon>settings</mat-icon>
+                        Configurar Radar
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- No Radar Assigned -->
+                  <div *ngIf="!selectedTankForDetail.radar" class="no-radar-section">
+                    <div class="status-indicator warning">
+                      <mat-icon>warning</mat-icon>
+                      <span>Sin Radar Asignado</span>
+                    </div>
+                    
+                    <p class="info-message">
+                      Este tanque no tiene un radar asignado. Selecciona un radar disponible para comenzar a recibir mediciones.
+                    </p>
+
+                    <div *ngIf="getAvailableRadarsForTank(selectedTankForDetail).length > 0" class="assign-form">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Seleccionar Radar Disponible</mat-label>
+                        <mat-select [ngModel]="getSelectedRadarId(selectedTankForDetail.asset.id!.id)"
+                                    (ngModelChange)="setSelectedRadarId(selectedTankForDetail.asset.id!.id, $event)">
+                          <mat-option *ngFor="let radar of getAvailableRadarsForTank(selectedTankForDetail)" [value]="radar.id!.id">
+                            <div class="radar-option">
+                              <span class="radar-name">{{ radar.name }}</span>
+                              <span class="radar-id">{{ radar.id!.id }}</span>
+                            </div>
+                          </mat-option>
+                        </mat-select>
+                        <mat-hint>{{ getAvailableRadarsForTank(selectedTankForDetail).length }} radar(es) disponible(s)</mat-hint>
+                      </mat-form-field>
+
+                      <button mat-raised-button color="primary" 
+                              (click)="assignOrChangeRadar(selectedTankForDetail)"
+                              [disabled]="!getSelectedRadarId(selectedTankForDetail.asset.id!.id)"
+                              class="assign-button">
+                        <mat-icon>link</mat-icon>
+                        Asignar Radar
+                      </button>
+                    </div>
+
+                    <div *ngIf="getAvailableRadarsForTank(selectedTankForDetail).length === 0" class="no-radars-available">
+                      <mat-icon color="warn">info</mat-icon>
+                      <p>No hay radares disponibles para asignar. Todos los radares están asignados a otros tanques.</p>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </mat-tab>
+
+          <!-- Tab 3: Tabla de Calibración -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">table_chart</mat-icon>
+              Tabla de Calibración
+            </ng-template>
+            
+            <div class="tab-content-dashboard">
+              <tb-strapping-table-config
+                [ctx]="ctx"
+                [tanks]="[selectedTankForDetail]">
+              </tb-strapping-table-config>
+            </div>
+          </mat-tab>
+
+        </mat-tab-group>
+      </div>
+    </div>
+
+    <!-- SECTION 2: RADAR CONFIGURATION -->
+    <div *ngIf="activeSection === 'radars'" class="section-content">
+      
+      <!-- Radar List View -->
+      <div *ngIf="!selectedRadarForDetail" class="radar-dashboard">
+        <!-- Back to Menu Button -->
+        <div class="back-to-menu">
+          <button mat-button (click)="setActiveSection(null)">
+            <mat-icon>arrow_back</mat-icon>
+            Volver al Menú Principal
+          </button>
+        </div>
+
+        <div class="dashboard-header">
+          <div class="header-left">
+            <h3>Gestión de Radares</h3>
+            <p class="subtitle">{{ radars.length }} radar(es) configurado(s) - {{ unassignedRadars.length }} disponible(s)</p>
+          </div>
+        </div>
+
+        <!-- Radars Grid -->
+        <div class="radars-grid">
+          <mat-card *ngFor="let radar of radars" class="radar-card" (click)="selectRadarForDetail(radar)">
+            <mat-card-header>
+              <div mat-card-avatar class="radar-avatar">
+                <mat-icon>sensors</mat-icon>
+              </div>
+              <mat-card-title>{{ radar.name }}</mat-card-title>
+              <mat-card-subtitle>{{ radar.type || 'Radar TRL/2' }}</mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="radar-info-grid">
+                <div class="info-item">
+                  <span class="label">ID del Dispositivo:</span>
+                  <span class="value mono">{{ radar.id?.id }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Estado:</span>
+                  <span class="status-badge" [class.assigned]="isRadarAssigned(radar)" [class.available]="!isRadarAssigned(radar)">
+                    <mat-icon>{{ isRadarAssigned(radar) ? 'link' : 'link_off' }}</mat-icon>
+                    {{ isRadarAssigned(radar) ? 'Asignado' : 'Disponible' }}
+                  </span>
+                </div>
+                <div *ngIf="isRadarAssigned(radar)" class="info-item full-width">
+                  <span class="label">Tanque Asignado:</span>
+                  <span class="value">{{ getAssignedTankName(radar) }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+            
+            <mat-card-actions>
+              <button mat-button color="primary">
+                <mat-icon>settings</mat-icon>
+                Configurar
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="radars.length === 0" class="empty-state">
+          <mat-icon class="empty-icon">sensors_off</mat-icon>
+          <h3>No hay radares configurados</h3>
+          <p>Los radares deben ser creados como dispositivos en ThingsBoard</p>
+        </div>
+      </div>
+
+      <!-- Radar Detail View -->
+      <div *ngIf="selectedRadarForDetail" class="radar-detail-dashboard">
+        <!-- Detail Header -->
+        <mat-toolbar class="detail-toolbar">
+          <button mat-icon-button (click)="backToRadarList()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span class="toolbar-spacer"></span>
+          <h2>{{ selectedRadarForDetail.name }}</h2>
+          <span class="flex-spacer"></span>
+        </mat-toolbar>
+
+        <!-- Radar Configuration Component -->
+        <div class="radar-config-container">
+          <tb-radar-config
+            [ctx]="ctx"
+            [radars]="[selectedRadarForDetail]">
+          </tb-radar-config>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: GENERAL CONFIGURATION -->
+    <div *ngIf="activeSection === 'general'" class="section-content">
+      <div class="general-config-view">
+        <!-- Back to Menu Button -->
+        <div class="back-to-menu">
+          <button mat-button (click)="setActiveSection(null)">
+            <mat-icon>arrow_back</mat-icon>
+            Volver al Menú Principal
+          </button>
+        </div>
+
+        <div class="config-header">
+          <h2>⚙️ Configuración General del Sistema</h2>
+          <p class="subtitle">Ajusta los formatos de visualización y configuraciones globales</p>
+        </div>
+
+        <!-- Formato de Nivel -->
+        <mat-card class="config-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>straighten</mat-icon>
+              Formato de Visualización de Nivel
+            </mat-card-title>
+            <mat-card-subtitle>
+              Selecciona cómo deseas visualizar las mediciones de nivel en todo el sistema
+            </mat-card-subtitle>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="format-selector">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Formato de Nivel</mat-label>
+                <mat-select [(ngModel)]="selectedLevelFormat" (selectionChange)="onLevelFormatChange()">
+                  <mat-optgroup label="Unidades Métricas">
+                    <mat-option value="mm">
+                      <div class="format-option">
+                        <span class="format-name">Milímetros (mm)</span>
+                        <span class="format-example">Ej: {{ getLevelFormatExample('mm') }}</span>
+                      </div>
+                    </mat-option>
+                    <mat-option value="cm">
+                      <div class="format-option">
+                        <span class="format-name">Centímetros (cm)</span>
+                        <span class="format-example">Ej: {{ getLevelFormatExample('cm') }}</span>
+                      </div>
+                    </mat-option>
+                    <mat-option value="m">
+                      <div class="format-option">
+                        <span class="format-name">Metros (m)</span>
+                        <span class="format-example">Ej: {{ getLevelFormatExample('m') }}</span>
+                      </div>
+                    </mat-option>
+                  </mat-optgroup>
+                  
+                  <mat-optgroup label="Unidades Imperiales">
+                    <mat-option value="in">
+                      <div class="format-option">
+                        <span class="format-name">Pulgadas (in)</span>
+                        <span class="format-example">Ej: {{ getLevelFormatExample('in') }}</span>
+                      </div>
+                    </mat-option>
+                    <mat-option value="ft">
+                      <div class="format-option">
+                        <span class="format-name">Pies (ft)</span>
+                        <span class="format-example">Ej: {{ getLevelFormatExample('ft') }}</span>
+                      </div>
+                    </mat-option>
+                    <mat-option value="ft-in">
+                      <div class="format-option">
+                        <span class="format-name">Pies y Pulgadas</span>
+                        <span class="format-example">Ej: {{ getLevelFormatExample('ft-in') }}</span>
+                      </div>
+                    </mat-option>
+                  </mat-optgroup>
+                  
+                  <mat-optgroup label="Pies, Pulgadas y Fracción">
+                    <mat-option value="ft-in-1/8">
+                      <div class="format-option">
+                        <span class="format-name">Fracción 1/8"</span>
+                        <span class="format-example">Ej: {{ getLevelFormatExample('ft-in-1/8') }}</span>
+                      </div>
+                    </mat-option>
+                    <mat-option value="ft-in-1/16">
+                      <div class="format-option">
+                        <span class="format-name">Fracción 1/16"</span>
+                        <span class="format-example">Ej: {{ getLevelFormatExample('ft-in-1/16') }}</span>
+                      </div>
+                    </mat-option>
+                    <mat-option value="ft-in-1/32">
+                      <div class="format-option">
+                        <span class="format-name">Fracción 1/32"</span>
+                        <span class="format-example">Ej: {{ getLevelFormatExample('ft-in-1/32') }}</span>
+                      </div>
+                    </mat-option>
+                    <mat-option value="ft-in-1/64">
+                      <div class="format-option">
+                        <span class="format-name">Fracción 1/64"</span>
+                        <span class="format-example">Ej: {{ getLevelFormatExample('ft-in-1/64') }}</span>
+                      </div>
+                    </mat-option>
+                  </mat-optgroup>
+                </mat-select>
+                <mat-hint>Este formato se aplicará en todas las visualizaciones de nivel del sistema</mat-hint>
+              </mat-form-field>
+
+              <div class="preview-section" *ngIf="selectedLevelFormat">
+                <h4>Vista Previa</h4>
+                <div class="preview-examples">
+                  <div class="preview-item">
+                    <span class="preview-label">Nivel bajo (500 mm):</span>
+                    <span class="preview-value">{{ formatLevelPreview(500) }}</span>
+                  </div>
+                  <div class="preview-item">
+                    <span class="preview-label">Nivel medio (5000 mm):</span>
+                    <span class="preview-value">{{ formatLevelPreview(5000) }}</span>
+                  </div>
+                  <div class="preview-item">
+                    <span class="preview-label">Nivel alto (12000 mm):</span>
+                    <span class="preview-value">{{ formatLevelPreview(12000) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="saveLevelFormat()">
+              <mat-icon>save</mat-icon>
+              Guardar Configuración
+            </button>
+            <button mat-button (click)="resetLevelFormat()">
+              <mat-icon>refresh</mat-icon>
+              Restaurar por Defecto
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <!-- Información adicional -->
+        <mat-card class="info-card">
+          <mat-card-content>
+            <div class="info-content">
+              <mat-icon color="primary">info</mat-icon>
+              <div class="info-text">
+                <p><strong>Nota importante:</strong></p>
+                <p>Los niveles se reciben de los radares en milímetros (mm). El motor de reglas de ThingsBoard convierte estos valores al formato configurado para comparar con las tablas de calibración y calcular volúmenes.</p>
+                <p>Esta configuración solo afecta cómo se <strong>visualizan</strong> los niveles en la interfaz de usuario.</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+  </div>
+
+</div>

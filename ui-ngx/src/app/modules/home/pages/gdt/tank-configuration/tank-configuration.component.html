@@ -1,0 +1,291 @@
+<div class="tank-configuration-widget">
+
+  <!-- Header with Section Icons -->
+  <div class="config-header">
+    <h2>Configuración del Sistema de Tanques</h2>
+    <div class="section-selector">
+      <button 
+        class="section-btn" 
+        [class.active]="activeSection === 'tanks'"
+        (click)="setActiveSection('tanks')"
+        matTooltip="Configuración de Tanques">
+        <mat-icon>storage</mat-icon>
+        <span>Tanques</span>
+      </button>
+      <button 
+        class="section-btn" 
+        [class.active]="activeSection === 'radars'"
+        (click)="setActiveSection('radars')"
+        matTooltip="Configuración de Radares">
+        <mat-icon>sensors</mat-icon>
+        <span>Radares</span>
+      </button>
+      <button 
+        class="section-btn" 
+        [class.active]="activeSection === 'general'"
+        (click)="setActiveSection('general')"
+        matTooltip="Configuración General">
+        <mat-icon>settings</mat-icon>
+        <span>General</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Cargando configuración...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="reloadData()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && !error" class="config-content">
+
+    <!-- SECTION 1: TANK CONFIGURATION -->
+    <div *ngIf="activeSection === 'tanks'" class="section-content">
+      
+      <!-- Tank List View -->
+      <div *ngIf="!selectedTank" class="tank-list-view">
+        <div class="list-header">
+          <h3>Tanques Configurados ({{ tanks.length }})</h3>
+        </div>
+        
+        <div class="tank-grid">
+          <div *ngFor="let tank of tanks" 
+               class="tank-card"
+               (click)="selectTank(tank)">
+            <div class="tank-card-header">
+              <mat-icon>storage</mat-icon>
+              <h4>{{ tank.attributes.tankTag || tank.asset.name }}</h4>
+            </div>
+            <div class="tank-card-body">
+              <p><strong>Nombre:</strong> {{ tank.attributes.tankName || 'N/A' }}</p>
+              <p><strong>Producto:</strong> {{ tank.attributes.productName || 'N/A' }}</p>
+              <p><strong>Altura:</strong> {{ tank.attributes.tankHeight || 0 }} m</p>
+              <p><strong>Radar:</strong> 
+                <span *ngIf="tank.radar" class="radar-assigned">
+                  <mat-icon>check_circle</mat-icon>
+                  {{ tank.radar.name }}
+                </span>
+                <span *ngIf="!tank.radar" class="radar-unassigned">
+                  <mat-icon>cancel</mat-icon>
+                  Sin asignar
+                </span>
+              </p>
+            </div>
+            <div class="tank-card-footer">
+              <button mat-button color="primary">
+                <mat-icon>edit</mat-icon>
+                Configurar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="tanks.length === 0" class="empty-state">
+          <mat-icon>storage</mat-icon>
+          <p>No hay tanques configurados</p>
+        </div>
+      </div>
+
+      <!-- Tank Detail View -->
+      <div *ngIf="selectedTank" class="tank-detail-view">
+        <div class="detail-header">
+          <button mat-icon-button (click)="backToTankList()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <h3>{{ selectedTank.attributes.tankTag || selectedTank.asset.name }}</h3>
+        </div>
+
+        <mat-tab-group (selectedIndexChange)="setTankDetailTab($event)">
+          
+          <!-- Tab 1: Basic Data -->
+          <mat-tab label="Datos Básicos">
+            <div class="tab-content">
+              <div class="form-section">
+                <h4>Información del Tanque</h4>
+                <div class="form-grid">
+                  <mat-form-field>
+                    <mat-label>Tag del Tanque</mat-label>
+                    <input matInput [value]="selectedTank.attributes.tankTag" readonly>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>Nombre</mat-label>
+                    <input matInput [value]="selectedTank.attributes.tankName" readonly>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>Producto</mat-label>
+                    <input matInput [value]="selectedTank.attributes.productName" readonly>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>Forma</mat-label>
+                    <input matInput [value]="selectedTank.attributes.tankShape" readonly>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4>Dimensiones</h4>
+                <div class="form-grid">
+                  <mat-form-field>
+                    <mat-label>Altura (m)</mat-label>
+                    <input matInput type="number" [value]="selectedTank.attributes.tankHeight" readonly>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>Diámetro (m)</mat-label>
+                    <input matInput type="number" [value]="selectedTank.attributes.tankDiameter" readonly>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>Capacidad (m³)</mat-label>
+                    <input matInput type="number" [value]="selectedTank.attributes.tankCapacity" readonly>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4>Niveles de Alarma</h4>
+                <div class="form-grid">
+                  <mat-form-field>
+                    <mat-label>HH (Alto-Alto)</mat-label>
+                    <input matInput type="text" [value]="(selectedTank.attributes.alarmHH * 1000) | levelFormat" readonly>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>H (Alto)</mat-label>
+                    <input matInput type="text" [value]="(selectedTank.attributes.alarmH * 1000) | levelFormat" readonly>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>L (Bajo)</mat-label>
+                    <input matInput type="text" [value]="(selectedTank.attributes.alarmL * 1000) | levelFormat" readonly>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>LL (Bajo-Bajo)</mat-label>
+                    <input matInput type="text" [value]="(selectedTank.attributes.alarmLL * 1000) | levelFormat" readonly>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab 2: Radar Assignment -->
+          <mat-tab label="Asignación de Radar">
+            <div class="tab-content">
+              <div class="radar-assignment-section">
+                <h4>Radar Asignado</h4>
+                <div *ngIf="selectedTank.radar" class="assigned-radar">
+                  <mat-icon color="primary">check_circle</mat-icon>
+                  <div class="radar-info">
+                    <p><strong>{{ selectedTank.radar.name }}</strong></p>
+                    <p>ID: {{ selectedTank.radar.id?.id }}</p>
+                  </div>
+                </div>
+                <div *ngIf="!selectedTank.radar" class="no-radar">
+                  <mat-icon color="warn">cancel</mat-icon>
+                  <p>No hay radar asignado a este tanque</p>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab 3: Calibration Table -->
+          <mat-tab label="Tabla de Calibración">
+            <div class="tab-content">
+              <tb-strapping-table-config
+                [ctx]="ctx"
+                [tanks]="[selectedTank]">
+              </tb-strapping-table-config>
+            </div>
+          </mat-tab>
+
+        </mat-tab-group>
+      </div>
+    </div>
+
+    <!-- SECTION 2: RADAR CONFIGURATION -->
+    <div *ngIf="activeSection === 'radars'" class="section-content">
+      
+      <!-- Radar List View -->
+      <div *ngIf="!selectedRadar" class="radar-list-view">
+        <div class="list-header">
+          <h3>Radares Configurados ({{ radars.length }})</h3>
+        </div>
+        
+        <div class="radar-grid">
+          <div *ngFor="let radar of radars" 
+               class="radar-card"
+               (click)="selectRadar(radar)">
+            <div class="radar-card-header">
+              <mat-icon>sensors</mat-icon>
+              <h4>{{ radar.name }}</h4>
+            </div>
+            <div class="radar-card-body">
+              <p><strong>ID:</strong> {{ radar.id?.id }}</p>
+              <p><strong>Tipo:</strong> {{ radar.type || 'Radar' }}</p>
+            </div>
+            <div class="radar-card-footer">
+              <button mat-button color="primary">
+                <mat-icon>settings</mat-icon>
+                Configurar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="radars.length === 0" class="empty-state">
+          <mat-icon>sensors</mat-icon>
+          <p>No hay radares configurados</p>
+        </div>
+      </div>
+
+      <!-- Radar Detail View -->
+      <div *ngIf="selectedRadar" class="radar-detail-view">
+        <div class="detail-header">
+          <button mat-icon-button (click)="backToRadarList()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <h3>{{ selectedRadar.name }}</h3>
+        </div>
+
+        <tb-radar-config
+          [ctx]="ctx"
+          [radars]="[selectedRadar]">
+        </tb-radar-config>
+      </div>
+    </div>
+
+    <!-- SECTION 3: GENERAL CONFIGURATION -->
+    <div *ngIf="activeSection === 'general'" class="section-content">
+      <div class="general-config-view">
+        <h3>Configuración General</h3>
+        
+        <div class="config-section">
+          <h4>Formato de Visualización de Volumen</h4>
+          <p>Configuración de cómo se muestran los volúmenes en el sistema</p>
+          <div class="coming-soon">
+            <mat-icon>construction</mat-icon>
+            <p>Próximamente disponible</p>
+          </div>
+        </div>
+
+        <div class="config-section">
+          <h4>Escaneo de Puertos Modbus</h4>
+          <p>Detectar y configurar dispositivos Modbus conectados</p>
+          <div class="coming-soon">
+            <mat-icon>construction</mat-icon>
+            <p>Próximamente disponible</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
