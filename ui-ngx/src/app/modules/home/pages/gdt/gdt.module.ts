@@ -54,6 +54,7 @@ import { TankCalculationService } from './shared/services/tank-calculation.servi
 import { AlarmEvaluatorService } from './shared/services/alarm-evaluator.service';
 import { VolumeApiMpmsService } from './shared/services/volume-api-mpms.service';
 import { LevelFormatterService } from './shared/services/level-formatter.service';
+import { LevelInputParserService } from './shared/services/level-input-parser.service';
 import { ManualTelemetryService } from './tank-monitoring/services/manual-telemetry.service';
 
 @NgModule({
@@ -96,6 +97,7 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     AlarmEvaluatorService,
     VolumeApiMpmsService,
     LevelFormatterService,
+    LevelInputParserService,
     ManualTelemetryService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

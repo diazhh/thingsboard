@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { WidgetContext } from '@home/models/widget-component.models';
 import {
   TankAssetService,
@@ -32,6 +32,7 @@ import { RadarDeviceService, RadarDevice } from '../shared/services/radar-device
 import { SystemConfigService, LevelFormat } from '../shared/services/system-config.service';
 import { LevelFormatterService } from '../shared/services/level-formatter.service';
 import { LevelInputParserService } from '../shared/services/level-input-parser.service';
+import { GdtWidgetContextService } from '../shared/services/gdt-widget-context.service';
 import { Subscription } from 'rxjs';
 
 /**
@@ -159,6 +160,8 @@ export class TankConfigurationStaticComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   constructor(
+    private cd: ChangeDetectorRef,
+    private gdtContextService: GdtWidgetContextService,
     private tankAssetService: TankAssetService,
     private radarDeviceService: RadarDeviceService,
     private systemConfigService: SystemConfigService,
@@ -167,6 +170,14 @@ export class TankConfigurationStaticComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Create WidgetContext if not provided (for standalone page mode)
+    if (!this.ctx) {
+      this.ctx = this.gdtContextService.createContext({
+        assetProfileFilter: this.assetProfileFilter,
+        deviceProfileFilter: this.deviceProfileFilter
+      }, this.cd);
+    }
+
     // Register this component in the widget scope
     if (this.ctx && this.ctx.$scope) {
       this.ctx.$scope.tankConfigurationStaticComponent = this;
@@ -192,7 +203,7 @@ export class TankConfigurationStaticComponent implements OnInit, OnDestroy {
   }
 
   private loadSettings(): void {
-    if (this.ctx.settings) {
+    if (this.ctx && this.ctx.settings) {
       this.assetProfileFilter = this.ctx.settings.assetProfileFilter || 'Tank';
       this.deviceProfileFilter = this.ctx.settings.deviceProfileFilter || 'Radar_TRL2';
     }
