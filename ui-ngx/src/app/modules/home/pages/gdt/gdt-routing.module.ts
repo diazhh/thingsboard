@@ -19,7 +19,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { Authority } from '@shared/models/authority.enum';
 import { MenuId } from '@core/services/menu.models';
 import { TankMonitoringComponent } from './tank-monitoring/tank-monitoring.component';
-import { TankConfigurationComponent } from './tank-configuration/tank-configuration.component';
+import { TankConfigurationStaticComponent } from './tank-configuration/tank-configuration-static.component';
 import { GdtUserManagementComponent } from './user-management/user-management.component';
 
 const routes: Routes = [
@@ -64,7 +64,7 @@ const routes: Routes = [
       },
       {
         path: 'configuration',
-        component: TankConfigurationComponent,
+        component: TankConfigurationStaticComponent,
         data: {
           auth: [Authority.TENANT_ADMIN, Authority.INGENIERO],
           title: 'gdt.tank-configuration',
