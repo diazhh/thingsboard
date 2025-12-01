@@ -113,7 +113,8 @@ export enum MenuId {
   gdt_dashboard = 'gdt_dashboard',
   gdt_tank_monitoring = 'gdt_tank_monitoring',
   gdt_tank_configuration = 'gdt_tank_configuration',
-  gdt_user_management = 'gdt_user_management'
+  gdt_user_management = 'gdt_user_management',
+  gdt_gateway_configuration = 'gdt_gateway_configuration'
 }
 
 declare type MenuFilter = (authState: AuthState) => boolean;
@@ -390,6 +391,17 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
       type: 'link',
       path: '/gdt/users',
       icon: 'group',
+      customTranslate: true
+    }
+  ],
+  [
+    MenuId.gdt_gateway_configuration,
+    {
+      id: MenuId.gdt_gateway_configuration,
+      name: 'Configuración Gateway',
+      type: 'link',
+      path: '/gdt/gateway',
+      icon: 'router',
       customTranslate: true
     }
   ],
@@ -922,7 +934,8 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_dashboard},
           {id: MenuId.gdt_tank_monitoring},
           {id: MenuId.gdt_tank_configuration},
-          {id: MenuId.gdt_user_management}
+          {id: MenuId.gdt_user_management},
+          {id: MenuId.gdt_gateway_configuration}
         ]
       },
       {
@@ -1070,7 +1083,8 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_dashboard},
           {id: MenuId.gdt_tank_monitoring},
           {id: MenuId.gdt_tank_configuration},
-          {id: MenuId.gdt_user_management}
+          {id: MenuId.gdt_user_management},
+          {id: MenuId.gdt_gateway_configuration}
         ]
       },
       {

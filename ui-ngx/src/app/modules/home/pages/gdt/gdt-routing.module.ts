@@ -22,6 +22,7 @@ import { GdtDashboardComponent } from './dashboard/gdt-dashboard.component';
 import { TankMonitoringComponent } from './tank-monitoring/tank-monitoring.component';
 import { TankConfigurationComponent } from './tank-configuration/tank-configuration.component';
 import { GdtUserManagementComponent } from './user-management/user-management.component';
+import { GatewayConfigurationComponent } from './gateway-configuration/gateway-configuration.component';
 
 const routes: Routes = [
   {
@@ -107,6 +108,19 @@ const routes: Routes = [
             menuId: 'gdt_user_management' as any,
             label: 'Gestión de Usuarios',
             icon: 'group'
+          }
+        }
+      },
+      {
+        path: 'gateway',
+        component: GatewayConfigurationComponent,
+        data: {
+          auth: [Authority.TENANT_ADMIN, Authority.INGENIERO],
+          title: 'gdt.gateway-configuration',
+          breadcrumb: {
+            menuId: 'gdt_gateway_configuration' as any,
+            label: 'Configuración Gateway',
+            icon: 'router'
           }
         }
       },

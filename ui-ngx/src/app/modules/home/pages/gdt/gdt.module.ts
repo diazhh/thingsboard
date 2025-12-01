@@ -25,6 +25,7 @@ import { TankMonitoringComponent } from './tank-monitoring/tank-monitoring.compo
 import { TankConfigurationComponent } from './tank-configuration/tank-configuration.component';
 import { GdtUserManagementComponent } from './user-management/user-management.component';
 import { AddTenantUserDialogComponent } from './user-management/add-tenant-user-dialog.component';
+import { GatewayConfigurationComponent } from './gateway-configuration/gateway-configuration.component';
 
 // Tank Monitoring Subcomponents
 import { LiquidGaugeDisplayComponent } from './tank-monitoring/components/liquid-gauge-display/liquid-gauge-display.component';
@@ -63,6 +64,7 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     TankConfigurationComponent,
     GdtUserManagementComponent,
     AddTenantUserDialogComponent,
+    GatewayConfigurationComponent,
     // Tank Monitoring Subcomponents
     LiquidGaugeDisplayComponent,
     CylinderGaugeComponent,
