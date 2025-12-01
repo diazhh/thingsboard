@@ -110,6 +110,7 @@ export enum MenuId {
   trendz_settings = 'trendz_settings',
   ai_models = 'ai_models',
   gdt = 'gdt',
+  gdt_dashboard = 'gdt_dashboard',
   gdt_tank_monitoring = 'gdt_tank_monitoring',
   gdt_tank_configuration = 'gdt_tank_configuration',
   gdt_user_management = 'gdt_user_management'
@@ -314,6 +315,14 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
       customTranslate: true,
       pages: [
         {
+          id: MenuId.gdt_dashboard,
+          name: 'Panel Principal',
+          type: 'link',
+          path: '/gdt/dashboard',
+          icon: 'dashboard',
+          customTranslate: true
+        },
+        {
           id: MenuId.gdt_tank_monitoring,
           name: 'Monitoreo de Tanques',
           type: 'link',
@@ -338,6 +347,17 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
           customTranslate: true
         }
       ]
+    }
+  ],
+  [
+    MenuId.gdt_dashboard,
+    {
+      id: MenuId.gdt_dashboard,
+      name: 'Panel Principal',
+      type: 'link',
+      path: '/gdt/dashboard',
+      icon: 'dashboard',
+      customTranslate: true
     }
   ],
   [
@@ -899,6 +919,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       {
         id: MenuId.gdt,
         pages: [
+          {id: MenuId.gdt_dashboard},
           {id: MenuId.gdt_tank_monitoring},
           {id: MenuId.gdt_tank_configuration},
           {id: MenuId.gdt_user_management}
@@ -1001,6 +1022,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       {id: MenuId.home},
       {id: MenuId.alarms},
       {id: MenuId.dashboards},
+      {id: MenuId.gdt_dashboard},
       {id: MenuId.gdt_tank_monitoring},
       {
         id: MenuId.entities,
@@ -1025,6 +1047,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       {id: MenuId.home},
       {id: MenuId.alarms},
       {id: MenuId.dashboards},
+      {id: MenuId.gdt_dashboard},
       {id: MenuId.gdt_tank_monitoring},
       {
         id: MenuId.entities,
@@ -1044,6 +1067,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       {
         id: MenuId.gdt,
         pages: [
+          {id: MenuId.gdt_dashboard},
           {id: MenuId.gdt_tank_monitoring},
           {id: MenuId.gdt_tank_configuration},
           {id: MenuId.gdt_user_management}
@@ -1065,6 +1089,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
     [
       {id: MenuId.home},
       {id: MenuId.dashboards},
+      {id: MenuId.gdt_dashboard},
       {id: MenuId.gdt_tank_monitoring},
       {id: MenuId.audit_log}
     ]
@@ -1074,6 +1099,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
     [
       {id: MenuId.home},
       {id: MenuId.dashboards},
+      {id: MenuId.gdt_dashboard},
       {id: MenuId.gdt_tank_monitoring},
       {
         id: MenuId.entities,

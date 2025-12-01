@@ -18,6 +18,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { Authority } from '@shared/models/authority.enum';
 import { MenuId } from '@core/services/menu.models';
+import { GdtDashboardComponent } from './dashboard/gdt-dashboard.component';
 import { TankMonitoringComponent } from './tank-monitoring/tank-monitoring.component';
 import { TankConfigurationComponent } from './tank-configuration/tank-configuration.component';
 import { GdtUserManagementComponent } from './user-management/user-management.component';
@@ -41,6 +42,27 @@ const routes: Routes = [
       }
     },
     children: [
+      {
+        path: 'dashboard',
+        component: GdtDashboardComponent,
+        data: {
+          auth: [
+            Authority.SYS_ADMIN,
+            Authority.TENANT_ADMIN,
+            Authority.CUSTOMER_USER,
+            Authority.OPERADOR,
+            Authority.INGENIERO,
+            Authority.REPORTES,
+            Authority.LABORATORIO
+          ],
+          title: 'gdt.dashboard',
+          breadcrumb: {
+            menuId: 'gdt_dashboard' as any,
+            label: 'Panel Principal',
+            icon: 'dashboard'
+          }
+        }
+      },
       {
         path: 'monitoring',
         component: TankMonitoringComponent,
@@ -90,7 +112,7 @@ const routes: Routes = [
       },
       {
         path: '',
-        redirectTo: 'monitoring',
+        redirectTo: 'dashboard',
         pathMatch: 'full'
       }
     ]

@@ -20,6 +20,7 @@ import { SharedModule } from '@shared/shared.module';
 import { GdtRoutingModule } from './gdt-routing.module';
 
 // Main Components
+import { GdtDashboardComponent } from './dashboard/gdt-dashboard.component';
 import { TankMonitoringComponent } from './tank-monitoring/tank-monitoring.component';
 import { TankConfigurationComponent } from './tank-configuration/tank-configuration.component';
 import { GdtUserManagementComponent } from './user-management/user-management.component';
@@ -57,6 +58,7 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
 @NgModule({
   declarations: [
     // Main Components
+    GdtDashboardComponent,
     TankMonitoringComponent,
     TankConfigurationComponent,
     GdtUserManagementComponent,
