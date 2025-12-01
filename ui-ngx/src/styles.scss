@@ -42,7 +42,7 @@ body, html {
 body {
   margin: 0;
   padding: 0;
-  background-color: #f8fafb;
+  background-color: #fafafa;
   overflow: hidden;
 }
 
@@ -84,17 +84,17 @@ body {
 
 a:not(.mat-mdc-button-base, .mdc-tab) {
   font-weight: 500;
-  color: #0d7377;
+  color: #1a237e;
   text-decoration: none;
-  border-bottom: 1px solid rgba(13, 115, 119, .25);
+  border-bottom: 1px solid rgba(26, 35, 126, .25);
   transition: all .25s ease;
 }
 
 a:hover,
 a:focus {
   &:not(.mat-mdc-button-base, .mdc-tab) {
-    color: #14919b;
-    border-bottom: 1px solid #14919b;
+    color: #00bcd4;
+    border-bottom: 1px solid #00bcd4;
   }
 }
 
@@ -1324,36 +1324,40 @@ pre.tb-highlight {
  * Guardian de Tanques - Industrial Theme
  ***************/
 
-// GDT Color Variables as CSS Custom Properties
+// GDT Color Variables as CSS Custom Properties - Modern Blue Theme
 :root {
-  --gdt-primary: #0d7377;
-  --gdt-primary-light: #14919b;
-  --gdt-primary-dark: #0a5c5f;
-  --gdt-accent: #ff6b35;
-  --gdt-accent-light: #ff8a5c;
-  --gdt-cyan: #32e0c4;
-  --gdt-success: #2ecc71;
-  --gdt-warning: #f39c12;
-  --gdt-danger: #e74c3c;
-  --gdt-background: #f8fafb;
+  --gdt-primary: #1a237e;
+  --gdt-primary-light: #3949ab;
+  --gdt-primary-dark: #0d47a1;
+  --gdt-accent: #00bcd4;
+  --gdt-accent-light: #4dd0e1;
+  --gdt-accent-hover: #00acc1;
+  --gdt-success: #4caf50;
+  --gdt-warning: #ff9800;
+  --gdt-danger: #f44336;
+  --gdt-background: #fafafa;
   --gdt-surface: #ffffff;
-  --gdt-text-primary: #212529;
-  --gdt-text-secondary: #6c757d;
-  --gdt-border: rgba(0, 0, 0, 0.08);
+  --gdt-text-primary: #263238;
+  --gdt-text-secondary: #607d8b;
+  --gdt-text-muted: #90a4ae;
+  --gdt-border: #e0e0e0;
+  --gdt-border-light: rgba(0, 0, 0, 0.08);
   --gdt-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   --gdt-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --gdt-shadow-strong: 0 10px 40px rgba(26, 35, 126, 0.15);
   --gdt-radius: 12px;
   --gdt-radius-sm: 8px;
   --gdt-radius-lg: 16px;
+  --gdt-radius-xl: 20px;
 }
 
-// GDT Card Styles
+// GDT Card Styles - Modern Blue Theme
 .tb-default, .tb-dark {
   // Modern card styling
   .mat-mdc-card {
     border-radius: var(--gdt-radius) !important;
     box-shadow: var(--gdt-shadow) !important;
-    border: 1px solid var(--gdt-border);
+    border: 1px solid var(--gdt-border-light);
     transition: box-shadow 0.3s ease, transform 0.2s ease;
     
     &:hover {
@@ -1371,11 +1375,11 @@ pre.tb-highlight {
     transition: all 0.2s ease;
     
     &.mat-primary {
-      background: linear-gradient(135deg, var(--gdt-primary) 0%, var(--gdt-primary-light) 100%);
+      background: linear-gradient(135deg, var(--gdt-primary) 0%, var(--gdt-primary-dark) 100%);
       
       &:hover:not(:disabled) {
-        background: linear-gradient(135deg, var(--gdt-primary-light) 0%, var(--gdt-primary) 100%);
         transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(26, 35, 126, 0.3);
       }
     }
     
@@ -1389,7 +1393,11 @@ pre.tb-highlight {
     box-shadow: var(--gdt-shadow) !important;
     
     &.mat-primary {
-      background: linear-gradient(135deg, var(--gdt-primary) 0%, var(--gdt-primary-light) 100%);
+      background: linear-gradient(135deg, var(--gdt-primary) 0%, var(--gdt-primary-dark) 100%);
+    }
+    
+    &.mat-accent {
+      background: linear-gradient(135deg, var(--gdt-accent) 0%, var(--gdt-accent-hover) 100%);
     }
     
     &:hover {
@@ -1405,7 +1413,7 @@ pre.tb-highlight {
 
   // Sidenav styling
   mat-sidenav.tb-site-sidenav {
-    background: linear-gradient(180deg, var(--gdt-primary-dark) 0%, #052e30 100%);
+    background: linear-gradient(180deg, var(--gdt-primary) 0%, #0d1b3e 100%);
     
     .mat-mdc-list-item {
       border-radius: var(--gdt-radius-sm);
@@ -1416,8 +1424,8 @@ pre.tb-highlight {
       }
       
       &.active, &.mdc-list-item--activated {
-        background: rgba(50, 224, 196, 0.2);
-        border-left: 3px solid var(--gdt-cyan);
+        background: rgba(0, 188, 212, 0.2);
+        border-left: 3px solid var(--gdt-accent);
       }
     }
   }
@@ -1473,6 +1481,10 @@ pre.tb-highlight {
       }
     }
     
+    .mdc-tab-indicator__content--underline {
+      border-color: var(--gdt-accent) !important;
+    }
+    
     .mat-mdc-tab-body-wrapper {
       padding-top: 16px;
     }
@@ -1485,7 +1497,7 @@ pre.tb-highlight {
     box-shadow: var(--gdt-shadow);
     
     .mat-mdc-header-row {
-      background: linear-gradient(135deg, #f8fafb 0%, #eef2f5 100%);
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8eef3 100%);
       
       .mat-mdc-header-cell {
         font-weight: 600;
@@ -1498,7 +1510,7 @@ pre.tb-highlight {
     
     .mat-mdc-row {
       &:hover {
-        background-color: rgba(13, 115, 119, 0.04);
+        background-color: rgba(26, 35, 126, 0.04);
       }
     }
   }
@@ -1553,17 +1565,53 @@ pre.tb-highlight {
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(13, 115, 119, 0.3);
+    background: rgba(26, 35, 126, 0.25);
     border-radius: 4px;
     
     &:hover {
-      background: rgba(13, 115, 119, 0.5);
+      background: rgba(26, 35, 126, 0.4);
     }
   }
 
   // Selection color
   ::selection {
-    background: rgba(50, 224, 196, 0.3);
+    background: rgba(0, 188, 212, 0.3);
     color: var(--gdt-text-primary);
+  }
+
+  // Focus states
+  *:focus-visible {
+    outline: 2px solid var(--gdt-accent);
+    outline-offset: 2px;
+  }
+
+  // Checkbox and radio styling
+  .mat-mdc-checkbox.mat-accent, .mat-mdc-radio-button.mat-accent {
+    --mdc-checkbox-selected-checkmark-color: white;
+    --mdc-checkbox-selected-focus-icon-color: var(--gdt-accent);
+    --mdc-checkbox-selected-hover-icon-color: var(--gdt-accent-hover);
+    --mdc-checkbox-selected-icon-color: var(--gdt-accent);
+    --mdc-checkbox-selected-pressed-icon-color: var(--gdt-accent);
+  }
+
+  // Slide toggle styling
+  .mat-mdc-slide-toggle.mat-accent {
+    --mdc-switch-selected-track-color: var(--gdt-accent);
+    --mdc-switch-selected-hover-track-color: var(--gdt-accent-hover);
+    --mdc-switch-selected-focus-track-color: var(--gdt-accent);
+    --mdc-switch-selected-pressed-track-color: var(--gdt-accent);
+  }
+
+  // Progress spinner styling
+  .mat-mdc-progress-spinner.mat-accent {
+    --mdc-circular-progress-active-indicator-color: var(--gdt-accent);
+  }
+
+  // Tooltip styling
+  .mat-mdc-tooltip {
+    --mdc-plain-tooltip-container-color: var(--gdt-primary);
+    .mdc-tooltip__surface {
+      border-radius: var(--gdt-radius-sm);
+    }
   }
 }
