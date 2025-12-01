@@ -13,94 +13,336 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import '../../../../../scss/constants';
-@import '../../../../../theme';
+
+// Using global GDT CSS variables for consistency
+// Fallback SCSS variables
+$primary-gradient-start: var(--gdt-primary, #1a237e);
+$primary-gradient-end: var(--gdt-primary-dark, #0d47a1);
+$accent-color: var(--gdt-accent, #00bcd4);
+$accent-hover: var(--gdt-accent-hover, #00acc1);
+$text-dark: var(--gdt-text-primary, #263238);
+$text-muted: var(--gdt-text-secondary, #607d8b);
+$bg-light: var(--gdt-background, #fafafa);
+$border-color: var(--gdt-border, #e0e0e0);
+$error-color: var(--gdt-danger, #f44336);
+$white: var(--gdt-surface, #ffffff);
 
 :host {
   display: flex;
   flex: 1 1 0;
-  .tb-login-content {
-    margin-top: 36px;
-    margin-bottom: 76px;
-    background-color: #eee;
-    .tb-login-form {
-      @media #{$mat-gt-xs} {
-        width: 550px !important;
+  width: 100%;
+  height: 100%;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+
+  .tb-login-wrapper {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+
+    // Branding Section (Left - 55%)
+    .tb-branding-section {
+      width: 55%;
+      height: 100%;
+      background: linear-gradient(135deg, $primary-gradient-start 0%, $primary-gradient-end 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+
+      // Decorative circles
+      &::before {
+        content: '';
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        top: -100px;
+        left: -100px;
       }
 
-      .forgot-password {
-        padding: 0 0.5em 1em;
-        .tb-reset-password {
-          padding: 0 6px;
+      &::after {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.03);
+        bottom: -50px;
+        right: -50px;
+      }
+
+      .tb-branding-content {
+        text-align: center;
+        color: $white;
+        z-index: 1;
+        padding: 40px;
+
+        .tb-branding-logo {
+          width: 100px;
+          height: 100px;
+          background: rgba(255, 255, 255, 0.15);
+          border-radius: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 32px;
+          backdrop-filter: blur(10px);
+
+          svg {
+            color: $white;
+          }
+        }
+
+        .tb-branding-title {
+          font-size: 42px;
+          font-weight: 700;
+          margin: 0 0 12px;
+          letter-spacing: -0.5px;
+        }
+
+        .tb-branding-subtitle {
+          font-size: 18px;
+          opacity: 0.85;
+          margin: 0 0 48px;
+          font-weight: 300;
+        }
+
+        .tb-branding-features {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          align-items: flex-start;
+          max-width: 280px;
+          margin: 0 auto;
+
+          .tb-feature {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 16px;
+            opacity: 0.9;
+
+            .tb-feature-icon {
+              font-size: 24px;
+            }
+          }
         }
       }
 
-      .tb-action-button{
-        padding: 20px 0 16px;
+      @media (max-width: 960px) {
+        display: none;
       }
     }
 
-    .oauth-container{
-      padding: 0;
+    // Login Form Section (Right - 45%)
+    .tb-login-content {
+      width: 45%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: $bg-light;
+      overflow-y: auto;
+      padding: 40px;
 
-      .container-divider {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
+      @media (max-width: 960px) {
         width: 100%;
-
-        .line {
-          flex: 1;
-        }
-
-        .mat-divider-horizontal{
-          position: relative;
-        }
-
-        .text {
-          padding-right: 8px;
-          padding-left: 8px;
-          font-size: 16px;
-          line-height: 24px;
-          letter-spacing: 0.15px;
-        }
+        padding: 24px;
       }
 
-      .material-icons{
-        width: 20px;
-        min-width: 20px;
-      }
+      .tb-login-card {
+        width: 100%;
+        max-width: 420px;
+        background: $white;
+        border-radius: 20px;
+        padding: 48px 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
 
-      a.login-with-button {
-        color: rgba(black, 0.87);
-        background-color: map-get($tb-dark-theme-background, raised-button);
-      }
+        @media (max-width: 480px) {
+          padding: 32px 24px;
+          border-radius: 16px;
+        }
 
-      .login-button-container {
-        a.login-with-button {
-          --mdc-outlined-button-container-shape: 8px;
-          max-width: 123px;
-          min-width: 60px;
-          flex-grow: 1;
-          flex-basis: 120px;
+        .tb-login-header {
+          text-align: center;
+          margin-bottom: 36px;
 
-          .tb-mat-20 {
+          h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: $text-dark;
+            margin: 0 0 8px;
+          }
+
+          p {
+            font-size: 15px;
+            color: $text-muted;
             margin: 0;
-            vertical-align: text-top;
           }
         }
 
-        &:has(> :nth-child(2):last-child) {
-          a.login-with-button {
-            max-width: 180px;
-            flex-basis: 180px;
+        mat-progress-bar {
+          margin-bottom: 24px;
+          border-radius: 4px;
+        }
+
+        .tb-login-form {
+          .tb-form-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+          }
+
+          .tb-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+
+            label {
+              font-size: 14px;
+              font-weight: 600;
+              color: $text-dark;
+            }
+
+            .tb-input-wrapper {
+              position: relative;
+              display: flex;
+              align-items: center;
+
+              .tb-input-icon {
+                position: absolute;
+                left: 16px;
+                color: $text-muted;
+                font-size: 20px;
+                pointer-events: none;
+              }
+
+              input {
+                width: 100%;
+                padding: 16px 16px 16px 52px;
+                font-size: 15px;
+                border: 2px solid $border-color;
+                border-radius: 12px;
+                background: $bg-light;
+                color: $text-dark;
+                transition: all 0.2s ease;
+                outline: none;
+                font-family: inherit;
+
+                &::placeholder {
+                  color: #b0bec5;
+                }
+
+                &:focus {
+                  border-color: $accent-color;
+                  background: $white;
+                  box-shadow: 0 0 0 4px rgba($accent-color, 0.1);
+                }
+              }
+            }
+
+            .tb-input-error {
+              font-size: 12px;
+              color: $error-color;
+              padding-left: 4px;
+            }
+          }
+
+          .tb-form-options {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: -8px;
+
+            .tb-forgot-link {
+              font-size: 14px;
+              color: $accent-color;
+              text-decoration: none;
+              font-weight: 500;
+              transition: color 0.2s ease;
+
+              &:hover {
+                color: $accent-hover;
+                text-decoration: underline;
+              }
+            }
+          }
+
+          .tb-submit-btn {
+            width: 100%;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: $white;
+            background: linear-gradient(135deg, $primary-gradient-start 0%, $primary-gradient-end 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            margin-top: 8px;
+
+            &:hover:not(:disabled) {
+              transform: translateY(-2px);
+              box-shadow: 0 8px 24px rgba($primary-gradient-start, 0.35);
+            }
+
+            &:active:not(:disabled) {
+              transform: translateY(0);
+            }
+
+            &:disabled {
+              opacity: 0.7;
+              cursor: not-allowed;
+            }
           }
         }
 
-        &:has(> :nth-child(3):last-child) {
+        // OAuth styles
+        .oauth-container {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+
+          .container-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .line {
+              flex: 1;
+              mat-divider {
+                border-color: $border-color;
+              }
+            }
+
+            .text {
+              font-size: 13px;
+              color: $text-muted;
+              font-weight: 500;
+            }
+          }
+
+          .login-button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+          }
+
           a.login-with-button {
-            max-width: 180px;
+            border-radius: 10px;
+            border-color: $border-color;
+            color: $text-dark;
+            padding: 12px 20px;
+            font-weight: 500;
+
+            &:hover {
+              background: $bg-light;
+              border-color: $accent-color;
+            }
           }
         }
       }

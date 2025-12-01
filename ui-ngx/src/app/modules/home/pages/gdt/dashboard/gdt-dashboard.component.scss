@@ -1,0 +1,691 @@
+/**
+ * Copyright © 2016-2025 The Thingsboard Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+///
+/// Copyright © 2016-2025 The Thingsboard Authors
+///
+/// Licensed under the Apache License, Version 2.0 (the "License");
+/// you may not use this file except in compliance with the License.
+/// You may obtain a copy of the License at
+///
+///     http://www.apache.org/licenses/LICENSE-2.0
+///
+/// Unless required by applicable law or agreed to in writing, software
+/// distributed under the License is distributed on an "AS IS" BASIS,
+/// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+/// See the License for the specific language governing permissions and
+/// limitations under the License.
+///
+
+// GDT Dashboard Styles
+$primary: #1a237e;
+$primary-dark: #0d47a1;
+$accent: #00bcd4;
+$success: #4caf50;
+$warning: #ff9800;
+$danger: #f44336;
+$text-primary: #263238;
+$text-secondary: #607d8b;
+$bg-light: #f5f7fa;
+$card-bg: #ffffff;
+$border-radius: 16px;
+$border-radius-sm: 12px;
+
+.gdt-dashboard {
+  min-height: 100%;
+  background: $bg-light;
+  padding: 0;
+
+  // ==========================================
+  // HEADER
+  // ==========================================
+  .dashboard-header {
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+    padding: 32px 40px;
+    color: white;
+    margin: -1px;
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .welcome-section {
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 8px;
+        letter-spacing: -0.5px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        opacity: 0.85;
+        margin: 0;
+        font-weight: 400;
+      }
+    }
+
+    .header-info {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+
+      .datetime {
+        text-align: right;
+
+        .time {
+          display: block;
+          font-size: 32px;
+          font-weight: 600;
+          letter-spacing: 1px;
+        }
+
+        .date {
+          display: block;
+          font-size: 14px;
+          opacity: 0.8;
+          text-transform: capitalize;
+        }
+      }
+
+      .refresh-btn {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.25);
+        }
+
+        .spinning {
+          animation: spin 1s linear infinite;
+        }
+      }
+    }
+  }
+
+  // ==========================================
+  // LOADING STATE
+  // ==========================================
+  .loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 20px;
+
+    p {
+      color: $text-secondary;
+      font-size: 16px;
+    }
+  }
+
+  // ==========================================
+  // MAIN CONTENT
+  // ==========================================
+  .dashboard-content {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 32px 40px;
+  }
+
+  // ==========================================
+  // STATS SECTION
+  // ==========================================
+  .stats-section {
+    margin-bottom: 32px;
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr) 1.5fr;
+      gap: 20px;
+
+      @media (max-width: 1200px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: $card-bg;
+      border-radius: $border-radius;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      transition: all 0.2s ease;
+
+      &:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      &.wide {
+        flex-wrap: wrap;
+
+        .stat-progress {
+          width: 100%;
+          margin-top: 12px;
+        }
+      }
+
+      &.has-alarms {
+        border-left: 4px solid $danger;
+        
+        .stat-icon.alarms {
+          background: rgba($danger, 0.1);
+          color: $danger;
+        }
+      }
+
+      .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        mat-icon {
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+        }
+
+        &.tanks {
+          background: rgba($primary, 0.1);
+          color: $primary;
+        }
+
+        &.online {
+          background: rgba($success, 0.1);
+          color: $success;
+        }
+
+        &.offline {
+          background: rgba($text-secondary, 0.1);
+          color: $text-secondary;
+        }
+
+        &.alarms {
+          background: rgba($warning, 0.1);
+          color: $warning;
+        }
+
+        &.volume {
+          background: rgba($accent, 0.1);
+          color: $accent;
+        }
+      }
+
+      .stat-info {
+        display: flex;
+        flex-direction: column;
+
+        .stat-value {
+          font-size: 28px;
+          font-weight: 700;
+          color: $text-primary;
+          line-height: 1.2;
+
+          small {
+            font-size: 14px;
+            font-weight: 500;
+            color: $text-secondary;
+          }
+        }
+
+        .stat-label {
+          font-size: 14px;
+          color: $text-secondary;
+          font-weight: 500;
+        }
+      }
+
+      .stat-progress {
+        .progress-bar {
+          height: 8px;
+          background: rgba($accent, 0.15);
+          border-radius: 4px;
+          overflow: hidden;
+
+          .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, $accent, lighten($accent, 10%));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+          }
+        }
+
+        .progress-text {
+          font-size: 12px;
+          color: $text-secondary;
+          margin-top: 6px;
+          display: block;
+        }
+      }
+    }
+  }
+
+  // ==========================================
+  // MAIN GRID
+  // ==========================================
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+
+    @media (max-width: 1000px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 20px;
+
+    mat-icon {
+      color: $accent;
+    }
+
+    &.warning mat-icon {
+      color: $warning;
+    }
+  }
+
+  // ==========================================
+  // QUICK ACCESS SECTION
+  // ==========================================
+  .quick-access-section {
+    .quick-access-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .quick-access-card {
+      background: $card-bg;
+      border-radius: $border-radius;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      transition: all 0.2s ease;
+      border-left: 4px solid var(--accent-color, $accent);
+
+      &:hover {
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+        transform: translateX(4px);
+
+        .card-arrow {
+          transform: translateX(4px);
+          opacity: 1;
+        }
+      }
+
+      .card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent-color, $accent), lighten($accent, 10%));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        mat-icon {
+          color: white;
+          font-size: 24px;
+        }
+      }
+
+      .card-content {
+        flex: 1;
+
+        h3 {
+          font-size: 16px;
+          font-weight: 600;
+          color: $text-primary;
+          margin: 0 0 4px;
+        }
+
+        p {
+          font-size: 13px;
+          color: $text-secondary;
+          margin: 0;
+        }
+      }
+
+      .card-arrow {
+        color: $text-secondary;
+        opacity: 0.5;
+        transition: all 0.2s ease;
+      }
+    }
+  }
+
+  // ==========================================
+  // CRITICAL TANKS SECTION
+  // ==========================================
+  .critical-section {
+    .critical-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .critical-item {
+      background: $card-bg;
+      border-radius: $border-radius-sm;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: all 0.2s ease;
+      border-left: 4px solid transparent;
+
+      &:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        transform: translateX(4px);
+      }
+
+      &.alarm-critical {
+        border-left-color: $danger;
+        background: rgba($danger, 0.03);
+      }
+
+      &.alarm-high {
+        border-left-color: $warning;
+        background: rgba($warning, 0.03);
+      }
+
+      &.alarm-low {
+        border-left-color: $accent;
+        background: rgba($accent, 0.03);
+      }
+
+      .tank-indicator {
+        .level-bar {
+          width: 12px;
+          height: 40px;
+          background: rgba($text-secondary, 0.1);
+          border-radius: 6px;
+          overflow: hidden;
+          position: relative;
+
+          .level-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, $accent, lighten($accent, 15%));
+            border-radius: 6px;
+            transition: height 0.3s ease;
+          }
+        }
+      }
+
+      .tank-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        .tank-name {
+          font-size: 15px;
+          font-weight: 600;
+          color: $text-primary;
+        }
+
+        .tank-product {
+          font-size: 13px;
+          color: $text-secondary;
+        }
+      }
+
+      .tank-data {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .level {
+          font-size: 18px;
+          font-weight: 600;
+          color: $text-primary;
+        }
+
+        .alarm-badge {
+          font-size: 11px;
+          font-weight: 600;
+          padding: 3px 8px;
+          border-radius: 10px;
+          text-transform: uppercase;
+
+          &.alarm-critical {
+            background: rgba($danger, 0.15);
+            color: $danger;
+          }
+
+          &.alarm-high {
+            background: rgba($warning, 0.15);
+            color: darken($warning, 10%);
+          }
+
+          &.alarm-low {
+            background: rgba($accent, 0.15);
+            color: darken($accent, 10%);
+          }
+        }
+      }
+
+      .arrow {
+        color: $text-secondary;
+        opacity: 0.5;
+      }
+    }
+  }
+
+  // ==========================================
+  // TANKS OVERVIEW SECTION
+  // ==========================================
+  .tanks-overview-section {
+    grid-column: 1 / -1;
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+
+      .section-title {
+        margin: 0;
+      }
+
+      button {
+        border-radius: 10px;
+        
+        mat-icon {
+          margin-left: 4px;
+        }
+      }
+    }
+
+    .tanks-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 16px;
+
+      @media (max-width: 1400px) {
+        grid-template-columns: repeat(6, 1fr);
+      }
+
+      @media (max-width: 1000px) {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      @media (max-width: 600px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .tank-mini-card {
+      background: $card-bg;
+      border-radius: $border-radius-sm;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: all 0.2s ease;
+      position: relative;
+
+      &:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(-4px);
+      }
+
+      &.offline {
+        opacity: 0.6;
+
+        .tank-shell, .tank-roof {
+          stroke: $text-secondary;
+        }
+      }
+
+      &.alarm-critical {
+        border: 2px solid $danger;
+      }
+
+      &.alarm-high {
+        border: 2px solid $warning;
+      }
+
+      .status-dot {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: $text-secondary;
+
+        &.online {
+          background: $success;
+          box-shadow: 0 0 8px rgba($success, 0.5);
+        }
+      }
+
+      .mini-tank-visual {
+        width: 50px;
+        height: 70px;
+        margin-bottom: 8px;
+
+        .tank-svg {
+          width: 100%;
+          height: 100%;
+
+          .tank-shell {
+            fill: none;
+            stroke: $primary;
+            stroke-width: 1.5;
+          }
+
+          .tank-roof {
+            fill: rgba($primary, 0.1);
+            stroke: $primary;
+            stroke-width: 1.5;
+          }
+
+          .tank-liquid {
+            fill: $accent;
+            opacity: 0.7;
+          }
+        }
+      }
+
+      .mini-tank-info {
+        text-align: center;
+
+        .name {
+          display: block;
+          font-size: 12px;
+          font-weight: 600;
+          color: $text-primary;
+          margin-bottom: 2px;
+        }
+
+        .level {
+          display: block;
+          font-size: 14px;
+          font-weight: 700;
+          color: $accent;
+        }
+      }
+    }
+  }
+
+  // ==========================================
+  // ERROR STATE
+  // ==========================================
+  .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 16px;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: $danger;
+    }
+
+    p {
+      color: $text-secondary;
+      font-size: 16px;
+    }
+  }
+}
+
+// Animation
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

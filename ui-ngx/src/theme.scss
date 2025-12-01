@@ -21,27 +21,27 @@
 @include mat.all-component-typographies();
 @include mat.core();
 
-// GDT Teal Color Palette - Industrial Tank Management Theme
+// GDT Modern Blue Palette - Matching Login Design
 $tb-mat-indigo: (
-  50: #e0f7f7,
-  100: #b3ebeb,
-  200: #80dede,
-  300: #4dd1d1,
-  400: #26c6c6,
-  500: $tb-primary-color,    // #0d7377 - Deep teal
-  600: $tb-secondary-color,  // #14919b - Medium teal
-  700: #0a5c5f,
-  800: #084547,
-  900: #052e30,
-  A100: $tb-hue3-color,      // #32e0c4 - Bright cyan
-  A200: #26d9bd,
-  A400: #1ad2b6,
-  A700: #0ecbaf,
+  50: #e8eaf6,
+  100: #c5cae9,
+  200: #9fa8da,
+  300: #7986cb,
+  400: #5c6bc0,
+  500: $tb-primary-color,    // #1a237e - Deep indigo
+  600: $tb-secondary-color,  // #0d47a1 - Dark blue
+  700: #303f9f,
+  800: #283593,
+  900: #1a237e,
+  A100: $tb-hue3-color,      // #00bcd4 - Cyan accent
+  A200: #00acc1,
+  A400: #0097a7,
+  A700: #00838f,
   contrast: (
     50: rgba(black, 0.87),
     100: rgba(black, 0.87),
     200: rgba(black, 0.87),
-    300: rgba(black, 0.87),
+    300: white,
     400: white,
     500: white,
     600: white,
@@ -50,29 +50,29 @@ $tb-mat-indigo: (
     900: white,
     A100: rgba(black, 0.87),
     A200: rgba(black, 0.87),
-    A400: rgba(black, 0.87),
-    A700: rgba(black, 0.87),
+    A400: white,
+    A700: white,
   )
 );
 
 $tb-primary: mat.m2-define-palette($tb-mat-indigo);
 
-// GDT Orange Accent Palette
-$gdt-orange-palette: (
-  50: #fff3e0,
-  100: #ffe0b2,
-  200: #ffcc80,
-  300: #ffb74d,
-  400: #ffa726,
-  500: #ff6b35,
-  600: #fb8c00,
-  700: #f57c00,
-  800: #ef6c00,
-  900: #e65100,
-  A100: #ffd180,
-  A200: #ffab40,
-  A400: #ff9100,
-  A700: #ff6d00,
+// GDT Cyan Accent Palette
+$gdt-cyan-palette: (
+  50: #e0f7fa,
+  100: #b2ebf2,
+  200: #80deea,
+  300: #4dd0e1,
+  400: #26c6da,
+  500: #00bcd4,
+  600: #00acc1,
+  700: #0097a7,
+  800: #00838f,
+  900: #006064,
+  A100: #84ffff,
+  A200: #18ffff,
+  A400: #00e5ff,
+  A700: #00b8d4,
   contrast: (
     50: rgba(black, 0.87),
     100: rgba(black, 0.87),
@@ -87,12 +87,12 @@ $gdt-orange-palette: (
     A100: rgba(black, 0.87),
     A200: rgba(black, 0.87),
     A400: rgba(black, 0.87),
-    A700: white,
+    A700: rgba(black, 0.87),
   )
 );
-$tb-accent: mat.m2-define-palette($gdt-orange-palette);
+$tb-accent: mat.m2-define-palette($gdt-cyan-palette);
 
-$background: (background: #f8fafb);
+$background: (background: #fafafa);
 
 $tb-theme-background: map_merge(mat.$m2-light-theme-background-palette, $background);
 
@@ -128,22 +128,22 @@ $tb-theme: map_merge($tb-mat-theme, $color);
 $primary: mat.m2-get-color-from-palette($tb-primary);
 $accent: mat.m2-get-color-from-palette($tb-accent);
 
-// GDT Dark Theme Palette
+// GDT Dark Theme Palette - Modern Blue
 $tb-dark-mat-indigo: (
-  50: #e0f7f7,
-  100: #b3ebeb,
-  200: #80dede,
-  300: #4dd1d1,
-  400: #26c6c6,
-  500: $tb-dark-primary-color,  // #32e0c4 - Bright cyan
-  600: $tb-secondary-color,
-  700: #0a5c5f,
-  800: $tb-primary-color,
-  900: #052e30,
+  50: #e8eaf6,
+  100: #c5cae9,
+  200: #9fa8da,
+  300: #7986cb,
+  400: #5c6bc0,
+  500: $tb-dark-primary-color,  // #00bcd4 - Cyan
+  600: #00acc1,
+  700: #0097a7,
+  800: #1a237e,
+  900: #0d1b3e,
   A100: $tb-hue3-color,
-  A200: #26d9bd,
-  A400: #1ad2b6,
-  A700: #0ecbaf,
+  A200: #00acc1,
+  A400: #0097a7,
+  A700: #00838f,
   contrast: (
     50: rgba(black, 0.87),
     100: rgba(black, 0.87),
@@ -164,23 +164,23 @@ $tb-dark-mat-indigo: (
 
 $tb-dark-primary: mat.m2-define-palette($tb-dark-mat-indigo);
 
-// GDT Dark Theme Background - Teal-tinted dark
+// GDT Dark Theme Background - Deep blue-tinted dark
 $tb-dark-theme-background: (
-  status-bar: #0a1f1f,
+  status-bar: #0a0f1f,
   app-bar:    map_get($tb-dark-mat-indigo, 900),
-  background: #0f2a2a,
+  background: #0d1b3e,
   hover:      rgba(white, 0.06),
-  card:       #153535,
-  dialog:     #153535,
+  card:       #1a2744,
+  dialog:     #1a2744,
   disabled-button: rgba(white, 0.12),
   raised-button: map-get($tb-dark-mat-indigo, 50),
   focused-button: rgba(white, 0.12),
   selected-button: map_get($tb-dark-mat-indigo, 900),
-  selected-disabled-button: #0d2525,
-  disabled-button-toggle: #0a1f1f,
+  selected-disabled-button: #0d1525,
+  disabled-button-toggle: #0a0f1f,
   unselected-chip: map_get($tb-dark-mat-indigo, 700),
-  disabled-list-option: #0a1f1f,
-  tooltip: #1a4040,
+  disabled-list-option: #0a0f1f,
+  tooltip: #1a2744,
 );
 
 $tb-dark-theme: mat.m2-define-dark-theme((
