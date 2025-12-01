@@ -23,6 +23,9 @@ import { TankMonitoringComponent } from './tank-monitoring/tank-monitoring.compo
 import { TankConfigurationStaticComponent } from './tank-configuration/tank-configuration-static.component';
 import { GdtUserManagementComponent } from './user-management/user-management.component';
 import { GatewayConfigurationComponent } from './gateway-configuration/gateway-configuration.component';
+import { AforoManualComponent } from './aforo-manual/aforo-manual.component';
+import { LaboratorioComponent } from './laboratorio/laboratorio.component';
+import { BatchManagementComponent } from './batch-management/batch-management.component';
 
 const routes: Routes = [
   {
@@ -121,6 +124,61 @@ const routes: Routes = [
             menuId: 'gdt_gateway_configuration' as any,
             label: 'Configuración Gateway',
             icon: 'router'
+          }
+        }
+      },
+      {
+        path: 'aforo-manual',
+        component: AforoManualComponent,
+        data: {
+          auth: [
+            Authority.SYS_ADMIN,
+            Authority.TENANT_ADMIN,
+            Authority.CUSTOMER_USER,
+            Authority.OPERADOR,
+            Authority.INGENIERO,
+            Authority.LABORATORIO
+          ],
+          title: 'gdt.aforo-manual',
+          breadcrumb: {
+            menuId: 'gdt_aforo_manual' as any,
+            label: 'Aforo Manual',
+            icon: 'edit'
+          }
+        }
+      },
+      {
+        path: 'laboratorio',
+        component: LaboratorioComponent,
+        data: {
+          auth: [
+            Authority.SYS_ADMIN,
+            Authority.TENANT_ADMIN,
+            Authority.CUSTOMER_USER,
+            Authority.LABORATORIO
+          ],
+          title: 'gdt.laboratorio',
+          breadcrumb: {
+            menuId: 'gdt_laboratorio' as any,
+            label: 'Laboratorio',
+            icon: 'science'
+          }
+        }
+      },
+      {
+        path: 'batches',
+        component: BatchManagementComponent,
+        data: {
+          auth: [
+            Authority.SYS_ADMIN,
+            Authority.TENANT_ADMIN,
+            Authority.INGENIERO
+          ],
+          title: 'gdt.batch-management',
+          breadcrumb: {
+            menuId: 'gdt_batch_management' as any,
+            label: 'Gestión de Batches',
+            icon: 'inventory_2'
           }
         }
       },

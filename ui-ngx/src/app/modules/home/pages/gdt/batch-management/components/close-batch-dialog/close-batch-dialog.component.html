@@ -1,0 +1,67 @@
+<h2 mat-dialog-title>Cerrar Batch {{ batch.batchNumber }}</h2>
+
+<div mat-dialog-content>
+  <form [formGroup]="closeBatchForm" fxLayout="column" fxLayoutGap="16px">
+    
+    <h3>Medición de Cierre</h3>
+    
+    <!-- Closing Level -->
+    <mat-form-field appearance="outline">
+      <mat-label>Nivel de Cierre (mm)</mat-label>
+      <input matInput type="number" formControlName="closingLevel" required>
+      <mat-error *ngIf="closeBatchForm.get('closingLevel').hasError('required')">
+        El nivel es requerido
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Closing Temperature -->
+    <mat-form-field appearance="outline">
+      <mat-label>Temperatura (°C)</mat-label>
+      <input matInput type="number" step="0.1" formControlName="closingTemperature" required>
+      <mat-error *ngIf="closeBatchForm.get('closingTemperature').hasError('required')">
+        La temperatura es requerida
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Closing API Gravity -->
+    <mat-form-field appearance="outline">
+      <mat-label>API Gravity (°API)</mat-label>
+      <input matInput type="number" step="0.01" formControlName="closingApiGravity" required>
+      <mat-error *ngIf="closeBatchForm.get('closingApiGravity').hasError('required')">
+        El API Gravity es requerido
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Closing BS&W -->
+    <mat-form-field appearance="outline">
+      <mat-label>BS&W (%)</mat-label>
+      <input matInput type="number" step="0.01" formControlName="closingBsw">
+      <mat-hint>Basic Sediment and Water</mat-hint>
+    </mat-form-field>
+
+    <h3>Información Adicional</h3>
+
+    <!-- Operator -->
+    <mat-form-field appearance="outline">
+      <mat-label>Operador</mat-label>
+      <input matInput formControlName="operator">
+    </mat-form-field>
+
+    <!-- Notes -->
+    <mat-form-field appearance="outline">
+      <mat-label>Notas</mat-label>
+      <textarea matInput formControlName="notes" rows="3"></textarea>
+    </mat-form-field>
+
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-raised-button 
+          color="primary" 
+          (click)="onSubmit()"
+          [disabled]="!closeBatchForm.valid || loading">
+    ✓ Cerrar Batch
+  </button>
+</div>

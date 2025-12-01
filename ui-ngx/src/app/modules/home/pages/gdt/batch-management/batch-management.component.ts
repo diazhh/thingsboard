@@ -1,0 +1,350 @@
+///
+/// Copyright © 2016-2025 The Thingsboard Authors
+///
+/// Licensed under the Apache License, Version 2.0 (the "License");
+/// you may not use this file except in compliance with the License.
+/// You may obtain a copy of the License at
+///
+///     http://www.apache.org/licenses/LICENSE-2.0
+///
+/// Unless required by applicable law or agreed to in writing, software
+/// distributed under the License is distributed on an "AS IS" BASIS,
+/// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+/// See the License for the specific language governing permissions and
+/// limitations under the License.
+///
+
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { PageComponent } from '@shared/components/page.component';
+import { Store } from '@ngrx/store';
+import { AppState } from '@core/core.state';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { Batch, BatchFilterCriteria, BatchStatus, BatchType, CreateBatchRequest, CloseBatchRequest, RecalculateBatchRequest } from '../shared/models/batch.model';
+import { BatchService } from '../shared/services/batch.service';
+import { TankAssetService } from '../shared/services/tank-asset.service';
+import { GdtWidgetContextService } from '../shared/services/gdt-widget-context.service';
+import { CreateBatchDialogComponent } from './components/create-batch-dialog/create-batch-dialog.component';
+import { BatchDetailDialogComponent } from './components/batch-detail-dialog/batch-detail-dialog.component';
+import { CloseBatchDialogComponent } from './components/close-batch-dialog/close-batch-dialog.component';
+import { RecalculateBatchDialogComponent } from './components/recalculate-batch-dialog/recalculate-batch-dialog.component';
+
+@Component({
+  selector: 'tb-batch-management',
+  templateUrl: './batch-management.component.html',
+  styleUrls: ['./batch-management.component.scss']
+})
+export class BatchManagementComponent extends PageComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
+
+  // Data
+  batches: Batch[] = [];
+  filteredBatches: Batch[] = [];
+  tanks: any[] = [];
+
+  // Filters
+  selectedTankId: string | null = null;
+  selectedStatus: BatchStatus | null = null;
+  selectedType: BatchType | null = null;
+  startDate: Date | null = null;
+  endDate: Date | null = null;
+  searchText: string = '';
+
+  // UI State
+  loading = false;
+  displayedColumns: string[] = ['batchNumber', 'tankName', 'type', 'status', 'opening', 'closing', 'createdAt', 'actions'];
+
+  // Filter options
+  statusOptions: { label: string; value: BatchStatus }[] = [
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
+    { label: 'Recalculated', value: 'recalculated' },
+    { label: 'Voided', value: 'voided' }
+  ];
+
+  typeOptions: { label: string; value: BatchType }[] = [
+    { label: 'Receiving', value: 'receiving' },
+    { label: 'Dispensing', value: 'dispensing' }
+  ];
+
+  constructor(
+    protected store: Store<AppState>,
+    private batchService: BatchService,
+    private tankAssetService: TankAssetService,
+    private gdtContextService: GdtWidgetContextService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private cd: ChangeDetectorRef
+  ) {
+    super(store);
+  }
+
+  ngOnInit() {
+    this.loadTanks();
+    this.loadBatches();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadTanks() {
+    this.tankAssetService.getAllTanksWithAttributes('Tank')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (tanks) => {
+          this.tanks = tanks;
+        },
+        error: (err) => {
+          console.error('Error loading tanks:', err);
+        }
+      });
+  }
+
+  loadBatches() {
+    console.log('[BatchManagement] loadBatches called');
+    this.loading = true;
+    const filters: BatchFilterCriteria = {
+      tankId: this.selectedTankId || undefined,
+      status: this.selectedStatus || undefined,
+      batchType: this.selectedType || undefined,
+      startDate: this.startDate ? this.startDate.getTime() : undefined,
+      endDate: this.endDate ? this.endDate.getTime() : undefined,
+      pageSize: 100,
+      pageNumber: 0
+    };
+
+    console.log('[BatchManagement] Calling batchService.getBatches with filters:', filters);
+
+    this.batchService.getBatches(filters)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log('[BatchManagement] Received response:', response);
+          this.batches = response.batches;
+          this.applyFilters();
+          this.loading = false;
+          this.cd.detectChanges(); // Force change detection
+        },
+        error: (err) => {
+          console.error('[BatchManagement] Error loading batches:', err);
+          this.snackBar.open('Error loading batches', 'Close', { duration: 5000 });
+          this.loading = false;
+        }
+      });
+  }
+
+  applyFilters() {
+    this.filteredBatches = this.batches.filter(batch => {
+      if (this.searchText) {
+        const searchLower = this.searchText.toLowerCase();
+        return batch.batchNumber.toLowerCase().includes(searchLower) ||
+               batch.tankName.toLowerCase().includes(searchLower);
+      }
+      return true;
+    });
+  }
+
+  onFilterChange() {
+    this.loadBatches();
+  }
+
+  onSearchChange() {
+    this.applyFilters();
+  }
+
+  clearFilters() {
+    this.selectedTankId = null;
+    this.selectedStatus = null;
+    this.selectedType = null;
+    this.startDate = null;
+    this.endDate = null;
+    this.searchText = '';
+    this.loadBatches();
+  }
+
+  createBatch() {
+    const dialogRef = this.dialog.open(CreateBatchDialogComponent, {
+      width: '600px',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe((request: CreateBatchRequest) => {
+      if (request) {
+        this.batchService.createBatch(request)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (batch) => {
+              this.snackBar.open(`Batch ${batch.batchNumber} creado exitosamente`, 'Cerrar', { duration: 3000 });
+              this.loadBatches();
+            },
+            error: (err) => {
+              console.error('Error creating batch:', err);
+              this.snackBar.open('Error al crear batch', 'Cerrar', { duration: 5000 });
+            }
+          });
+      }
+    });
+  }
+
+  viewBatchDetail(batch: Batch) {
+    this.dialog.open(BatchDetailDialogComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      data: { batch }
+    });
+  }
+
+  closeBatch(batch: Batch) {
+    if (batch.status !== 'open') {
+      this.snackBar.open('Solo se pueden cerrar batches abiertos', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(CloseBatchDialogComponent, {
+      width: '600px',
+      disableClose: false,
+      data: { batch }
+    });
+
+    dialogRef.afterClosed().subscribe((request: CloseBatchRequest) => {
+      if (request) {
+        this.batchService.closeBatch(request)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (closedBatch) => {
+              this.snackBar.open(`Batch ${closedBatch.batchNumber} cerrado exitosamente`, 'Cerrar', { duration: 3000 });
+              this.loadBatches();
+            },
+            error: (err) => {
+              console.error('Error closing batch:', err);
+              this.snackBar.open('Error al cerrar batch', 'Cerrar', { duration: 5000 });
+            }
+          });
+      }
+    });
+  }
+
+  recalculateBatch(batch: Batch) {
+    if (batch.status !== 'closed') {
+      this.snackBar.open('Solo se pueden recalcular batches cerrados', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(RecalculateBatchDialogComponent, {
+      width: '600px',
+      disableClose: false,
+      data: { batch }
+    });
+
+    dialogRef.afterClosed().subscribe((request: RecalculateBatchRequest) => {
+      if (request) {
+        this.batchService.recalculateBatch(request)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (recalculatedBatch) => {
+              this.snackBar.open(`Batch ${recalculatedBatch.batchNumber} recalculado exitosamente`, 'Cerrar', { duration: 3000 });
+              this.loadBatches();
+            },
+            error: (err) => {
+              console.error('Error recalculating batch:', err);
+              this.snackBar.open(err.message || 'Error al recalcular batch', 'Cerrar', { duration: 5000 });
+            }
+          });
+      }
+    });
+  }
+
+  downloadReport(batch: Batch) {
+    this.batchService.downloadBatchReport(batch.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob) => {
+          this.downloadFile(blob, `batch-${batch.batchNumber}.pdf`);
+          this.snackBar.open('Report downloaded successfully', 'Close', { duration: 3000 });
+        },
+        error: (err) => {
+          console.error('Error downloading report:', err);
+          this.snackBar.open('Error downloading report', 'Close', { duration: 5000 });
+        }
+      });
+  }
+
+  exportToCsv() {
+    const filters: BatchFilterCriteria = {
+      tankId: this.selectedTankId || undefined,
+      status: this.selectedStatus || undefined,
+      batchType: this.selectedType || undefined
+    };
+
+    this.batchService.exportBatchesToCsv(filters)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob) => {
+          this.downloadFile(blob, `batches-${Date.now()}.csv`);
+          this.snackBar.open('Batches exported successfully', 'Close', { duration: 3000 });
+        },
+        error: (err) => {
+          console.error('Error exporting batches:', err);
+          this.snackBar.open('Error exporting batches', 'Close', { duration: 5000 });
+        }
+      });
+  }
+
+  getStatusColor(status: BatchStatus): string {
+    switch (status) {
+      case 'open':
+        return 'primary';
+      case 'closed':
+        return 'accent';
+      case 'recalculated':
+        return 'warn';
+      case 'voided':
+        return 'disabled';
+      default:
+        return '';
+    }
+  }
+
+  getStatusIcon(status: BatchStatus): string {
+    switch (status) {
+      case 'open':
+        return 'lock_open';
+      case 'closed':
+        return 'lock';
+      case 'recalculated':
+        return 'refresh';
+      case 'voided':
+        return 'cancel';
+      default:
+        return '';
+    }
+  }
+
+  formatDate(timestamp: number): string {
+    return new Date(timestamp).toLocaleString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  private downloadFile(blob: Blob, filename: string) {
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+}

@@ -1,0 +1,139 @@
+<div class="tb-form-panel stroked">
+  <div class="tb-form-panel-title">Registrar Análisis de Laboratorio</div>
+  
+  <form [formGroup]="labForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="16px">
+    
+    <!-- Timestamp -->
+    <mat-form-field appearance="outline" class="mat-block">
+      <mat-label>Fecha y Hora del Análisis</mat-label>
+      <input matInput
+             [matDatepicker]="picker"
+             formControlName="timestamp"
+             required>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-error *ngIf="labForm.get('timestamp').hasError('required')">
+        La fecha y hora son requeridas
+      </mat-error>
+    </mat-form-field>
+
+    <!-- API Gravity -->
+    <mat-form-field appearance="outline" class="mat-block">
+      <mat-label>API Gravity (°API)</mat-label>
+      <input matInput
+             type="number"
+             step="0.1"
+             formControlName="apiGravity"
+             placeholder="Ej: 35.5"
+             required>
+      <mat-icon matSuffix>scale</mat-icon>
+      <mat-hint>Gravedad API del producto (4.0 - 99.9)</mat-hint>
+      <mat-error *ngIf="labForm.get('apiGravity').hasError('required')">
+        API Gravity es requerido
+      </mat-error>
+      <mat-error *ngIf="labForm.get('apiGravity').hasError('min')">
+        API Gravity debe ser mayor o igual a 4.0
+      </mat-error>
+      <mat-error *ngIf="labForm.get('apiGravity').hasError('max')">
+        API Gravity debe ser menor o igual a 99.9
+      </mat-error>
+    </mat-form-field>
+
+    <!-- BS&W -->
+    <mat-form-field appearance="outline" class="mat-block">
+      <mat-label>BS&W (%)</mat-label>
+      <input matInput
+             type="number"
+             step="0.01"
+             formControlName="bsw"
+             placeholder="Ej: 0.5"
+             required>
+      <mat-icon matSuffix>water_drop</mat-icon>
+      <mat-hint>Basic Sediment and Water (0 - 100%)</mat-hint>
+      <mat-error *ngIf="labForm.get('bsw').hasError('required')">
+        BS&W es requerido
+      </mat-error>
+      <mat-error *ngIf="labForm.get('bsw').hasError('min')">
+        BS&W debe ser mayor o igual a 0
+      </mat-error>
+      <mat-error *ngIf="labForm.get('bsw').hasError('max')">
+        BS&W debe ser menor o igual a 100
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Temperature -->
+    <mat-form-field appearance="outline" class="mat-block">
+      <mat-label>Temperatura (°C)</mat-label>
+      <input matInput
+             type="number"
+             formControlName="temperature"
+             placeholder="Ej: 25.5">
+      <mat-icon matSuffix>thermostat</mat-icon>
+      <mat-hint>Temperatura del análisis (opcional)</mat-hint>
+      <mat-error *ngIf="labForm.get('temperature').hasError('min')">
+        La temperatura debe ser mayor a -50°C
+      </mat-error>
+      <mat-error *ngIf="labForm.get('temperature').hasError('max')">
+        La temperatura debe ser menor a 150°C
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Analyst -->
+    <mat-form-field appearance="outline" class="mat-block">
+      <mat-label>Analista</mat-label>
+      <input matInput
+             formControlName="analyst"
+             placeholder="Nombre del analista"
+             required>
+      <mat-icon matSuffix>person</mat-icon>
+      <mat-error *ngIf="labForm.get('analyst').hasError('required')">
+        El nombre del analista es requerido
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Notes -->
+    <mat-form-field appearance="outline" class="mat-block">
+      <mat-label>Observaciones</mat-label>
+      <textarea matInput
+                formControlName="notes"
+                rows="3"
+                placeholder="Observaciones adicionales del análisis..."></textarea>
+      <mat-icon matSuffix>note</mat-icon>
+    </mat-form-field>
+
+    <!-- Tank Info (Read-only) -->
+    <div *ngIf="selectedTank" class="tank-info">
+      <mat-card>
+        <mat-card-content>
+          <div fxLayout="row" fxLayoutAlign="space-between center">
+            <div>
+              <strong>Tanque:</strong> {{ selectedTank.attributes.tankTag || selectedTank.asset.name }}
+            </div>
+            <div>
+              <strong>Producto:</strong> {{ selectedTank.attributes.productName || 'N/A' }}
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Actions -->
+    <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="end center">
+      <button mat-stroked-button
+              type="button"
+              (click)="onCancel()"
+              [disabled]="saving">
+        Cancelar
+      </button>
+      <button mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="labForm.invalid || !selectedTank || saving">
+        <mat-icon *ngIf="!saving">save</mat-icon>
+        <mat-spinner *ngIf="saving" diameter="20" style="display: inline-block;"></mat-spinner>
+        {{ saving ? 'Guardando...' : 'Guardar Análisis' }}
+      </button>
+    </div>
+
+  </form>
+</div>

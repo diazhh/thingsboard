@@ -1,0 +1,100 @@
+<div class="tb-form-panel stroked">
+  <div class="tb-form-panel-title">Registrar Aforo Manual</div>
+  
+  <form [formGroup]="aforoForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="16px">
+    
+    <!-- Timestamp -->
+    <mat-form-field appearance="outline" class="mat-block">
+      <mat-label>Fecha y Hora</mat-label>
+      <input matInput
+             [matDatepicker]="picker"
+             formControlName="timestamp"
+             required>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-error *ngIf="aforoForm.get('timestamp').hasError('required')">
+        La fecha y hora son requeridas
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Manual Level -->
+    <mat-form-field appearance="outline" class="mat-block">
+      <mat-label>Nivel Manual (mm)</mat-label>
+      <input matInput
+             type="number"
+             formControlName="manualLevel"
+             placeholder="Ej: 5000"
+             required>
+      <mat-icon matSuffix>straighten</mat-icon>
+      <mat-hint>Nivel medido manualmente en milímetros</mat-hint>
+      <mat-error *ngIf="aforoForm.get('manualLevel').hasError('required')">
+        El nivel manual es requerido
+      </mat-error>
+      <mat-error *ngIf="aforoForm.get('manualLevel').hasError('min')">
+        El nivel debe ser mayor o igual a 0
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Manual Temperature -->
+    <mat-form-field appearance="outline" class="mat-block">
+      <mat-label>Temperatura (°C)</mat-label>
+      <input matInput
+             type="number"
+             formControlName="manualTemperature"
+             placeholder="Ej: 25.5">
+      <mat-icon matSuffix>thermostat</mat-icon>
+      <mat-hint>Temperatura del producto (opcional)</mat-hint>
+      <mat-error *ngIf="aforoForm.get('manualTemperature').hasError('min')">
+        La temperatura debe ser mayor a -50°C
+      </mat-error>
+      <mat-error *ngIf="aforoForm.get('manualTemperature').hasError('max')">
+        La temperatura debe ser menor a 150°C
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Notes -->
+    <mat-form-field appearance="outline" class="mat-block">
+      <mat-label>Notas</mat-label>
+      <textarea matInput
+                formControlName="notes"
+                rows="3"
+                placeholder="Observaciones adicionales..."></textarea>
+      <mat-icon matSuffix>note</mat-icon>
+    </mat-form-field>
+
+    <!-- Tank Info (Read-only) -->
+    <div *ngIf="selectedTank" class="tank-info">
+      <mat-card>
+        <mat-card-content>
+          <div fxLayout="row" fxLayoutAlign="space-between center">
+            <div>
+              <strong>Tanque:</strong> {{ selectedTank.attributes.tankTag || selectedTank.asset.name }}
+            </div>
+            <div>
+              <strong>Producto:</strong> {{ selectedTank.attributes.productName || 'N/A' }}
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Actions -->
+    <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="end center">
+      <button mat-stroked-button
+              type="button"
+              (click)="onCancel()"
+              [disabled]="saving">
+        Cancelar
+      </button>
+      <button mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="aforoForm.invalid || !selectedTank || saving">
+        <mat-icon *ngIf="!saving">save</mat-icon>
+        <mat-spinner *ngIf="saving" diameter="20" style="display: inline-block;"></mat-spinner>
+        {{ saving ? 'Guardando...' : 'Guardar Aforo' }}
+      </button>
+    </div>
+
+  </form>
+</div>

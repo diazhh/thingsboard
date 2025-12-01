@@ -9525,5 +9525,10 @@
   },
   "language": {
     "language": "Idioma"
+  },
+  "gdt": {
+    "aforo-manual": "Aforo Manual",
+    "laboratorio": "Laboratorio",
+    "batch-management": "Gestión de Batches"
   }
 }
