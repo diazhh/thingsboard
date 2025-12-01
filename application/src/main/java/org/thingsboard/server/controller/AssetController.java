@@ -108,7 +108,7 @@ public class AssetController extends BaseController {
                     "If the user has the authority of 'Tenant Administrator', the server checks that the asset is owned by the same tenant. " +
                     "If the user has the authority of 'Customer User', the server checks that the asset is assigned to the same customer." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH
             )
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/asset/{assetId}", method = RequestMethod.GET)
     @ResponseBody
     public Asset getAssetById(@Parameter(description = ASSET_ID_PARAM_DESCRIPTION)
@@ -123,7 +123,7 @@ public class AssetController extends BaseController {
                     "If the user has the authority of 'Tenant Administrator', the server checks that the asset is owned by the same tenant. " +
                     "If the user has the authority of 'Customer User', the server checks that the asset is assigned to the same customer. "
                     + ASSET_INFO_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/asset/info/{assetId}", method = RequestMethod.GET)
     @ResponseBody
     public AssetInfo getAssetInfoById(@Parameter(description = ASSET_ID_PARAM_DESCRIPTION)
@@ -140,7 +140,7 @@ public class AssetController extends BaseController {
                     "Referencing non-existing Asset Id will cause 'Not Found' error. " +
                     "Remove 'id', 'tenantId' and optionally 'customerId' from the request body example (below) to create new Asset entity. "
                     + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/asset", method = RequestMethod.POST)
     @ResponseBody
     public Asset saveAsset(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "A JSON value representing the asset.") @RequestBody Asset asset,
@@ -290,7 +290,7 @@ public class AssetController extends BaseController {
     @ApiOperation(value = "Get Customer Assets (getCustomerAssets)",
             notes = "Returns a page of assets objects assigned to customer. " +
                     PAGE_DATA_PARAMETERS)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/customer/{customerId}/assets", params = {"pageSize", "page"}, method = RequestMethod.GET)
     @ResponseBody
     public PageData<Asset> getCustomerAssets(
@@ -323,7 +323,7 @@ public class AssetController extends BaseController {
     @ApiOperation(value = "Get Customer Asset Infos (getCustomerAssetInfos)",
             notes = "Returns a page of assets info objects assigned to customer. " +
                     PAGE_DATA_PARAMETERS + ASSET_INFO_DESCRIPTION)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/customer/{customerId}/assetInfos", params = {"pageSize", "page"}, method = RequestMethod.GET)
     @ResponseBody
     public PageData<AssetInfo> getCustomerAssetInfos(
@@ -360,7 +360,7 @@ public class AssetController extends BaseController {
 
     @ApiOperation(value = "Get Assets By Ids (getAssetsByIds)",
             notes = "Requested assets must be owned by tenant or assigned to customer which user is performing the request. ")
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/assets", params = {"assetIds"}, method = RequestMethod.GET)
     @ResponseBody
     public List<Asset> getAssetsByIds(
@@ -387,7 +387,7 @@ public class AssetController extends BaseController {
             notes = "Returns all assets that are related to the specific entity. " +
                     "The entity id, relation type, asset types, depth of the search, and other query parameters defined using complex 'AssetSearchQuery' object. " +
                     "See 'Model' tab of the Parameters for more info.")
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/assets", method = RequestMethod.POST)
     @ResponseBody
     public List<Asset> findByQuery(@RequestBody AssetSearchQuery query) throws ThingsboardException, ExecutionException, InterruptedException {
@@ -409,7 +409,7 @@ public class AssetController extends BaseController {
 
     @ApiOperation(value = "Get Asset Types (getAssetTypes)",
             notes = "Deprecated. See 'getAssetProfileNames' API from Asset Profile Controller instead." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/asset/types", method = RequestMethod.GET)
     @ResponseBody
     @Deprecated(since = "3.6.2")
@@ -468,7 +468,7 @@ public class AssetController extends BaseController {
     @ApiOperation(value = "Get assets assigned to edge (getEdgeAssets)",
             notes = "Returns a page of assets assigned to edge. " +
                     PAGE_DATA_PARAMETERS)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/edge/{edgeId}/assets", params = {"pageSize", "page"}, method = RequestMethod.GET)
     @ResponseBody
     public PageData<Asset> getEdgeAssets(

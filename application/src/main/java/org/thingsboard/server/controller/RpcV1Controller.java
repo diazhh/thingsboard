@@ -44,7 +44,7 @@ import static org.thingsboard.server.controller.ControllerConstants.TENANT_OR_CU
 public class RpcV1Controller extends AbstractRpcController {
 
     @ApiOperation(value = "Send one-way RPC request (handleOneWayDeviceRPCRequest)", notes = "Deprecated. See 'Rpc V 2 Controller' instead." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/oneway/{deviceId}", method = RequestMethod.POST)
     @ResponseBody
     public DeferredResult<ResponseEntity> handleOneWayDeviceRPCRequest(
@@ -56,7 +56,7 @@ public class RpcV1Controller extends AbstractRpcController {
     }
 
     @ApiOperation(value = "Send two-way RPC request (handleTwoWayDeviceRPCRequest)", notes = "Deprecated. See 'Rpc V 2 Controller' instead." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/twoway/{deviceId}", method = RequestMethod.POST)
     @ResponseBody
     public DeferredResult<ResponseEntity> handleTwoWayDeviceRPCRequest(

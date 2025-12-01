@@ -165,7 +165,7 @@ public class WidgetTypeController extends AutoCommitController {
     @ApiOperation(value = "Get Widget Types (getWidgetTypes)",
             notes = "Returns a page of Widget Type objects available for current user. " + WIDGET_TYPE_DESCRIPTION + " " +
                     PAGE_DATA_PARAMETERS + AVAILABLE_FOR_ANY_AUTHORIZED_USER)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/widgetTypes", params = {"pageSize", "page"})
     public PageData<WidgetTypeInfo> getWidgetTypes(
             @Parameter(description = PAGE_SIZE_DESCRIPTION, required = true)
@@ -231,7 +231,7 @@ public class WidgetTypeController extends AutoCommitController {
 
     @ApiOperation(value = "Get all Widget types for specified Bundle (getBundleWidgetTypes)",
             notes = "Returns an array of Widget Type objects that belong to specified Widget Bundle." + WIDGET_TYPE_DESCRIPTION + " " + SYSTEM_OR_TENANT_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/widgetTypes", params = {"widgetsBundleId"})
     public List<WidgetType> getBundleWidgetTypes(
             @Parameter(description = "Widget Bundle Id", required = true)
@@ -262,7 +262,7 @@ public class WidgetTypeController extends AutoCommitController {
 
     @ApiOperation(value = "Get all Widget types details for specified Bundle (getBundleWidgetTypesDetails)",
             notes = "Returns an array of Widget Type Details objects that belong to specified Widget Bundle." + WIDGET_TYPE_DETAILS_DESCRIPTION + " " + SYSTEM_OR_TENANT_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/widgetTypesDetails", params = {"widgetsBundleId"})
     public List<WidgetTypeDetails> getBundleWidgetTypesDetails(
             @Parameter(description = "Widget Bundle Id", required = true)
@@ -294,7 +294,7 @@ public class WidgetTypeController extends AutoCommitController {
 
     @ApiOperation(value = "Get Widget Type Info objects (getBundleWidgetTypesInfosByBundleAlias) (Deprecated)",
             notes = "Get the Widget Type Info objects based on the provided parameters. " + WIDGET_TYPE_INFO_DESCRIPTION + AVAILABLE_FOR_ANY_AUTHORIZED_USER)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/widgetTypesInfos", params = {"isSystem", "bundleAlias"})
     @Deprecated
     public List<WidgetTypeInfo> getBundleWidgetTypesInfosByBundleAlias(
@@ -315,7 +315,7 @@ public class WidgetTypeController extends AutoCommitController {
 
     @ApiOperation(value = "Get Widget Type Info objects (getBundleWidgetTypesInfos)",
             notes = "Get the Widget Type Info objects based on the provided parameters. " + WIDGET_TYPE_INFO_DESCRIPTION + AVAILABLE_FOR_ANY_AUTHORIZED_USER)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/widgetTypesInfos", params = {"widgetsBundleId", "pageSize", "page"})
     public PageData<WidgetTypeInfo> getBundleWidgetTypesInfos(
             @Parameter(description = "Widget Bundle Id", required = true)
@@ -346,7 +346,7 @@ public class WidgetTypeController extends AutoCommitController {
 
     @ApiOperation(value = "Get Widget Type (getWidgetTypeByBundleAliasAndTypeAlias) (Deprecated)",
             notes = "Get the Widget Type based on the provided parameters. " + WIDGET_TYPE_DESCRIPTION + AVAILABLE_FOR_ANY_AUTHORIZED_USER)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/widgetType", params = {"isSystem", "bundleAlias", "alias"})
     @Deprecated
     public WidgetType getWidgetTypeByBundleAliasAndTypeAlias(
@@ -370,7 +370,7 @@ public class WidgetTypeController extends AutoCommitController {
 
     @ApiOperation(value = "Get Widget Type (getWidgetType)",
             notes = "Get the Widget Type by FQN. " + WIDGET_TYPE_DESCRIPTION + AVAILABLE_FOR_ANY_AUTHORIZED_USER, hidden = true)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/widgetType", params = {"fqn"})
     public WidgetType getWidgetType(
             @Parameter(description = "Widget Type fqn", required = true)

@@ -92,7 +92,7 @@ public class DeviceConnectivityController extends BaseController {
                             )
                     )
             })
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/device-connectivity/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
     public JsonNode getDevicePublishTelemetryCommands(@Parameter(description = DEVICE_ID_PARAM_DESCRIPTION)

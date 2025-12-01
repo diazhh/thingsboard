@@ -116,7 +116,7 @@ public class EventController extends BaseController {
     @ApiOperation(value = "Get Events by type (getEvents)",
             notes = "Returns a page of events for specified entity by specifying event type. " +
                     PAGE_DATA_PARAMETERS)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/events/{entityType}/{entityId}/{eventType}", method = RequestMethod.GET)
     @ResponseBody
     public PageData<EventInfo> getEvents(
@@ -158,7 +158,7 @@ public class EventController extends BaseController {
                     "Current implementation will return 'Lifecycle' events only. " +
                     "Use 'Get events by type' or 'Get events by filter' instead. " +
                     PAGE_DATA_PARAMETERS)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/events/{entityType}/{entityId}", method = RequestMethod.GET)
     @ResponseBody
     public PageData<EventInfo> getEvents(
@@ -198,7 +198,7 @@ public class EventController extends BaseController {
             notes = "Returns a page of events for the chosen entity by specifying the event filter. " +
                     PAGE_DATA_PARAMETERS + NEW_LINE +
                     EVENT_FILTER_DEFINITION)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/events/{entityType}/{entityId}", method = RequestMethod.POST)
     @ResponseBody
     public PageData<EventInfo> getEvents(
@@ -236,7 +236,7 @@ public class EventController extends BaseController {
     }
 
     @ApiOperation(value = "Clear Events (clearEvents)", notes = "Clears events by filter for specified entity.")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/events/{entityType}/{entityId}/clear", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public void clearEvents(@Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true)

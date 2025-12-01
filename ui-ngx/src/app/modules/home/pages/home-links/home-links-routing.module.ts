@@ -46,8 +46,12 @@ const getHomeDashboard = (store: Store<AppState>, resourcesService: ResourcesSer
     case Authority.SYS_ADMIN:
       return applySystemParametersToHomeDashboard(store, resourcesService.loadJsonResource(sysAdminHomePageJson), authority);
     case Authority.TENANT_ADMIN:
+    case Authority.INGENIERO:
       return applySystemParametersToHomeDashboard(store, resourcesService.loadJsonResource(tenantAdminHomePageJson), authority);
     case Authority.CUSTOMER_USER:
+    case Authority.OPERADOR:
+    case Authority.REPORTES:
+    case Authority.LABORATORIO:
       return applySystemParametersToHomeDashboard(store, resourcesService.loadJsonResource(customerUserHomePageJson), authority);
     default:
       return of(null);
@@ -66,9 +70,13 @@ const applySystemParametersToHomeDashboard = (store: Store<AppState>,
       );
       break;
     case Authority.TENANT_ADMIN:
+    case Authority.INGENIERO:
       selectParams$ = store.pipe(select(selectHomeDashboardParams));
       break;
     case Authority.CUSTOMER_USER:
+    case Authority.OPERADOR:
+    case Authority.REPORTES:
+    case Authority.LABORATORIO:
       selectParams$ = store.pipe(
         select(selectPersistDeviceStateToTelemetry),
         map(persistDeviceStateToTelemetry => ({persistDeviceStateToTelemetry}))
@@ -123,7 +131,7 @@ const routes: Routes = [
     path: 'home',
     component: HomeLinksComponent,
     data: {
-      auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.CUSTOMER_USER],
+      auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.INGENIERO, Authority.OPERADOR, Authority.REPORTES, Authority.LABORATORIO],
       title: 'home.home',
       breadcrumb: {
         menuId: MenuId.home

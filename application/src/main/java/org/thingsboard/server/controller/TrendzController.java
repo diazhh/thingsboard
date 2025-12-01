@@ -71,7 +71,7 @@ public class TrendzController extends BaseController {
             notes = "Retrieves Trendz settings for this tenant." +
                     TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     @GetMapping("/trendz/settings")
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     public TrendzSettings getTrendzSettings(@AuthenticationPrincipal SecurityUser user) {
         TenantId tenantId = user.getTenantId();
         return trendzSettingsService.findTrendzSettings(tenantId);

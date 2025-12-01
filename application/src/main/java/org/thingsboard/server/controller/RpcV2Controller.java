@@ -121,7 +121,7 @@ public class RpcV2Controller extends AbstractRpcController {
             @ApiResponse(responseCode = "413", description = "Request payload is too large"),
             @ApiResponse(responseCode = "504", description = "Timeout to process the RPC call. Most likely, device is offline."),
     })
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/oneway/{deviceId}", method = RequestMethod.POST)
     @ResponseBody
     public DeferredResult<ResponseEntity> handleOneWayDeviceRPCRequest(
@@ -140,7 +140,7 @@ public class RpcV2Controller extends AbstractRpcController {
             @ApiResponse(responseCode = "413", description = "Request payload is too large"),
             @ApiResponse(responseCode = "504", description = "Timeout to process the RPC call. Most likely, device is offline."),
     })
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/twoway/{deviceId}", method = RequestMethod.POST)
     @ResponseBody
     public DeferredResult<ResponseEntity> handleTwoWayDeviceRPCRequest(
@@ -152,7 +152,7 @@ public class RpcV2Controller extends AbstractRpcController {
     }
 
     @ApiOperation(value = "Get persistent RPC request", notes = "Get information about the status of the RPC call." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/persistent/{rpcId}", method = RequestMethod.GET)
     @ResponseBody
     public Rpc getPersistedRpc(
@@ -164,7 +164,7 @@ public class RpcV2Controller extends AbstractRpcController {
     }
 
     @ApiOperation(value = "Get persistent RPC requests", notes = "Allows to query RPC calls for specific device using pagination." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/persistent/device/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
     public DeferredResult<ResponseEntity> getPersistedRpcByDevice(

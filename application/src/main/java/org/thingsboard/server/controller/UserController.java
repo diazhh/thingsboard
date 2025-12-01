@@ -130,7 +130,7 @@ public class UserController extends BaseController {
                     "If the user has the authority of 'SYS_ADMIN', the server does not perform additional checks. " +
                     "If the user has the authority of 'TENANT_ADMIN', the server checks that the requested user is owned by the same tenant. " +
                     "If the user has the authority of 'CUSTOMER_USER', the server checks that the requested user is owned by the same customer.")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/user/{userId}")
     public User getUserById(
             @Parameter(description = USER_ID_PARAM_DESCRIPTION)
@@ -300,7 +300,7 @@ public class UserController extends BaseController {
     @ApiOperation(value = "Find users by query (findUsersByQuery)",
             notes = "Returns page of user data objects. Search is been executed by email, firstName and " +
                     "lastName fields. " + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/users/info")
     public PageData<UserEmailInfo> findUsersByQuery(
             @Parameter(description = PAGE_SIZE_DESCRIPTION, required = true)
@@ -406,7 +406,7 @@ public class UserController extends BaseController {
             notes = "Returns page of user data objects that can be assigned to provided alarmId. " +
                     "Search is been executed by email, firstName and lastName fields. " +
                     PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/users/assign/{alarmId}", params = {"pageSize", "page"})
     public PageData<UserEmailInfo> getUsersForAssign(
             @Parameter(description = ALARM_ID_PARAM_DESCRIPTION, required = true)
@@ -447,7 +447,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "Save user settings (saveUserSettings)",
             notes = "Save user settings represented in json format for authorized user. ")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/user/settings")
     public JsonNode saveUserSettings(@RequestBody JsonNode settings) throws ThingsboardException {
         SecurityUser currentUser = getCurrentUser();
@@ -463,7 +463,7 @@ public class UserController extends BaseController {
             notes = "Update user settings for authorized user. Only specified json elements will be updated." +
                     "Example: you have such settings: {A:5, B:{C:10, D:20}}. Updating it with {B:{C:10, D:30}} will result in" +
                     "{A:5, B:{C:10, D:30}}. The same could be achieved by putting {B.D:30}")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PutMapping(value = "/user/settings")
     public void putUserSettings(@RequestBody JsonNode settings) throws ThingsboardException {
         SecurityUser currentUser = getCurrentUser();
@@ -472,7 +472,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "Get user settings (getUserSettings)",
             notes = "Fetch the User settings based on authorized user. ")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/user/settings")
     public JsonNode getUserSettings() throws ThingsboardException {
         SecurityUser currentUser = getCurrentUser();
@@ -484,7 +484,7 @@ public class UserController extends BaseController {
     @ApiOperation(value = "Delete user settings (deleteUserSettings)",
             notes = "Delete user settings by specifying list of json element xpaths. \n " +
                     "Example: to delete B and C element in { \"A\": {\"B\": 5}, \"C\": 15} send A.B,C in jsonPaths request parameter")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @DeleteMapping(value = "/user/settings/{paths}")
     public void deleteUserSettings(@Parameter(description = PATHS)
                                    @PathVariable(PATHS) String paths) throws ThingsboardException {
@@ -498,7 +498,7 @@ public class UserController extends BaseController {
             notes = "Update user settings for authorized user. Only specified json elements will be updated." +
                     "Example: you have such settings: {A:5, B:{C:10, D:20}}. Updating it with {B:{C:10, D:30}} will result in" +
                     "{A:5, B:{C:10, D:30}}. The same could be achieved by putting {B.D:30}")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PutMapping(value = "/user/settings/{type}")
     public void putUserSettings(@Parameter(description = "Settings type, case insensitive, one of: \"general\", \"quick_links\", \"doc_links\" or \"dashboards\".")
                                 @PathVariable("type") String strType, @RequestBody JsonNode settings) throws ThingsboardException {
@@ -510,7 +510,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "Get user settings (getUserSettings)",
             notes = "Fetch the User settings based on authorized user. ")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/user/settings/{type}")
     public JsonNode getUserSettings(@Parameter(description = "Settings type, case insensitive, one of: \"general\", \"quick_links\", \"doc_links\" or \"dashboards\".")
                                     @PathVariable("type") String strType) throws ThingsboardException {
@@ -524,7 +524,7 @@ public class UserController extends BaseController {
     @ApiOperation(value = "Delete user settings (deleteUserSettings)",
             notes = "Delete user settings by specifying list of json element xpaths. \n " +
                     "Example: to delete B and C element in { \"A\": {\"B\": 5}, \"C\": 15} send A.B,C in jsonPaths request parameter")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @DeleteMapping(value = "/user/settings/{type}/{paths}")
     public void deleteUserSettings(@Parameter(description = PATHS)
                                    @PathVariable(PATHS) String paths,
@@ -539,7 +539,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "Get information about last visited and starred dashboards (getLastVisitedDashboards)",
             notes = "Fetch the list of last visited and starred dashboards. Both lists are limited to 10 items." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/user/dashboards")
     public UserDashboardsInfo getUserDashboardsInfo() throws ThingsboardException {
         SecurityUser currentUser = getCurrentUser();
@@ -548,7 +548,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "Report action of User over the dashboard (reportUserDashboardAction)",
             notes = "Report action of User over the dashboard. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/user/dashboards/{dashboardId}/{action}")
     public UserDashboardsInfo reportUserDashboardAction(
             @Parameter(description = DASHBOARD_ID_PARAM_DESCRIPTION)
@@ -564,14 +564,14 @@ public class UserController extends BaseController {
         return userSettingsService.reportUserDashboardAction(currentUser.getTenantId(), currentUser.getId(), dashboardId, action);
     }
 
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping("/user/mobile/session")
     public MobileSessionInfo getMobileSession(@RequestHeader(MOBILE_TOKEN_HEADER) String mobileToken,
                                               @AuthenticationPrincipal SecurityUser user) {
         return userService.findMobileSession(user.getTenantId(), user.getId(), mobileToken);
     }
 
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping("/user/mobile/session")
     public void saveMobileSession(@RequestBody MobileSessionInfo sessionInfo,
                                   @RequestHeader(MOBILE_TOKEN_HEADER) String mobileToken,
@@ -579,7 +579,7 @@ public class UserController extends BaseController {
         userService.saveMobileSession(user.getTenantId(), user.getId(), mobileToken, sessionInfo);
     }
 
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @DeleteMapping("/user/mobile/session")
     public void removeMobileSession(@RequestHeader(MOBILE_TOKEN_HEADER) String mobileToken,
                                     @AuthenticationPrincipal SecurityUser user) {

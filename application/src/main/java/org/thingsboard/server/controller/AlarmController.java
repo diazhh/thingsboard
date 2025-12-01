@@ -103,7 +103,7 @@ public class AlarmController extends BaseController {
 
     @ApiOperation(value = "Get Alarm (getAlarmById)",
             notes = "Fetch the Alarm object based on the provided Alarm Id. " + ALARM_SECURITY_CHECK)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/alarm/{alarmId}")
     public Alarm getAlarmById(@Parameter(description = ALARM_ID_PARAM_DESCRIPTION)
                               @PathVariable(ALARM_ID) String strAlarmId) throws ThingsboardException {
@@ -115,7 +115,7 @@ public class AlarmController extends BaseController {
     @ApiOperation(value = "Get Alarm Info (getAlarmInfoById)",
             notes = "Fetch the Alarm Info object based on the provided Alarm Id. " +
                     ALARM_SECURITY_CHECK + ALARM_INFO_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/alarm/info/{alarmId}")
     public AlarmInfo getAlarmInfoById(@Parameter(description = ALARM_ID_PARAM_DESCRIPTION)
                                       @PathVariable(ALARM_ID) String strAlarmId) throws ThingsboardException {
@@ -135,7 +135,7 @@ public class AlarmController extends BaseController {
                     "If the user clears the alarm (see 'Clear Alarm(clearAlarm)'), than new alarm with the same type and same device may be created. " +
                     "Remove 'id', 'tenantId' and optionally 'customerId' from the request body example (below) to create new Alarm entity. " +
                     TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/alarm")
     public Alarm saveAlarm(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "A JSON value representing the alarm.") @RequestBody Alarm alarm) throws ThingsboardException {
         alarm.setTenantId(getTenantId());
@@ -150,7 +150,7 @@ public class AlarmController extends BaseController {
 
     @ApiOperation(value = "Delete Alarm (deleteAlarm)",
             notes = "Deletes the Alarm. Referencing non-existing Alarm Id will cause an error." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @DeleteMapping(value = "/alarm/{alarmId}")
     public boolean deleteAlarm(@Parameter(description = ALARM_ID_PARAM_DESCRIPTION) @PathVariable(ALARM_ID) String strAlarmId) throws ThingsboardException {
         checkParameter(ALARM_ID, strAlarmId);
@@ -163,7 +163,7 @@ public class AlarmController extends BaseController {
             notes = "Acknowledge the Alarm. " +
                     "Once acknowledged, the 'ack_ts' field will be set to current timestamp and special rule chain event 'ALARM_ACK' will be generated. " +
                     "Referencing non-existing Alarm Id will cause an error." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/alarm/{alarmId}/ack")
     @ResponseStatus(value = HttpStatus.OK)
     public AlarmInfo ackAlarm(@Parameter(description = ALARM_ID_PARAM_DESCRIPTION) @PathVariable(ALARM_ID) String strAlarmId) throws Exception {
@@ -178,7 +178,7 @@ public class AlarmController extends BaseController {
             notes = "Clear the Alarm. " +
                     "Once cleared, the 'clear_ts' field will be set to current timestamp and special rule chain event 'ALARM_CLEAR' will be generated. " +
                     "Referencing non-existing Alarm Id will cause an error." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/alarm/{alarmId}/clear")
     @ResponseStatus(value = HttpStatus.OK)
     public AlarmInfo clearAlarm(@Parameter(description = ALARM_ID_PARAM_DESCRIPTION) @PathVariable(ALARM_ID) String strAlarmId) throws Exception {
@@ -194,7 +194,7 @@ public class AlarmController extends BaseController {
                     "Once assigned, the 'assign_ts' field will be set to current timestamp and special rule chain event 'ALARM_ASSIGNED' " +
                     "(or ALARM_REASSIGNED in case of assigning already assigned alarm) will be generated. " +
                     "Referencing non-existing Alarm Id will cause an error." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/alarm/{alarmId}/assign/{assigneeId}")
     @ResponseStatus(value = HttpStatus.OK)
     public Alarm assignAlarm(@Parameter(description = ALARM_ID_PARAM_DESCRIPTION)
@@ -215,7 +215,7 @@ public class AlarmController extends BaseController {
             notes = "Unassign the Alarm. " +
                     "Once unassigned, the 'assign_ts' field will be set to current timestamp and special rule chain event 'ALARM_UNASSIGNED' will be generated. " +
                     "Referencing non-existing Alarm Id will cause an error." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @DeleteMapping(value = "/alarm/{alarmId}/assign")
     @ResponseStatus(value = HttpStatus.OK)
     public Alarm unassignAlarm(@Parameter(description = ALARM_ID_PARAM_DESCRIPTION)
@@ -230,7 +230,7 @@ public class AlarmController extends BaseController {
     @ApiOperation(value = "Get Alarms (getAlarms)",
             notes = "Returns a page of alarms for the selected entity. Specifying both parameters 'searchStatus' and 'status' at the same time will cause an error. " +
                     PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/alarm/{entityType}/{entityId}")
     public PageData<AlarmInfo> getAlarms(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE"))
@@ -285,7 +285,7 @@ public class AlarmController extends BaseController {
                     "If the user has the authority of 'Customer User', the server returns alarms that belongs to the customer of current user. " +
                     "Specifying both parameters 'searchStatus' and 'status' at the same time will cause an error. " +
                     PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/alarms")
     public PageData<AlarmInfo> getAllAlarms(
             @Parameter(description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION, schema = @Schema(allowableValues = {"ANY", "ACTIVE", "CLEARED", "ACK", "UNACK"}))
@@ -333,7 +333,7 @@ public class AlarmController extends BaseController {
     @ApiOperation(value = "Get Alarms (getAlarmsV2)",
             notes = "Returns a page of alarms for the selected entity. " +
                     PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/v2/alarm/{entityType}/{entityId}")
     public PageData<AlarmInfo> getAlarmsV2(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE"))
@@ -398,7 +398,7 @@ public class AlarmController extends BaseController {
                     "If the user has the authority of 'Tenant Administrator', the server returns alarms that belongs to the tenant of current user. " +
                     "If the user has the authority of 'Customer User', the server returns alarms that belongs to the customer of current user. " +
                     PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/v2/alarms")
     public PageData<AlarmInfo> getAllAlarmsV2(
             @Parameter(description = ALARM_QUERY_SEARCH_STATUS_ARRAY_DESCRIPTION, array = @ArraySchema(schema = @Schema(type = "string", allowableValues = {"ANY", "ACTIVE", "CLEARED", "ACK", "UNACK"})))
@@ -457,7 +457,7 @@ public class AlarmController extends BaseController {
     @ApiOperation(value = "Get Highest Alarm Severity (getHighestAlarmSeverity)",
             notes = "Search the alarms by originator ('entityType' and entityId') and optional 'status' or 'searchStatus' filters and returns the highest AlarmSeverity(CRITICAL, MAJOR, MINOR, WARNING or INDETERMINATE). " +
                     "Specifying both parameters 'searchStatus' and 'status' at the same time will cause an error." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/alarm/highestSeverity/{entityType}/{entityId}")
     public AlarmSeverity getHighestAlarmSeverity(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE"))
@@ -487,7 +487,7 @@ public class AlarmController extends BaseController {
 
     @ApiOperation(value = "Get Alarm Types (getAlarmTypes)",
             notes = "Returns a set of unique alarm types based on alarms that are either owned by the tenant or assigned to the customer which user is performing the request.")
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/alarm/types")
     public PageData<EntitySubtype> getAlarmTypes(@Parameter(description = PAGE_SIZE_DESCRIPTION, required = true)
                                                  @RequestParam int pageSize,

@@ -96,7 +96,7 @@ public class AssetProfileController extends BaseController {
     @ApiOperation(value = "Get Asset Profile Info (getAssetProfileInfoById)",
             notes = "Fetch the Asset Profile Info object based on the provided Asset Profile Id. "
                     + ASSET_PROFILE_INFO_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/assetProfileInfo/{assetProfileId}", method = RequestMethod.GET)
     @ResponseBody
     public AssetProfileInfo getAssetProfileInfoById(
@@ -110,7 +110,7 @@ public class AssetProfileController extends BaseController {
     @ApiOperation(value = "Get Default Asset Profile (getDefaultAssetProfileInfo)",
             notes = "Fetch the Default Asset Profile Info object. " +
                     ASSET_PROFILE_INFO_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/assetProfileInfo/default", method = RequestMethod.GET)
     @ResponseBody
     public AssetProfileInfo getDefaultAssetProfileInfo() throws ThingsboardException {
@@ -190,7 +190,7 @@ public class AssetProfileController extends BaseController {
     @ApiOperation(value = "Get Asset Profile infos (getAssetProfileInfos)",
             notes = "Returns a page of asset profile info objects owned by tenant. " +
                     PAGE_DATA_PARAMETERS + ASSET_PROFILE_INFO_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/assetProfileInfos", params = {"pageSize", "page"}, method = RequestMethod.GET)
     @ResponseBody
     public PageData<AssetProfileInfo> getAssetProfileInfos(
@@ -211,7 +211,7 @@ public class AssetProfileController extends BaseController {
     @ApiOperation(value = "Get Asset Profile names (getAssetProfileNames)",
             notes = "Returns a set of unique asset profile names owned by the tenant."
                     + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/assetProfile/names", method = RequestMethod.GET)
     @ResponseBody
     public List<EntityInfo> getAssetProfileNames(

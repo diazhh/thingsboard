@@ -32,7 +32,7 @@ const routes: Routes = [
     path: 'account',
     component: RouterTabsComponent,
     data: {
-      auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.CUSTOMER_USER],
+      auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.INGENIERO, Authority.OPERADOR, Authority.REPORTES, Authority.LABORATORIO],
       showMainLoadingBar: false,
       breadcrumb: {
         label: 'account.account',
@@ -48,7 +48,7 @@ const routes: Routes = [
         path: '',
         children: [],
         data: {
-          auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.CUSTOMER_USER],
+          auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.INGENIERO, Authority.OPERADOR, Authority.REPORTES, Authority.LABORATORIO],
           redirectTo: '/account/profile',
         }
       },

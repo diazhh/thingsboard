@@ -160,7 +160,7 @@ public class NotificationController extends BaseController {
                     "  \"totalUnreadCount\": 5\n" +
                     "}\n```")
     @GetMapping("/notifications")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     public PageData<Notification> getNotifications(@Parameter(description = PAGE_SIZE_DESCRIPTION, required = true)
                                                    @RequestParam int pageSize,
                                                    @Parameter(description = PAGE_NUMBER_DESCRIPTION, required = true)
@@ -185,7 +185,7 @@ public class NotificationController extends BaseController {
             notes = "Returns unread notifications count for chosen delivery method." +
                     AVAILABLE_FOR_ANY_AUTHORIZED_USER)
     @GetMapping("/notifications/unread/count")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     public Integer getUnreadNotificationsCount(@Parameter(description = "Delivery method", schema = @Schema(allowableValues = {"WEB", "MOBILE_APP"}))
                                                @RequestParam(defaultValue = "MOBILE_APP") NotificationDeliveryMethod deliveryMethod,
                                                @AuthenticationPrincipal SecurityUser user) {
@@ -196,7 +196,7 @@ public class NotificationController extends BaseController {
             notes = "Marks notification as read by its id." +
                     AVAILABLE_FOR_ANY_AUTHORIZED_USER)
     @PutMapping("/notification/{id}/read")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     public void markNotificationAsRead(@PathVariable UUID id,
                                        @AuthenticationPrincipal SecurityUser user) {
         // no permissions
@@ -208,7 +208,7 @@ public class NotificationController extends BaseController {
             notes = "Marks all unread notifications as read." +
                     AVAILABLE_FOR_ANY_AUTHORIZED_USER)
     @PutMapping("/notifications/read")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     public void markAllNotificationsAsRead(@Parameter(description = "Delivery method", schema = @Schema(allowableValues = {"WEB", "MOBILE_APP"}))
                                            @RequestParam(defaultValue = "WEB") NotificationDeliveryMethod deliveryMethod,
                                            @AuthenticationPrincipal SecurityUser user) {
@@ -220,7 +220,7 @@ public class NotificationController extends BaseController {
             notes = "Deletes notification by its id." +
                     AVAILABLE_FOR_ANY_AUTHORIZED_USER)
     @DeleteMapping("/notification/{id}")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     public void deleteNotification(@PathVariable UUID id,
                                    @AuthenticationPrincipal SecurityUser user) {
         // no permissions
@@ -476,21 +476,21 @@ public class NotificationController extends BaseController {
             notes = "Returns the list of delivery methods that are properly configured and are allowed to be used for sending notifications." +
                     SYSTEM_OR_TENANT_AUTHORITY_PARAGRAPH)
     @GetMapping("/notification/deliveryMethods")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     public List<NotificationDeliveryMethod> getAvailableDeliveryMethods(@AuthenticationPrincipal SecurityUser user) throws ThingsboardException {
         return notificationCenter.getAvailableDeliveryMethods(user.getTenantId());
     }
 
 
     @PostMapping("/notification/settings/user")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     public UserNotificationSettings saveUserNotificationSettings(@RequestBody @Valid UserNotificationSettings settings,
                                                                  @AuthenticationPrincipal SecurityUser user) {
         return notificationSettingsService.saveUserNotificationSettings(user.getTenantId(), user.getId(), settings);
     }
 
     @GetMapping("/notification/settings/user")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     public UserNotificationSettings getUserNotificationSettings(@AuthenticationPrincipal SecurityUser user) {
         return notificationSettingsService.getUserNotificationSettings(user.getTenantId(), user.getId(), true);
     }

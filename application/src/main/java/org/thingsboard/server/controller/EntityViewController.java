@@ -99,7 +99,7 @@ public class EntityViewController extends BaseController {
     @ApiOperation(value = "Get entity view (getEntityViewById)",
             notes = "Fetch the EntityView object based on the provided entity view id. "
                     + ENTITY_VIEW_DESCRIPTION + MODEL_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/entityView/{entityViewId}")
     public EntityView getEntityViewById(
             @Parameter(description = ENTITY_VIEW_ID_PARAM_DESCRIPTION)
@@ -111,7 +111,7 @@ public class EntityViewController extends BaseController {
     @ApiOperation(value = "Get Entity View info (getEntityViewInfoById)",
             notes = "Fetch the Entity View info object based on the provided Entity View Id. "
                     + ENTITY_VIEW_INFO_DESCRIPTION + MODEL_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/entityView/info/{entityViewId}")
     public EntityViewInfo getEntityViewInfoById(
             @Parameter(description = ENTITY_VIEW_ID_PARAM_DESCRIPTION)
@@ -125,7 +125,7 @@ public class EntityViewController extends BaseController {
             notes = ENTITY_VIEW_DESCRIPTION + MODEL_DESCRIPTION +
                     "Remove 'id', 'tenantId' and optionally 'customerId' from the request body example (below) to create new Entity View entity." +
                     TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/entityView")
     public EntityView saveEntityView(
             @Parameter(description = "A JSON object representing the entity view.")
@@ -216,7 +216,7 @@ public class EntityViewController extends BaseController {
     @ApiOperation(value = "Get Customer Entity Views (getCustomerEntityViews)",
             notes = "Returns a page of Entity View objects assigned to customer. " +
                     PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/customer/{customerId}/entityViews", params = {"pageSize", "page"})
     public PageData<EntityView> getCustomerEntityViews(
             @Parameter(description = CUSTOMER_ID_PARAM_DESCRIPTION, required = true)
@@ -248,7 +248,7 @@ public class EntityViewController extends BaseController {
     @ApiOperation(value = "Get Customer Entity View info (getCustomerEntityViewInfos)",
             notes = "Returns a page of Entity View info objects assigned to customer. " + ENTITY_VIEW_DESCRIPTION +
                     PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/customer/{customerId}/entityViewInfos", params = {"pageSize", "page"})
     public PageData<EntityViewInfo> getCustomerEntityViewInfos(
             @Parameter(description = CUSTOMER_ID_PARAM_DESCRIPTION, required = true)
@@ -336,7 +336,7 @@ public class EntityViewController extends BaseController {
             notes = "Returns all entity views that are related to the specific entity. " +
                     "The entity id, relation type, entity view types, depth of the search, and other query parameters defined using complex 'EntityViewSearchQuery' object. " +
                     "See 'Model' tab of the Parameters for more info." + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/entityViews")
     public List<EntityView> findByQuery(
             @Parameter(description = "The entity view search query JSON")
@@ -360,7 +360,7 @@ public class EntityViewController extends BaseController {
     @ApiOperation(value = "Get Entity View Types (getEntityViewTypes)",
             notes = "Returns a set of unique entity view types based on entity views that are either owned by the tenant or assigned to the customer which user is performing the request."
                     + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/entityView/types")
     public List<EntitySubtype> getEntityViewTypes() throws ThingsboardException, ExecutionException, InterruptedException {
         SecurityUser user = getCurrentUser();
@@ -430,7 +430,7 @@ public class EntityViewController extends BaseController {
                 edge, getCurrentUser());
     }
 
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/edge/{edgeId}/entityViews", params = {"pageSize", "page"})
     public PageData<EntityView> getEdgeEntityViews(
             @PathVariable(EDGE_ID) String strEdgeId,

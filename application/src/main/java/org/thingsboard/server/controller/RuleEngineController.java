@@ -83,7 +83,7 @@ public class RuleEngineController extends BaseController {
                     MSG_DESCRIPTION +
                     "The default timeout of the request processing is 10 seconds."
                     + "\n\n" + ControllerConstants.SECURITY_WRITE_CHECK)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ResponseBody
     public DeferredResult<ResponseEntity> handleRuleEngineRequest(
@@ -98,7 +98,7 @@ public class RuleEngineController extends BaseController {
                     MSG_DESCRIPTION +
                     "The default timeout of the request processing is 10 seconds."
                     + "\n\n" + ControllerConstants.SECURITY_WRITE_CHECK)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/{entityType}/{entityId}", method = RequestMethod.POST)
     @ResponseBody
     public DeferredResult<ResponseEntity> handleRuleEngineRequest(
@@ -117,7 +117,7 @@ public class RuleEngineController extends BaseController {
                     MSG_DESCRIPTION +
                     "The platform expects the timeout value in milliseconds."
                     + "\n\n" + ControllerConstants.SECURITY_WRITE_CHECK)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/{entityType}/{entityId}/{timeout}", method = RequestMethod.POST)
     @ResponseBody
     public DeferredResult<ResponseEntity> handleRuleEngineRequest(
@@ -139,7 +139,7 @@ public class RuleEngineController extends BaseController {
                     "If request sent for Device/Device Profile or Asset/Asset Profile entity, specified queue will be used instead of the queue selected in the device or asset profile. " +
                     "The platform expects the timeout value in milliseconds."
                     + "\n\n" + ControllerConstants.SECURITY_WRITE_CHECK)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/{entityType}/{entityId}/{queueName}/{timeout}", method = RequestMethod.POST)
     @ResponseBody
     public DeferredResult<ResponseEntity> handleRuleEngineRequest(

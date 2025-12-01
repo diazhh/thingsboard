@@ -46,7 +46,7 @@ export const profileRoutes: Routes = [
     component: ProfileComponent,
     canDeactivate: [ConfirmOnExitGuard],
     data: {
-      auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.CUSTOMER_USER],
+      auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.INGENIERO, Authority.OPERADOR, Authority.REPORTES, Authority.LABORATORIO],
       title: 'profile.profile',
       breadcrumb: {
         label: 'profile.profile',

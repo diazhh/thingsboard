@@ -97,14 +97,14 @@ public class SystemInfoController extends BaseController {
         log.info("System build info: {}", info);
     }
 
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/system/info", method = RequestMethod.GET)
     @ResponseBody
     public JsonNode getSystemVersionInfo() {
         return buildInfoObject();
     }
 
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/system/params", method = RequestMethod.GET)
     @ResponseBody
     public SystemParams getSystemParams() throws ThingsboardException {

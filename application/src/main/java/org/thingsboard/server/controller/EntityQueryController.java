@@ -70,7 +70,7 @@ public class EntityQueryController extends BaseController {
     private static final int MAX_PAGE_SIZE = 100;
 
     @ApiOperation(value = "Count Entities by Query", notes = ENTITY_COUNT_QUERY_DESCRIPTION)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/entitiesQuery/count", method = RequestMethod.POST)
     @ResponseBody
     public long countEntitiesByQuery(
@@ -82,7 +82,7 @@ public class EntityQueryController extends BaseController {
     }
 
     @ApiOperation(value = "Find Entity Data by Query", notes = ENTITY_DATA_QUERY_DESCRIPTION)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/entitiesQuery/find", method = RequestMethod.POST)
     @ResponseBody
     public PageData<EntityData> findEntityDataByQuery(
@@ -94,7 +94,7 @@ public class EntityQueryController extends BaseController {
     }
 
     @ApiOperation(value = "Find Alarms by Query", notes = ALARM_DATA_QUERY_DESCRIPTION)
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/alarmsQuery/find", method = RequestMethod.POST)
     @ResponseBody
     public PageData<AlarmData> findAlarmDataByQuery(
@@ -111,7 +111,7 @@ public class EntityQueryController extends BaseController {
     }
 
     @ApiOperation(value = "Count Alarms by Query (countAlarmsByQuery)", notes = "Returns the number of alarms that match the query definition.")
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/alarmsQuery/count", method = RequestMethod.POST)
     @ResponseBody
     public long countAlarmsByQuery(@Parameter(description = "A JSON value representing the alarm count query.")
@@ -127,7 +127,7 @@ public class EntityQueryController extends BaseController {
 
     @ApiOperation(value = "Find Entity Keys by Query",
             notes = "Uses entity data query (see 'Find Entity Data by Query') to find first 100 entities. Then fetch and return all unique time-series and/or attribute keys. Used mostly for UI hints.")
-    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @RequestMapping(value = "/entitiesQuery/find/keys", method = RequestMethod.POST)
     @ResponseBody
     public DeferredResult<ResponseEntity> findEntityTimeseriesAndAttributesKeysByQuery(

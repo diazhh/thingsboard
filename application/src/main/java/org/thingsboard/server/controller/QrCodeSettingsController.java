@@ -131,7 +131,7 @@ public class QrCodeSettingsController extends BaseController {
 
     @ApiOperation(value = "Get Mobile application settings (getMobileAppSettings)",
             notes = "The response payload contains configuration for android/iOS applications and platform qr code widget settings." + AVAILABLE_FOR_ANY_AUTHORIZED_USER)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/api/mobile/qr/settings")
     public QrCodeSettings getQrCodeSettings() throws ThingsboardException {
         SecurityUser currentUser = getCurrentUser();
@@ -141,7 +141,7 @@ public class QrCodeSettingsController extends BaseController {
 
     @ApiOperation(value = "Get the deep link to the associated mobile application (getMobileAppDeepLink)",
             notes = "Fetch the url that takes user to linked mobile application " + AVAILABLE_FOR_ANY_AUTHORIZED_USER)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/api/mobile/qr/deepLink", produces = "text/plain")
     public String getMobileAppDeepLink(HttpServletRequest request) throws ThingsboardException, URISyntaxException {
         String secret = mobileAppSecretService.generateMobileAppSecret(getCurrentUser());

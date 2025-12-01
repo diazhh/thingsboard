@@ -167,7 +167,7 @@ public class TelemetryController extends BaseController {
                     "\n * CLIENT_SCOPE - supported for devices;" +
                     "\n * SHARED_SCOPE - supported for devices. "
                     + "\n\n" + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/{entityType}/{entityId}/keys/attributes")
     public DeferredResult<ResponseEntity> getAttributeKeys(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,
@@ -181,7 +181,7 @@ public class TelemetryController extends BaseController {
                     "\n * CLIENT_SCOPE - supported for devices;" +
                     "\n * SHARED_SCOPE - supported for devices. "
                     + "\n\n" + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/{entityType}/{entityId}/keys/attributes/{scope}")
     public DeferredResult<ResponseEntity> getAttributeKeysByScope(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,
@@ -198,7 +198,7 @@ public class TelemetryController extends BaseController {
                     + ATTRIBUTE_DATA_EXAMPLE
                     + MARKDOWN_CODE_BLOCK_END
                     + "\n\n " + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/{entityType}/{entityId}/values/attributes")
     public DeferredResult<ResponseEntity> getAttributes(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,
@@ -221,7 +221,7 @@ public class TelemetryController extends BaseController {
                     + ATTRIBUTE_DATA_EXAMPLE
                     + MARKDOWN_CODE_BLOCK_END
                     + "\n\n " + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/{entityType}/{entityId}/values/attributes/{scope}")
     public DeferredResult<ResponseEntity> getAttributesByScope(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,
@@ -238,7 +238,7 @@ public class TelemetryController extends BaseController {
     @ApiOperation(value = "Get time series keys (getTimeseriesKeys)",
             notes = "Returns a set of unique time series key names for the selected entity. " +
                     "\n\n" + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/{entityType}/{entityId}/keys/timeseries")
     public DeferredResult<ResponseEntity> getTimeseriesKeys(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,
@@ -259,7 +259,7 @@ public class TelemetryController extends BaseController {
                     + LATEST_TS_STRICT_DATA_EXAMPLE
                     + MARKDOWN_CODE_BLOCK_END
                     + "\n\n " + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/{entityType}/{entityId}/values/timeseries")
     public DeferredResult<ResponseEntity> getLatestTimeseries(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,
@@ -283,7 +283,7 @@ public class TelemetryController extends BaseController {
                     + TS_STRICT_DATA_EXAMPLE
                     + MARKDOWN_CODE_BLOCK_END
                     + "\n\n" + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/{entityType}/{entityId}/values/timeseries", params = {"keys", "startTs", "endTs"})
     public DeferredResult<ResponseEntity> getTimeseries(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,
@@ -332,7 +332,7 @@ public class TelemetryController extends BaseController {
             @ApiResponse(responseCode = "500", description = "The exception was thrown during processing the request. " +
                     "Platform creates an audit log event about device attributes updates with action type 'ATTRIBUTES_UPDATED' that includes an error stacktrace."),
     })
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/{deviceId}/{scope}")
     public DeferredResult<ResponseEntity> saveDeviceAttributes(@Parameter(description = DEVICE_ID_PARAM_DESCRIPTION, required = true)
                                                                @PathVariable("deviceId") String deviceIdStr,
@@ -355,7 +355,7 @@ public class TelemetryController extends BaseController {
             @ApiResponse(responseCode = "401", description = SAVE_ENTITY_ATTRIBUTES_STATUS_UNAUTHORIZED),
             @ApiResponse(responseCode = "500", description = SAVE_ENTITY_ATTRIBUTES_STATUS_INTERNAL_SERVER_ERROR),
     })
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/{entityType}/{entityId}/{scope}")
     public DeferredResult<ResponseEntity> saveEntityAttributesV1(@Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE"))
                                                                  @PathVariable("entityType") String entityType,
@@ -380,7 +380,7 @@ public class TelemetryController extends BaseController {
             @ApiResponse(responseCode = "401", description = SAVE_ENTITY_ATTRIBUTES_STATUS_UNAUTHORIZED),
             @ApiResponse(responseCode = "500", description = SAVE_ENTITY_ATTRIBUTES_STATUS_INTERNAL_SERVER_ERROR),
     })
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/{entityType}/{entityId}/attributes/{scope}")
     public DeferredResult<ResponseEntity> saveEntityAttributesV2(@Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE"))
                                                                  @PathVariable("entityType") String entityType,
@@ -406,7 +406,7 @@ public class TelemetryController extends BaseController {
             @ApiResponse(responseCode = "401", description = SAVE_ENTITY_TIMESERIES_STATUS_UNAUTHORIZED),
             @ApiResponse(responseCode = "500", description = SAVE_ENTITY_TIMESERIES_STATUS_INTERNAL_SERVER_ERROR),
     })
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/{entityType}/{entityId}/timeseries/{scope}")
     public DeferredResult<ResponseEntity> saveEntityTelemetry(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,
@@ -429,7 +429,7 @@ public class TelemetryController extends BaseController {
             @ApiResponse(responseCode = "401", description = SAVE_ENTITY_TIMESERIES_STATUS_UNAUTHORIZED),
             @ApiResponse(responseCode = "500", description = SAVE_ENTITY_TIMESERIES_STATUS_INTERNAL_SERVER_ERROR),
     })
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/{entityType}/{entityId}/timeseries/{scope}/{ttl}")
     public DeferredResult<ResponseEntity> saveEntityTelemetryWithTTL(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,
@@ -457,7 +457,7 @@ public class TelemetryController extends BaseController {
             @ApiResponse(responseCode = "500", description = "The exception was thrown during processing the request. " +
                     "Platform creates an audit log event about entity time series removal with action type 'TIMESERIES_DELETED' that includes an error stacktrace."),
     })
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @DeleteMapping(value = "/{entityType}/{entityId}/timeseries/delete")
     public DeferredResult<ResponseEntity> deleteEntityTimeseries(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,
@@ -538,7 +538,7 @@ public class TelemetryController extends BaseController {
             @ApiResponse(responseCode = "500", description = "The exception was thrown during processing the request. " +
                     "Platform creates an audit log event about device attributes removal with action type 'ATTRIBUTES_DELETED' that includes an error stacktrace."),
     })
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @DeleteMapping(value = "/{deviceId}/{scope}")
     public DeferredResult<ResponseEntity> deleteDeviceAttributes(
             @Parameter(description = DEVICE_ID_PARAM_DESCRIPTION, required = true) @PathVariable(DEVICE_ID) String deviceIdStr,
@@ -561,7 +561,7 @@ public class TelemetryController extends BaseController {
             @ApiResponse(responseCode = "500", description = "The exception was thrown during processing the request. " +
                     "Platform creates an audit log event about entity attributes removal with action type 'ATTRIBUTES_DELETED' that includes an error stacktrace."),
     })
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @DeleteMapping(value = "/{entityType}/{entityId}/{scope}")
     public DeferredResult<ResponseEntity> deleteEntityAttributes(
             @Parameter(description = ENTITY_TYPE_PARAM_DESCRIPTION, required = true, schema = @Schema(defaultValue = "DEVICE")) @PathVariable("entityType") String entityType,

@@ -41,7 +41,7 @@ const routes: Routes = [
     path: 'alarms',
     component: RouterTabsComponent,
     data: {
-      auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER],
+      auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.INGENIERO, Authority.OPERADOR, Authority.REPORTES, Authority.LABORATORIO],
       breadcrumb: {
         menuId: MenuId.alarms
       }
@@ -51,7 +51,7 @@ const routes: Routes = [
         path: '',
         children: [],
         data: {
-          auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER],
+          auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.INGENIERO, Authority.OPERADOR, Authority.REPORTES, Authority.LABORATORIO],
           redirectTo: '/alarms/alarms'
         }
       },
@@ -59,7 +59,7 @@ const routes: Routes = [
         path: 'alarms',
         component: AlarmTableComponent,
         data: {
-          auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER],
+          auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.INGENIERO, Authority.OPERADOR, Authority.REPORTES, Authority.LABORATORIO],
           title: 'alarm.alarms',
           breadcrumb: {
             menuId: MenuId.alarms

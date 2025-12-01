@@ -32,7 +32,7 @@ const routes: Routes = [
     path: 'notification',
     component: RouterTabsComponent,
     data: {
-      auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.SYS_ADMIN],
+      auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.SYS_ADMIN, Authority.INGENIERO, Authority.OPERADOR, Authority.REPORTES, Authority.LABORATORIO],
       breadcrumb: {
         menuId: MenuId.notifications_center
       },
@@ -43,7 +43,7 @@ const routes: Routes = [
         path: '',
         children: [],
         data: {
-          auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.SYS_ADMIN],
+          auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.SYS_ADMIN, Authority.INGENIERO, Authority.OPERADOR, Authority.REPORTES, Authority.LABORATORIO],
           redirectTo: '/notification/inbox'
         }
       },
@@ -51,7 +51,7 @@ const routes: Routes = [
         path: 'inbox',
         component: EntitiesTableComponent,
         data: {
-          auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.SYS_ADMIN],
+          auth: [Authority.TENANT_ADMIN, Authority.CUSTOMER_USER, Authority.SYS_ADMIN, Authority.INGENIERO, Authority.OPERADOR, Authority.REPORTES, Authority.LABORATORIO],
           title: 'notification.inbox',
           breadcrumb: {
             menuId: MenuId.notification_inbox

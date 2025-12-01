@@ -82,7 +82,7 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "Get current User (getUser)",
             notes = "Get the information about the User which credentials are used to perform this REST API call.")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/auth/user")
     public User getUser() throws ThingsboardException {
         SecurityUser securityUser = getCurrentUser();
@@ -93,7 +93,7 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "Logout (logout)",
             notes = "Special API call to record the 'logout' of the user to the Audit Logs. Since platform uses [JWT](https://jwt.io/), the actual logout is the procedure of clearing the [JWT](https://jwt.io/) token on the client side. ")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/auth/logout")
     public void logout(HttpServletRequest request) throws ThingsboardException {
         logLogoutAction(request);
@@ -101,7 +101,7 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "Change password for current User (changePassword)",
             notes = "Change the password for the User which credentials are used to perform this REST API call. Be aware that previously generated [JWT](https://jwt.io/) tokens will be still valid until they expire.")
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @PostMapping(value = "/auth/changePassword")
     public JwtPair changePassword(@Parameter(description = "Change Password Request")
                                   @RequestBody ChangePasswordRequest changePasswordRequest) throws ThingsboardException {

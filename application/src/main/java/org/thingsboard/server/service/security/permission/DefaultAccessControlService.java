@@ -39,11 +39,20 @@ public class DefaultAccessControlService implements AccessControlService {
     public DefaultAccessControlService(SysAdminPermissions sysAdminPermissions,
                                        TenantAdminPermissions tenantAdminPermissions,
                                        CustomerUserPermissions customerUserPermissions,
-                                       MfaConfigurationPermissions mfaConfigurationPermissions) {
+                                       MfaConfigurationPermissions mfaConfigurationPermissions,
+                                       IngenieroPermissions ingenieroPermissions,
+                                       OperadorPermissions operadorPermissions,
+                                       ReportesPermissions reportesPermissions,
+                                       LaboratorioPermissions laboratorioPermissions) {
         authorityPermissions.put(Authority.SYS_ADMIN, sysAdminPermissions);
         authorityPermissions.put(Authority.TENANT_ADMIN, tenantAdminPermissions);
         authorityPermissions.put(Authority.CUSTOMER_USER, customerUserPermissions);
         authorityPermissions.put(Authority.MFA_CONFIGURATION_TOKEN, mfaConfigurationPermissions);
+        // Custom GDT authorities
+        authorityPermissions.put(Authority.INGENIERO, ingenieroPermissions);
+        authorityPermissions.put(Authority.OPERADOR, operadorPermissions);
+        authorityPermissions.put(Authority.REPORTES, reportesPermissions);
+        authorityPermissions.put(Authority.LABORATORIO, laboratorioPermissions);
     }
 
     @Override

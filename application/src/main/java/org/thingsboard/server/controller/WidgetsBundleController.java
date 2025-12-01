@@ -79,7 +79,7 @@ public class WidgetsBundleController extends BaseController {
 
     @ApiOperation(value = "Get Widget Bundle (getWidgetsBundleById)",
             notes = "Get the Widget Bundle based on the provided Widget Bundle Id. " + WIDGET_BUNDLE_DESCRIPTION + AVAILABLE_FOR_ANY_AUTHORIZED_USER)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/widgetsBundle/{widgetsBundleId}")
     public WidgetsBundle getWidgetsBundleById(
             @Parameter(description = WIDGET_BUNDLE_ID_PARAM_DESCRIPTION, required = true)
@@ -182,7 +182,7 @@ public class WidgetsBundleController extends BaseController {
     @ApiOperation(value = "Get Widget Bundles (getWidgetsBundles)",
             notes = "Returns a page of Widget Bundle objects available for current user. " + WIDGET_BUNDLE_DESCRIPTION + " " +
                     PAGE_DATA_PARAMETERS + AVAILABLE_FOR_ANY_AUTHORIZED_USER)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/widgetsBundles", params = {"pageSize", "page"})
     public PageData<WidgetsBundle> getWidgetsBundles(
             @Parameter(description = PAGE_SIZE_DESCRIPTION, required = true)
@@ -220,7 +220,7 @@ public class WidgetsBundleController extends BaseController {
 
     @ApiOperation(value = "Get all Widget Bundles (getWidgetsBundles)",
             notes = "Returns an array of Widget Bundle objects that are available for current user." + WIDGET_BUNDLE_DESCRIPTION + " " + AVAILABLE_FOR_ANY_AUTHORIZED_USER)
-    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER')")
+    @PreAuthorize("hasAnyAuthority('SYS_ADMIN', 'TENANT_ADMIN', 'CUSTOMER_USER', 'INGENIERO', 'OPERADOR', 'REPORTES', 'LABORATORIO')")
     @GetMapping(value = "/widgetsBundles")
     public List<WidgetsBundle> getWidgetsBundles() throws ThingsboardException {
         if (Authority.SYS_ADMIN.equals(getCurrentUser().getAuthority())) {

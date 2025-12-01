@@ -254,7 +254,12 @@ export class AuthService {
 
   public forceDefaultPlace(authState?: AuthState, path?: string, params?: any): boolean {
     if (authState && authState.authUser) {
-      if (authState.authUser.authority === Authority.TENANT_ADMIN || authState.authUser.authority === Authority.CUSTOMER_USER) {
+      if (authState.authUser.authority === Authority.TENANT_ADMIN || 
+          authState.authUser.authority === Authority.CUSTOMER_USER ||
+          authState.authUser.authority === Authority.INGENIERO ||
+          authState.authUser.authority === Authority.OPERADOR ||
+          authState.authUser.authority === Authority.REPORTES ||
+          authState.authUser.authority === Authority.LABORATORIO) {
         if ((this.userHasDefaultDashboard(authState) && authState.forceFullscreen) || authState.authUser.isPublic) {
           if (path.startsWith('account')) {
             if (this.userHasProfile(authState.authUser)) {
@@ -289,7 +294,12 @@ export class AuthService {
         } else {
           result = this.router.parseUrl('home');
         }
-        if (authState.authUser.authority === Authority.TENANT_ADMIN || authState.authUser.authority === Authority.CUSTOMER_USER) {
+        if (authState.authUser.authority === Authority.TENANT_ADMIN || 
+            authState.authUser.authority === Authority.CUSTOMER_USER ||
+            authState.authUser.authority === Authority.INGENIERO ||
+            authState.authUser.authority === Authority.OPERADOR ||
+            authState.authUser.authority === Authority.REPORTES ||
+            authState.authUser.authority === Authority.LABORATORIO) {
           if (this.userHasDefaultDashboard(authState)) {
             const dashboardId = authState.userDetails.additionalInfo.defaultDashboardId;
             if (authState.forceFullscreen) {
