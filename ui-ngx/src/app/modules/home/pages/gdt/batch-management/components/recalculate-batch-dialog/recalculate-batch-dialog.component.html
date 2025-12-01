@@ -1,0 +1,71 @@
+<h2 mat-dialog-title>Recalcular Batch {{ batch.batchNumber }}</h2>
+
+<div mat-dialog-content>
+  <form [formGroup]="recalculateForm" fxLayout="column" fxLayoutGap="16px">
+    
+    <div class="info-message">
+      <span class="info-icon">ℹ️</span>
+      <span>Ingrese los nuevos valores para recalcular el batch. Solo modifique los campos que necesitan corrección.</span>
+    </div>
+
+    <h3>Valores de Apertura</h3>
+    
+    <!-- Opening API Gravity -->
+    <mat-form-field appearance="outline">
+      <mat-label>API Gravity Apertura (°API)</mat-label>
+      <input matInput type="number" step="0.01" formControlName="openingApiGravity">
+      <mat-hint>Valor actual: {{ batch.opening.apiGravity }} °API</mat-hint>
+    </mat-form-field>
+
+    <!-- Opening Temperature -->
+    <mat-form-field appearance="outline">
+      <mat-label>Temperatura Apertura (°C)</mat-label>
+      <input matInput type="number" step="0.1" formControlName="openingTemperature">
+      <mat-hint>Valor actual: {{ batch.opening.temperature }} °C</mat-hint>
+    </mat-form-field>
+
+    <h3 *ngIf="batch.closing">Valores de Cierre</h3>
+
+    <!-- Closing API Gravity -->
+    <mat-form-field appearance="outline" *ngIf="batch.closing">
+      <mat-label>API Gravity Cierre (°API)</mat-label>
+      <input matInput type="number" step="0.01" formControlName="closingApiGravity">
+      <mat-hint>Valor actual: {{ batch.closing.apiGravity }} °API</mat-hint>
+    </mat-form-field>
+
+    <!-- Closing Temperature -->
+    <mat-form-field appearance="outline" *ngIf="batch.closing">
+      <mat-label>Temperatura Cierre (°C)</mat-label>
+      <input matInput type="number" step="0.1" formControlName="closingTemperature">
+      <mat-hint>Valor actual: {{ batch.closing.temperature }} °C</mat-hint>
+    </mat-form-field>
+
+    <h3>Información del Recálculo</h3>
+
+    <!-- Reason -->
+    <mat-form-field appearance="outline">
+      <mat-label>Razón del Recálculo</mat-label>
+      <textarea matInput formControlName="reason" rows="3" required></textarea>
+      <mat-error *ngIf="recalculateForm.get('reason').hasError('required')">
+        La razón es requerida
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Operator -->
+    <mat-form-field appearance="outline">
+      <mat-label>Operador</mat-label>
+      <input matInput formControlName="operator">
+    </mat-form-field>
+
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-raised-button 
+          color="warn" 
+          (click)="onSubmit()"
+          [disabled]="!recalculateForm.valid || loading">
+    🔄 Recalcular Batch
+  </button>
+</div>

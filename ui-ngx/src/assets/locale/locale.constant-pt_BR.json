@@ -1971,5 +1971,9 @@
   },
   "language": {
     "language": "Idioma"
+  },
+  "gdt": {
+    "aforo-manual": "Medição Manual",
+    "laboratorio": "Análise de Laboratório"
   }
 }

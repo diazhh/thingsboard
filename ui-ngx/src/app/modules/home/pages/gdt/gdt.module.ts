@@ -26,12 +26,27 @@ import { TankConfigurationComponent } from './tank-configuration/tank-configurat
 import { GdtUserManagementComponent } from './user-management/user-management.component';
 import { AddTenantUserDialogComponent } from './user-management/add-tenant-user-dialog.component';
 import { GatewayConfigurationComponent } from './gateway-configuration/gateway-configuration.component';
+import { AforoManualComponent } from './aforo-manual/aforo-manual.component';
+import { LaboratorioComponent } from './laboratorio/laboratorio.component';
+import { BatchManagementComponent } from './batch-management/batch-management.component';
+import { CreateBatchDialogComponent } from './batch-management/components/create-batch-dialog/create-batch-dialog.component';
+import { BatchDetailDialogComponent } from './batch-management/components/batch-detail-dialog/batch-detail-dialog.component';
+import { CloseBatchDialogComponent } from './batch-management/components/close-batch-dialog/close-batch-dialog.component';
+import { RecalculateBatchDialogComponent } from './batch-management/components/recalculate-batch-dialog/recalculate-batch-dialog.component';
 
 // Tank Monitoring Subcomponents
 import { LiquidGaugeDisplayComponent } from './tank-monitoring/components/liquid-gauge-display/liquid-gauge-display.component';
 import { CylinderGaugeComponent } from './tank-monitoring/components/cylinder-gauge/cylinder-gauge.component';
 import { TankDetailComponent } from './tank-monitoring/components/tank-detail/tank-detail.component';
 import { TankShapeVisualComponent } from './tank-monitoring/components/tank-shape-visual/tank-shape-visual.component';
+
+// Aforo Manual Subcomponents
+import { AforoFormComponent } from './aforo-manual/components/aforo-form/aforo-form.component';
+import { AforoHistoryComponent } from './aforo-manual/components/aforo-history/aforo-history.component';
+
+// Laboratorio Subcomponents
+import { LabFormComponent } from './laboratorio/components/lab-form/lab-form.component';
+import { LabHistoryComponent } from './laboratorio/components/lab-history/lab-history.component';
 
 // Tank Configuration Subcomponents
 import { FeetInchesFractionInputComponent } from './tank-configuration/components/feet-inches-fraction-input/feet-inches-fraction-input.component';
@@ -55,6 +70,9 @@ import { AlarmEvaluatorService } from './shared/services/alarm-evaluator.service
 import { VolumeApiMpmsService } from './shared/services/volume-api-mpms.service';
 import { LevelFormatterService } from './shared/services/level-formatter.service';
 import { LevelInputParserService } from './shared/services/level-input-parser.service';
+import { BatchService } from './shared/services/batch.service';
+import { BatchMockService } from './shared/services/batch-mock.service';
+import { BatchCalculationService } from './shared/services/batch-calculation.service';
 import { ManualTelemetryService } from './tank-monitoring/services/manual-telemetry.service';
 
 @NgModule({
@@ -66,11 +84,24 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     GdtUserManagementComponent,
     AddTenantUserDialogComponent,
     GatewayConfigurationComponent,
+    AforoManualComponent,
+    LaboratorioComponent,
+    BatchManagementComponent,
+    CreateBatchDialogComponent,
+    BatchDetailDialogComponent,
+    CloseBatchDialogComponent,
+    RecalculateBatchDialogComponent,
     // Tank Monitoring Subcomponents
     LiquidGaugeDisplayComponent,
     CylinderGaugeComponent,
     TankDetailComponent,
     TankShapeVisualComponent,
+    // Aforo Manual Subcomponents
+    AforoFormComponent,
+    AforoHistoryComponent,
+    // Laboratorio Subcomponents
+    LabFormComponent,
+    LabHistoryComponent,
     // Tank Configuration Subcomponents
     FeetInchesFractionInputComponent,
     FeetInchesInputComponent,
@@ -98,7 +129,11 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     VolumeApiMpmsService,
     LevelFormatterService,
     LevelInputParserService,
-    ManualTelemetryService
+    ManualTelemetryService,
+    // Batch Management Services
+    BatchService,
+    BatchMockService,
+    BatchCalculationService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

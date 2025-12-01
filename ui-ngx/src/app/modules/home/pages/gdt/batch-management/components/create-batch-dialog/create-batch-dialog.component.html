@@ -1,0 +1,128 @@
+<h2 mat-dialog-title>Crear Nuevo Batch</h2>
+
+<div mat-dialog-content>
+  <form [formGroup]="batchForm" fxLayout="column" fxLayoutGap="16px">
+    
+    <!-- Tank Selection -->
+    <mat-form-field appearance="outline">
+      <mat-label>Tanque</mat-label>
+      <mat-select formControlName="tankId" required>
+        <mat-option *ngFor="let tank of tanks" [value]="tank.asset.id.id">
+          {{ tank.attributes.tankTag || tank.asset.name }}
+        </mat-option>
+      </mat-select>
+      <mat-icon matSuffix>storage</mat-icon>
+      <mat-error *ngIf="batchForm.get('tankId')?.hasError('required')">
+        Tanque es requerido
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Batch Type -->
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo de Batch</mat-label>
+      <mat-select formControlName="batchType" required>
+        <mat-option *ngFor="let type of batchTypes" [value]="type.value">
+          {{ type.label }}
+        </mat-option>
+      </mat-select>
+      <mat-icon matSuffix>category</mat-icon>
+    </mat-form-field>
+
+    <h3>Medición de Apertura</h3>
+
+    <div fxLayout="row" fxLayoutGap="16px">
+      <!-- Opening Level -->
+      <mat-form-field appearance="outline" fxFlex>
+        <mat-label>Nivel (mm)</mat-label>
+        <input matInput type="number" formControlName="openingLevel" required>
+        <mat-icon matSuffix>straighten</mat-icon>
+        <mat-error *ngIf="batchForm.get('openingLevel')?.hasError('required')">
+          Nivel es requerido
+        </mat-error>
+        <mat-error *ngIf="batchForm.get('openingLevel')?.hasError('min')">
+          Nivel debe ser mayor a 0
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Opening Temperature -->
+      <mat-form-field appearance="outline" fxFlex>
+        <mat-label>Temperatura (°C)</mat-label>
+        <input matInput type="number" formControlName="openingTemperature" required>
+        <mat-icon matSuffix>thermostat</mat-icon>
+        <mat-error *ngIf="batchForm.get('openingTemperature')?.hasError('required')">
+          Temperatura es requerida
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div fxLayout="row" fxLayoutGap="16px">
+      <!-- API Gravity -->
+      <mat-form-field appearance="outline" fxFlex>
+        <mat-label>API Gravity (°API)</mat-label>
+        <input matInput type="number" formControlName="openingApiGravity" required>
+        <mat-icon matSuffix>opacity</mat-icon>
+        <mat-error *ngIf="batchForm.get('openingApiGravity')?.hasError('required')">
+          API Gravity es requerido
+        </mat-error>
+      </mat-form-field>
+
+      <!-- BS&W -->
+      <mat-form-field appearance="outline" fxFlex>
+        <mat-label>BS&W (%)</mat-label>
+        <input matInput type="number" formControlName="openingBsw">
+        <mat-icon matSuffix>water_drop</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <h3>Información Adicional</h3>
+
+    <!-- Destination -->
+    <mat-form-field appearance="outline">
+      <mat-label>Destino</mat-label>
+      <input matInput formControlName="destination">
+      <mat-icon matSuffix>place</mat-icon>
+    </mat-form-field>
+
+    <!-- Transport Vehicle -->
+    <mat-form-field appearance="outline">
+      <mat-label>Vehículo de Transporte</mat-label>
+      <input matInput formControlName="transportVehicle" placeholder="Ej: ABC-123">
+      <mat-icon matSuffix>local_shipping</mat-icon>
+    </mat-form-field>
+
+    <!-- Seal Numbers -->
+    <mat-form-field appearance="outline">
+      <mat-label>Números de Sello</mat-label>
+      <input matInput formControlName="sealNumbers" placeholder="Separados por comas">
+      <mat-icon matSuffix>lock</mat-icon>
+      <mat-hint>Ingrese los números de sello separados por comas</mat-hint>
+    </mat-form-field>
+
+    <!-- Operator -->
+    <mat-form-field appearance="outline">
+      <mat-label>Operador</mat-label>
+      <input matInput formControlName="operator">
+      <mat-icon matSuffix>person</mat-icon>
+    </mat-form-field>
+
+    <!-- Notes -->
+    <mat-form-field appearance="outline">
+      <mat-label>Notas</mat-label>
+      <textarea matInput formControlName="notes" rows="3"></textarea>
+      <mat-icon matSuffix>notes</mat-icon>
+    </mat-form-field>
+
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-raised-button 
+          color="primary" 
+          (click)="onSubmit()"
+          [disabled]="!batchForm.valid || loading">
+    <mat-icon>add</mat-icon>
+    Crear Batch
+  </button>
+</div>
+

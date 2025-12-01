@@ -15,6 +15,7 @@
 ///
 
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { WidgetContext } from '@home/models/widget-component.models';
 import { TankData } from '../../../shared/models/tank-data.model';
 import { ManualTelemetryService, ManualTelemetryEntry, ManualApiGravityHistoryEntry } from '../../../tank-monitoring/services/manual-telemetry.service';
@@ -141,7 +142,8 @@ export class TankDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private manualTelemetryService: ManualTelemetryService,
     private systemConfigService: SystemConfigService,
-    private levelFormatterService: LevelFormatterService
+    private levelFormatterService: LevelFormatterService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -261,6 +263,14 @@ export class TankDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   // Navegación
   goBack(): void {
     this.back.emit();
+  }
+
+  navigateToAforoManual(): void {
+    this.router.navigate(['/gdt/aforo-manual']);
+  }
+
+  navigateToLaboratorio(): void {
+    this.router.navigate(['/gdt/laboratorio']);
   }
 
   setActiveTab(tab: 'resumen' | 'historico' | 'info' | 'registro'): void {

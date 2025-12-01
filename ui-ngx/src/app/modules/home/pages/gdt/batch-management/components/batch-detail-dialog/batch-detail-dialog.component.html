@@ -1,0 +1,224 @@
+<h2 mat-dialog-title>
+  <mat-icon>inventory_2</mat-icon>
+  Detalle del Batch {{ batch.batchNumber }}
+</h2>
+
+<div mat-dialog-content>
+  <div class="batch-detail-container">
+    
+    <!-- General Information -->
+    <div class="section">
+      <h3>Información General</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Batch Number:</span>
+          <span class="value">{{ batch.batchNumber }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Tanque:</span>
+          <span class="value">{{ batch.tankName }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Tipo:</span>
+          <span class="badge" [ngClass]="batch.batchType === 'receiving' ? 'badge-primary' : 'badge-accent'">
+            {{ batch.batchType === 'receiving' ? 'Recepción' : 'Despacho' }}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="label">Estado:</span>
+          <span class="badge badge-status">
+            {{ batch.status.toUpperCase() }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opening Gauge -->
+    <div class="section">
+      <h3>Medición de Apertura</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Fecha/Hora:</span>
+          <span class="value">{{ formatDate(batch.opening.timestamp) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Operador:</span>
+          <span class="value">{{ batch.opening.operator }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Nivel:</span>
+          <span class="value">{{ formatNumber(batch.opening.level, 1) }} mm</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Temperatura:</span>
+          <span class="value">{{ formatNumber(batch.opening.temperature, 1) }} °C</span>
+        </div>
+        <div class="info-item">
+          <span class="label">API Gravity:</span>
+          <span class="value">{{ formatNumber(batch.opening.apiGravity, 2) }} °API</span>
+        </div>
+        <div class="info-item">
+          <span class="label">BS&W:</span>
+          <span class="value">{{ formatNumber(batch.opening.bsw, 2) }} %</span>
+        </div>
+      </div>
+
+      <h4>Volúmenes Calculados</h4>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">TOV:</span>
+          <span class="value">{{ formatNumber(batch.opening.tov) }} bbl</span>
+        </div>
+        <div class="info-item">
+          <span class="label">GOV:</span>
+          <span class="value">{{ formatNumber(batch.opening.gov) }} bbl</span>
+        </div>
+        <div class="info-item">
+          <span class="label">GSV:</span>
+          <span class="value">{{ formatNumber(batch.opening.gsv) }} bbl</span>
+        </div>
+        <div class="info-item">
+          <span class="label">NSV:</span>
+          <span class="value">{{ formatNumber(batch.opening.nsv) }} bbl</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Masa:</span>
+          <span class="value">{{ formatNumber(batch.opening.mass, 0) }} kg</span>
+        </div>
+        <div class="info-item">
+          <span class="label">WIA:</span>
+          <span class="value">{{ formatNumber(batch.opening.wia) }} bbl</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Closing Gauge (if exists) -->
+    <div class="section" *ngIf="batch.closing">
+      <h3>Medición de Cierre</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Fecha/Hora:</span>
+          <span class="value">{{ formatDate(batch.closing.timestamp) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Operador:</span>
+          <span class="value">{{ batch.closing.operator }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Nivel:</span>
+          <span class="value">{{ formatNumber(batch.closing.level, 1) }} mm</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Temperatura:</span>
+          <span class="value">{{ formatNumber(batch.closing.temperature, 1) }} °C</span>
+        </div>
+        <div class="info-item">
+          <span class="label">API Gravity:</span>
+          <span class="value">{{ formatNumber(batch.closing.apiGravity, 2) }} °API</span>
+        </div>
+        <div class="info-item">
+          <span class="label">BS&W:</span>
+          <span class="value">{{ formatNumber(batch.closing.bsw, 2) }} %</span>
+        </div>
+      </div>
+
+      <h4>Volúmenes Calculados</h4>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">TOV:</span>
+          <span class="value">{{ formatNumber(batch.closing.tov) }} bbl</span>
+        </div>
+        <div class="info-item">
+          <span class="label">GOV:</span>
+          <span class="value">{{ formatNumber(batch.closing.gov) }} bbl</span>
+        </div>
+        <div class="info-item">
+          <span class="label">GSV:</span>
+          <span class="value">{{ formatNumber(batch.closing.gsv) }} bbl</span>
+        </div>
+        <div class="info-item">
+          <span class="label">NSV:</span>
+          <span class="value">{{ formatNumber(batch.closing.nsv) }} bbl</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Masa:</span>
+          <span class="value">{{ formatNumber(batch.closing.mass, 0) }} kg</span>
+        </div>
+        <div class="info-item">
+          <span class="label">WIA:</span>
+          <span class="value">{{ formatNumber(batch.closing.wia) }} bbl</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfer Quantities (if closed) -->
+    <div class="section highlight" *ngIf="batch.transferredNSV !== undefined">
+      <h3>Cantidades Transferidas</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">NSV Transferido:</span>
+          <span class="value highlight-value">{{ formatNumber(batch.transferredNSV) }} bbl</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Masa Transferida:</span>
+          <span class="value highlight-value">{{ formatNumber(batch.transferredMass, 0) }} kg</span>
+        </div>
+        <div class="info-item">
+          <span class="label">WIA Transferido:</span>
+          <span class="value">{{ formatNumber(batch.transferredWIA) }} bbl</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Information -->
+    <div class="section" *ngIf="batch.destination || batch.transportVehicle || batch.sealNumbers">
+      <h3>Información Adicional</h3>
+      <div class="info-grid">
+        <div class="info-item" *ngIf="batch.destination">
+          <span class="label">Destino:</span>
+          <span class="value">{{ batch.destination }}</span>
+        </div>
+        <div class="info-item" *ngIf="batch.transportVehicle">
+          <span class="label">Vehículo:</span>
+          <span class="value">{{ batch.transportVehicle }}</span>
+        </div>
+        <div class="info-item full-width" *ngIf="batch.sealNumbers && batch.sealNumbers.length > 0">
+          <span class="label">Sellos:</span>
+          <span class="value">{{ batch.sealNumbers.join(', ') }}</span>
+        </div>
+        <div class="info-item full-width" *ngIf="batch.notes">
+          <span class="label">Notas:</span>
+          <span class="value">{{ batch.notes }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audit Trail -->
+    <div class="section">
+      <h3>Auditoría</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Creado por:</span>
+          <span class="value">{{ batch.createdBy }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Fecha de creación:</span>
+          <span class="value">{{ formatDate(batch.createdAt) }}</span>
+        </div>
+        <div class="info-item" *ngIf="batch.closedBy">
+          <span class="label">Cerrado por:</span>
+          <span class="value">{{ batch.closedBy }}</span>
+        </div>
+        <div class="info-item" *ngIf="batch.closedAt">
+          <span class="label">Fecha de cierre:</span>
+          <span class="value">{{ formatDate(batch.closedAt) }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="close()">Cerrar</button>
+</div>

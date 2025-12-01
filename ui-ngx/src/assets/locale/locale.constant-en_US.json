@@ -10155,5 +10155,10 @@
             "zh_CN": "中文 (中国)",
             "zh_TW": "中文 (台灣)"
         }
+    },
+    "gdt": {
+        "aforo-manual": "Manual Gauging",
+        "laboratorio": "Laboratory Analysis",
+        "batch-management": "Batch Management"
     }
 }

@@ -487,167 +487,43 @@
     <div *ngIf="activeTab === 'registro'" class="tab-panel registro-panel">
       <div class="registro-intro">
         <h4>✏️ Registro Manual de Telemetría</h4>
-        <p>Ingrese los valores manuales para este tanque. Puede dejar campos vacíos si no tiene el valor.</p>
+        <p>Los registros manuales se han movido a páginas dedicadas para mejor organización y funcionalidad.</p>
       </div>
 
-      <!-- Mensajes -->
-      <div *ngIf="errorMessage" class="message error-message">
-        ❌ {{ errorMessage }}
+      <!-- Quick Links to Manual Entry Pages -->
+      <div class="registro-links">
+        <div class="link-card">
+          <div class="link-icon">📏</div>
+          <div class="link-content">
+            <h5>Aforo Manual</h5>
+            <p>Registrar mediciones manuales de nivel y temperatura del tanque</p>
+            <button class="btn-link" (click)="navigateToAforoManual()">
+              Ir a Aforo Manual →
+            </button>
+          </div>
+        </div>
+
+        <div class="link-card">
+          <div class="link-icon">🧪</div>
+          <div class="link-content">
+            <h5>Análisis de Laboratorio</h5>
+            <p>Registrar análisis de laboratorio (API Gravity, BS&W, etc.)</p>
+            <button class="btn-link" (click)="navigateToLaboratorio()">
+              Ir a Laboratorio →
+            </button>
+          </div>
+        </div>
       </div>
-      <div *ngIf="successMessage" class="message success-message">
-        ✅ {{ successMessage }}
+
+      <!-- Info Box -->
+      <div class="info-box">
+        <strong>ℹ️ Información:</strong>
+        <ul>
+          <li>Los datos registrados en ambas páginas se guardan en el historial de este tanque</li>
+          <li>Puede acceder a los registros históricos desde las páginas dedicadas</li>
+          <li>Los registros se sincronizan automáticamente con el sistema</li>
+        </ul>
       </div>
-
-      <form class="registro-form" (ngSubmit)="saveManualEntry()">
-        <!-- Fecha y Hora -->
-        <div class="form-group">
-          <label>Fecha y Hora del Registro:</label>
-          <input
-            type="datetime-local"
-            [(ngModel)]="entryDateTimeLocal"
-            name="entryDateTime"
-            [max]="maxDateTimeLocal">
-          <small>Seleccione la fecha/hora a la que corresponde el registro</small>
-        </div>
-
-        <!-- Fuente -->
-        <div class="form-group">
-          <label>Fuente del Registro:</label>
-          <select [(ngModel)]="manualEntry.source" name="source">
-            <option *ngFor="let opt of sourceOptions" [value]="opt.value">{{ opt.label }}</option>
-          </select>
-        </div>
-
-        <!-- API Gravity -->
-        <div class="form-group">
-          <label>API Gravity (del Laboratorio):</label>
-          <div class="input-with-unit">
-            <input
-              type="number"
-              [(ngModel)]="manualEntry.apiGravity"
-              name="apiGravity"
-              step="0.1"
-              min="0"
-              max="100"
-              placeholder="Ej: 35.5">
-            <span class="unit">°API</span>
-          </div>
-          <small>Gravedad API reportada por el laboratorio</small>
-        </div>
-
-        <!-- Nivel Manual -->
-        <div class="form-group">
-          <label>Nivel Manual (Aforo):</label>
-          
-          <!-- Modo Métrico (mm) -->
-          <div *ngIf="!isImperialUnits()" class="input-with-unit">
-            <input
-              type="number"
-              [(ngModel)]="manualEntry.manualLevel"
-              name="manualLevel"
-              step="1"
-              min="0"
-              placeholder="Ej: 8500">
-            <span class="unit">mm</span>
-          </div>
-          
-          <!-- Modo Imperial (ft/in) -->
-          <div *ngIf="isImperialUnits()" class="level-imperial-inputs">
-            <div class="input-group-imperial">
-              <div class="input-with-label">
-                <input
-                  type="number"
-                  [(ngModel)]="manualLevelFeet"
-                  name="manualLevelFeet"
-                  step="1"
-                  min="0"
-                  placeholder="0">
-                <span class="unit">ft</span>
-              </div>
-              <div class="input-with-label">
-                <input
-                  type="number"
-                  [(ngModel)]="manualLevelInches"
-                  name="manualLevelInches"
-                  step="1"
-                  min="0"
-                  max="11"
-                  placeholder="0">
-                <span class="unit">in</span>
-              </div>
-              <div class="input-with-label">
-                <select [(ngModel)]="manualLevelFraction" name="manualLevelFraction">
-                  <option *ngFor="let opt of fractionOptions" [value]="opt.value">{{ opt.label }}</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          <small *ngIf="!isImperialUnits()">Nivel medido físicamente en milímetros</small>
-          <small *ngIf="isImperialUnits()">Nivel medido físicamente en pies, pulgadas y fracción</small>
-          
-          <div class="auto-value" *ngIf="tank?.level && !isImperialUnits()">
-            Nivel actual del radar: {{ tank.level | number:'1.0-0' }} mm
-          </div>
-          <div class="auto-value" *ngIf="tank?.level && isImperialUnits()">
-            Nivel actual del radar: {{ mmToFeetInches(tank.level).feet }}' {{ mmToFeetInches(tank.level).inches }}" {{ mmToFeetInches(tank.level).fraction }}
-          </div>
-        </div>
-
-        <!-- Temperatura Manual -->
-        <div class="form-group">
-          <label>Temperatura Manual:</label>
-          <div class="input-with-unit">
-            <input
-              type="number"
-              [(ngModel)]="manualEntry.manualTemperature"
-              name="manualTemperature"
-              step="0.1"
-              min="-50"
-              max="150"
-              placeholder="Ej: 28.5">
-            <span class="unit">°C</span>
-          </div>
-          <small>Temperatura medida manualmente</small>
-        </div>
-
-        <!-- BS&W (Basic Sediment and Water) -->
-        <div class="form-group">
-          <label>BS&W (Agua y Sedimentos):</label>
-          <div class="input-with-unit">
-            <input
-              type="number"
-              [(ngModel)]="manualEntry.bsw"
-              name="bsw"
-              step="0.1"
-              min="0"
-              max="100"
-              placeholder="Ej: 0.5">
-            <span class="unit">%</span>
-          </div>
-          <small>Porcentaje de agua y sedimentos (Basic Sediment and Water)</small>
-        </div>
-
-        <!-- Notas -->
-        <div class="form-group">
-          <label>Notas (opcional):</label>
-          <textarea
-            [(ngModel)]="manualEntry.notes"
-            name="notes"
-            rows="3"
-            placeholder="Observaciones adicionales..."></textarea>
-        </div>
-
-        <!-- Botones -->
-        <div class="form-actions">
-          <button type="button" class="btn-secondary" (click)="resetManualEntryForm()">
-            Limpiar
-          </button>
-          <button type="submit" class="btn-primary" [disabled]="savingEntry">
-            {{ savingEntry ? 'Guardando...' : 'Guardar Registro' }}
-          </button>
-        </div>
-      </form>
     </div>
 
   </div>
