@@ -1,0 +1,297 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="gdt-gateway-configuration">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <mat-icon class="header-icon">router</mat-icon>
+        <div>
+          <h1>Configuración del Gateway</h1>
+          <p class="subtitle">Gestione el gateway MQTT para comunicación con los radares</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="toggleCreateForm()" *ngIf="!gateway && !showCreateForm">
+          <mat-icon>add</mat-icon>
+          Crear Gateway
+        </button>
+        <button mat-button (click)="loadGateway()" *ngIf="!showCreateForm">
+          <mat-icon>refresh</mat-icon>
+          Actualizar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Cargando información del gateway...</p>
+  </div>
+
+  <!-- No Gateway Found -->
+  <div class="no-gateway-card" *ngIf="!isLoading && !gateway && !showCreateForm">
+    <mat-icon class="no-gateway-icon">router</mat-icon>
+    <h2>No hay Gateway Configurado</h2>
+    <p>No se encontró ningún gateway para la comunicación con los radares.</p>
+    <p class="hint">Cree un nuevo gateway para habilitar la comunicación MQTT con el sistema TRL2.</p>
+    <button mat-raised-button color="primary" (click)="toggleCreateForm()">
+      <mat-icon>add</mat-icon>
+      Crear Gateway
+    </button>
+  </div>
+
+  <!-- Create Gateway Form -->
+  <div class="create-gateway-card" *ngIf="showCreateForm">
+    <div class="card-header">
+      <mat-icon>add_circle</mat-icon>
+      <h2>Crear Nuevo Gateway</h2>
+      <button mat-icon-button (click)="toggleCreateForm()" class="close-btn">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="gatewayForm" (ngSubmit)="createGateway()">
+      <div class="form-section">
+        <h3>Información del Gateway</h3>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre del Gateway</mat-label>
+          <input matInput formControlName="name" placeholder="gdt-radar-gateway">
+          <mat-hint>Nombre único para identificar el gateway</mat-hint>
+          <mat-error *ngIf="gatewayForm.get('name').hasError('required')">El nombre es requerido</mat-error>
+          <mat-error *ngIf="gatewayForm.get('name').hasError('minlength')">Mínimo 3 caracteres</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Etiqueta</mat-label>
+          <input matInput formControlName="label" placeholder="Gateway Radar GDT">
+          <mat-hint>Descripción amigable del gateway</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="form-section">
+        <h3>Credenciales de Conexión</h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tipo de Credencial</mat-label>
+          <mat-select formControlName="credentialsType">
+            <mat-option *ngFor="let type of credentialTypes" [value]="type.value">
+              {{ type.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Access Token Fields -->
+        <div *ngIf="gatewayForm.get('credentialsType').value === 'ACCESS_TOKEN'" class="credential-fields">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Access Token</mat-label>
+            <input matInput formControlName="accessToken" placeholder="Token de acceso">
+            <button mat-icon-button matSuffix type="button" (click)="generateAccessToken()" matTooltip="Generar token">
+              <mat-icon>autorenew</mat-icon>
+            </button>
+            <mat-hint>Token único para autenticación</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- MQTT Basic Fields -->
+        <div *ngIf="gatewayForm.get('credentialsType').value === 'MQTT_BASIC'" class="credential-fields">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Client ID</mat-label>
+            <input matInput formControlName="clientId" placeholder="gdt-gateway-client">
+            <mat-hint>Identificador único del cliente MQTT</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Usuario MQTT</mat-label>
+            <input matInput formControlName="userName" placeholder="gdt-gateway">
+            <mat-hint>Nombre de usuario para autenticación MQTT</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contraseña MQTT</mat-label>
+            <input matInput formControlName="password" [type]="showCredentials ? 'text' : 'password'">
+            <button mat-icon-button matSuffix type="button" (click)="toggleCredentialsVisibility()" matTooltip="Mostrar/Ocultar">
+              <mat-icon>{{ showCredentials ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <button mat-icon-button matSuffix type="button" (click)="generatePassword()" matTooltip="Generar contraseña">
+              <mat-icon>autorenew</mat-icon>
+            </button>
+            <mat-hint>Contraseña segura para autenticación</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button mat-button type="button" (click)="toggleCreateForm()">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="isCreating || gatewayForm.invalid">
+          <mat-icon *ngIf="!isCreating">save</mat-icon>
+          <mat-spinner *ngIf="isCreating" diameter="20"></mat-spinner>
+          {{ isCreating ? 'Creando...' : 'Crear Gateway' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Gateway Info Card -->
+  <div class="gateway-info-card" *ngIf="!isLoading && gateway && !showCreateForm">
+    <div class="card-header">
+      <div class="gateway-status">
+        <mat-icon class="status-icon active">check_circle</mat-icon>
+        <div>
+          <h2>{{ gateway.device.name }}</h2>
+          <span class="gateway-label">{{ gateway.device.label || 'Sin etiqueta' }}</span>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button mat-icon-button matTooltip="Actualizar" (click)="refreshCredentials()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Eliminar" color="warn" (click)="deleteGateway()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Gateway Details -->
+    <div class="gateway-details">
+      <div class="detail-row">
+        <span class="detail-label">ID del Dispositivo</span>
+        <div class="detail-value with-copy">
+          <code>{{ gateway.device.id.id }}</code>
+          <button mat-icon-button (click)="copyToClipboard(gateway.device.id.id, 'ID')" matTooltip="Copiar">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Tipo</span>
+        <span class="detail-value">
+          <span class="type-badge">{{ gateway.device.type || 'gateway' }}</span>
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Tipo de Credencial</span>
+        <span class="detail-value">
+          <span class="credential-badge">{{ getCredentialTypeLabel(gateway.credentials?.credentialsType) }}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Credentials Section -->
+    <div class="credentials-section">
+      <div class="section-header">
+        <h3>
+          <mat-icon>vpn_key</mat-icon>
+          Credenciales de Conexión
+        </h3>
+        <button mat-button (click)="toggleCredentialsVisibility()">
+          <mat-icon>{{ showCredentials ? 'visibility_off' : 'visibility' }}</mat-icon>
+          {{ showCredentials ? 'Ocultar' : 'Mostrar' }}
+        </button>
+      </div>
+
+      <!-- Access Token Credentials -->
+      <div *ngIf="gateway.credentials?.credentialsType === 'ACCESS_TOKEN'" class="credentials-content">
+        <div class="credential-item">
+          <span class="credential-label">Access Token</span>
+          <div class="credential-value">
+            <code>{{ showCredentials ? gateway.credentials.credentialsId : '••••••••••••••••••••' }}</code>
+            <button mat-icon-button (click)="copyToClipboard(gateway.credentials.credentialsId, 'Access Token')" matTooltip="Copiar">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MQTT Basic Credentials -->
+      <div *ngIf="gateway.credentials?.credentialsType === 'MQTT_BASIC' && gateway.mqttCredentials" class="credentials-content">
+        <div class="credential-item">
+          <span class="credential-label">Client ID</span>
+          <div class="credential-value">
+            <code>{{ gateway.mqttCredentials.clientId }}</code>
+            <button mat-icon-button (click)="copyToClipboard(gateway.mqttCredentials.clientId, 'Client ID')" matTooltip="Copiar">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="credential-item">
+          <span class="credential-label">Usuario</span>
+          <div class="credential-value">
+            <code>{{ gateway.mqttCredentials.userName }}</code>
+            <button mat-icon-button (click)="copyToClipboard(gateway.mqttCredentials.userName, 'Usuario')" matTooltip="Copiar">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="credential-item">
+          <span class="credential-label">Contraseña</span>
+          <div class="credential-value">
+            <code>{{ showCredentials ? gateway.mqttCredentials.password : '••••••••••••••••' }}</code>
+            <button mat-icon-button (click)="copyToClipboard(gateway.mqttCredentials.password, 'Contraseña')" matTooltip="Copiar" *ngIf="showCredentials">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connection Example -->
+    <div class="connection-example">
+      <div class="section-header">
+        <h3>
+          <mat-icon>terminal</mat-icon>
+          Ejemplo de Conexión
+        </h3>
+        <button mat-icon-button (click)="copyToClipboard(getConnectionExample(), 'Comando')" matTooltip="Copiar comando">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <pre class="code-block">{{ getConnectionExample() }}</pre>
+    </div>
+
+    <!-- Configuration for TRL2 -->
+    <div class="trl2-config">
+      <div class="section-header">
+        <h3>
+          <mat-icon>settings</mat-icon>
+          Configuración para TRL2
+        </h3>
+      </div>
+      <div class="config-hint">
+        <mat-icon>info</mat-icon>
+        <p>
+          Configure las siguientes variables de entorno en el sistema TRL2 para conectar con este gateway:
+        </p>
+      </div>
+      <pre class="code-block" *ngIf="gateway.mqttCredentials">MQTT_HOST=&lt;broker-host&gt;
+MQTT_PORT=1883
+MQTT_USERNAME={{ gateway.mqttCredentials.userName }}
+MQTT_PASSWORD={{ showCredentials ? gateway.mqttCredentials.password : '********' }}
+MQTT_CLIENT_ID={{ gateway.mqttCredentials.clientId }}</pre>
+      <pre class="code-block" *ngIf="gateway.credentials?.credentialsType === 'ACCESS_TOKEN'">MQTT_HOST=&lt;broker-host&gt;
+MQTT_PORT=1883
+MQTT_ACCESS_TOKEN={{ showCredentials ? gateway.credentials.credentialsId : '********' }}</pre>
+    </div>
+  </div>
+</div>

@@ -13,58 +13,269 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// GDT Modern Layout Styles
+$sidebar-width: 260px;
+$header-height: 64px;
+$sidebar-bg: linear-gradient(180deg, #1a237e 0%, #0d1b3e 100%);
+$header-bg: #ffffff;
+$content-bg: #f5f7fa;
+$accent-color: #00bcd4;
+$text-light: rgba(255, 255, 255, 0.9);
+$text-muted-light: rgba(255, 255, 255, 0.6);
+$border-radius: 12px;
+
 :host {
   display: flex;
   width: 100%;
   height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  mat-sidenav-container {
+  // Main Layout Container
+  .gdt-layout {
     flex: 1;
+    background: $content-bg;
   }
-  mat-sidenav.tb-site-sidenav {
-    width: 250px;
-    @media (max-width:456px) {
+
+  // ==========================================
+  // SIDEBAR STYLES
+  // ==========================================
+  mat-sidenav.gdt-sidebar {
+    width: $sidebar-width;
+    background: $sidebar-bg;
+    border: none !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+
+    @media (max-width: 456px) {
       width: calc(100% - 56px);
     }
-    .tb-nav-header {
-      z-index: 2;
-      flex-shrink: 0;
-      white-space: nowrap;
-      .tb-nav-header-toolbar {
-        min-height: 64px;
-        height: inherit;
-        padding: 0;
-        z-index: 2;
-        flex-shrink: 0;
-        white-space: nowrap;
-        border-bottom: 1px solid rgba(0, 0, 0, .12);
-        & > div {
-          height: 64px;
-          .tb-logo-title {
-            width: auto;
-            max-width: 100%;
-            height: 36px;
-            max-height: 100%;
-            margin: auto;
+
+    // Sidebar Header
+    .gdt-sidebar-header {
+      padding: 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      .gdt-logo-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .gdt-logo-icon {
+          width: 44px;
+          height: 44px;
+          background: rgba(255, 255, 255, 0.15);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: $accent-color;
+          backdrop-filter: blur(10px);
+        }
+
+        .gdt-logo-text {
+          display: flex;
+          flex-direction: column;
+
+          .gdt-logo-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+          }
+
+          .gdt-logo-subtitle {
+            font-size: 11px;
+            color: $text-muted-light;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 500;
           }
         }
       }
     }
-    .tb-side-menu-toolbar {
+
+    // Sidebar Navigation
+    .gdt-sidebar-nav {
+      flex: 1;
       overflow-y: auto;
-      height: inherit;
-      padding: 0;
+      padding: 16px 12px;
+
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+      }
+    }
+
+    // Sidebar Footer
+    .gdt-sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+      .gdt-version-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .gdt-version-label {
+          font-size: 11px;
+          color: $text-muted-light;
+          background: rgba(255, 255, 255, 0.1);
+          padding: 4px 12px;
+          border-radius: 20px;
+        }
+      }
     }
   }
-  .tb-primary-toolbar {
-    z-index: 2;
-    h1 {
-      font-size: 24px !important;
-      font-weight: 400 !important;
+
+  // ==========================================
+  // MAIN CONTENT WRAPPER
+  // ==========================================
+  .gdt-main-wrapper {
+    background: $content-bg;
+  }
+
+  .gdt-main-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  // ==========================================
+  // HEADER STYLES
+  // ==========================================
+  .gdt-header {
+    height: $header-height;
+    min-height: $header-height;
+    background: $header-bg;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    z-index: 10;
+    gap: 16px;
+
+    .gdt-header-left {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      gap: 8px;
+
+      .gdt-menu-toggle,
+      .gdt-back-btn {
+        color: #263238;
+        
+        &:hover {
+          background: rgba(26, 35, 126, 0.08);
+        }
+
+        .mat-icon {
+          color: #1a237e;
+        }
+      }
+
+      .gdt-breadcrumb {
+        flex: 1;
+      }
+    }
+
+    // Search Container
+    .gdt-search-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: #f5f7fa;
+      border-radius: 10px;
+      padding: 0 16px;
+      height: 44px;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+
+      &:focus-within {
+        background: #ffffff;
+        border-color: $accent-color;
+        box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.1);
+      }
+
+      .gdt-search-icon {
+        color: #90a4ae;
+        margin-right: 12px;
+      }
+
+      .gdt-search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 15px;
+        color: #263238;
+        outline: none;
+        font-family: inherit;
+
+        &::placeholder {
+          color: #b0bec5;
+        }
+      }
+    }
+
+    // Header Actions
+    .gdt-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      .gdt-action-btn {
+        color: #607d8b;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: #1a237e;
+          background: rgba(26, 35, 126, 0.08);
+        }
+
+        .mat-icon {
+          font-size: 22px;
+          width: 22px;
+          height: 22px;
+        }
+      }
+
+      .gdt-notification,
+      .gdt-user-menu {
+        margin-left: 4px;
+      }
     }
   }
-  .tb-main-content {
+
+  // ==========================================
+  // PROGRESS BAR
+  // ==========================================
+  .gdt-progress-bar {
+    position: absolute;
+    top: $header-height;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    height: 3px;
+  }
+
+  // ==========================================
+  // MAIN CONTENT
+  // ==========================================
+  .gdt-content {
+    flex: 1;
     overflow: auto;
     position: relative;
+    padding: 0;
+    background: $content-bg;
+  }
+
+  // Legacy compatibility
+  .tb-primary-toolbar {
+    display: none;
   }
 }

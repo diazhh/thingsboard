@@ -1,0 +1,511 @@
+/**
+ * Copyright © 2016-2025 The Thingsboard Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.gdt-gateway-configuration {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+
+  // Header
+  .page-header {
+    margin-bottom: 24px;
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .header-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #0d7377;
+        background: rgba(13, 115, 119, 0.1);
+        border-radius: 12px;
+        padding: 8px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #212529;
+      }
+
+      .subtitle {
+        margin: 4px 0 0 0;
+        font-size: 14px;
+        color: #6c757d;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+  }
+
+  // Loading
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px;
+    gap: 16px;
+    color: #6c757d;
+  }
+
+  // No Gateway Card
+  .no-gateway-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 32px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    text-align: center;
+
+    .no-gateway-icon {
+      font-size: 80px;
+      width: 80px;
+      height: 80px;
+      color: #dee2e6;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #212529;
+    }
+
+    p {
+      margin: 0 0 8px 0;
+      color: #6c757d;
+      max-width: 400px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #adb5bd;
+      margin-bottom: 24px;
+    }
+  }
+
+  // Create Gateway Card
+  .create-gateway-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #0d7377 0%, #14919b 100%);
+      color: white;
+
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        flex: 1;
+      }
+
+      .close-btn {
+        color: white;
+      }
+    }
+
+    form {
+      padding: 24px;
+    }
+
+    .form-section {
+      margin-bottom: 24px;
+
+      h3 {
+        margin: 0 0 16px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #495057;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e9ecef;
+      }
+    }
+
+    .full-width {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .credential-fields {
+      margin-top: 16px;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid #e9ecef;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+  }
+
+  // Gateway Info Card
+  .gateway-info-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #0d7377 0%, #14919b 100%);
+      color: white;
+
+      .gateway-status {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .status-icon {
+          font-size: 40px;
+          width: 40px;
+          height: 40px;
+
+          &.active {
+            color: #2ecc71;
+          }
+        }
+
+        h2 {
+          margin: 0;
+          font-size: 22px;
+          font-weight: 600;
+        }
+
+        .gateway-label {
+          font-size: 14px;
+          opacity: 0.9;
+        }
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 4px;
+
+        button {
+          color: white;
+        }
+      }
+    }
+
+    .gateway-details {
+      padding: 24px;
+      border-bottom: 1px solid #e9ecef;
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f3f4;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .detail-label {
+          font-size: 14px;
+          color: #6c757d;
+          font-weight: 500;
+        }
+
+        .detail-value {
+          font-size: 14px;
+          color: #212529;
+
+          &.with-copy {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          code {
+            background: #f1f3f4;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+          }
+
+          .type-badge, .credential-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+          }
+
+          .type-badge {
+            background: rgba(13, 115, 119, 0.15);
+            color: #0d7377;
+          }
+
+          .credential-badge {
+            background: rgba(52, 152, 219, 0.15);
+            color: #2980b9;
+          }
+        }
+      }
+    }
+
+    .credentials-section {
+      padding: 24px;
+      background: #fafbfc;
+      border-bottom: 1px solid #e9ecef;
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #495057;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            color: #0d7377;
+          }
+        }
+      }
+
+      .credentials-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .credential-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+
+        .credential-label {
+          font-size: 13px;
+          color: #6c757d;
+          font-weight: 500;
+          min-width: 100px;
+        }
+
+        .credential-value {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex: 1;
+          justify-content: flex-end;
+
+          code {
+            background: #f1f3f4;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+
+    .connection-example, .trl2-config {
+      padding: 24px;
+      border-bottom: 1px solid #e9ecef;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #495057;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            color: #0d7377;
+          }
+        }
+      }
+
+      .code-block {
+        background: #2d3436;
+        color: #dfe6e9;
+        padding: 16px;
+        border-radius: 8px;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        margin: 0;
+      }
+
+      .config-hint {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 16px;
+        background: rgba(13, 115, 119, 0.08);
+        border-radius: 8px;
+        margin-bottom: 16px;
+
+        mat-icon {
+          color: #0d7377;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+
+        p {
+          margin: 0;
+          font-size: 14px;
+          color: #495057;
+        }
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .gdt-gateway-configuration {
+    padding: 16px;
+
+    .page-header {
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-title {
+        .header-icon {
+          font-size: 36px;
+          width: 36px;
+          height: 36px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+      }
+    }
+
+    .gateway-info-card {
+      .gateway-details {
+        .detail-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+      }
+
+      .credentials-section {
+        .credential-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+
+          .credential-value {
+            justify-content: flex-start;
+            width: 100%;
+
+            code {
+              max-width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
+}

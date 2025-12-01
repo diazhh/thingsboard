@@ -15,72 +15,101 @@
     limitations under the License.
 
 -->
-<mat-sidenav-container>
-  <mat-sidenav #sidenav class="tb-site-sidenav mat-elevation-z2"
+<mat-sidenav-container class="gdt-layout">
+  <mat-sidenav #sidenav class="tb-site-sidenav gdt-sidebar"
                [disableClose]="sidenavOpened"
                (click)="sidenavClicked()"
                [mode]="sidenavMode"
                [opened]="sidenavOpened && !forceFullscreen">
-    <header class="tb-nav-header">
-      <mat-toolbar color="primary" class="tb-nav-header-toolbar">
-        <div class="flex flex-auto">
-          <tb-logo [src]="logo" class="tb-logo-title"></tb-logo>
+    <!-- Sidebar Header with Logo -->
+    <header class="gdt-sidebar-header">
+      <div class="gdt-logo-container">
+        <div class="gdt-logo-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+          </svg>
         </div>
-      </mat-toolbar>
+        <div class="gdt-logo-text">
+          <span class="gdt-logo-title">GDT</span>
+          <span class="gdt-logo-subtitle">Platform</span>
+        </div>
+      </div>
     </header>
-    <mat-toolbar color="primary" class="tb-side-menu-toolbar flex flex-1 flex-col" role="navigation">
+    
+    <!-- Sidebar Navigation -->
+    <nav class="gdt-sidebar-nav">
       <tb-side-menu></tb-side-menu>
-    </mat-toolbar>
+    </nav>
+    
+    <!-- Sidebar Footer -->
+    <footer class="gdt-sidebar-footer">
+      <div class="gdt-version-info">
+        <span class="gdt-version-label">v3.8.0</span>
+      </div>
+    </footer>
   </mat-sidenav>
-  <mat-sidenav-content>
-    <div class="flex flex-col" role="main" style="height: 100%;">
-      <mat-toolbar color="primary" class="tb-primary-toolbar flex flex-row">
-        <button mat-icon-button id="main"
-                [class.!hidden]="forceFullscreen || displaySearchMode()"
-                class="gt-sm:!hidden" (click)="sidenav.toggle()">
-          <mat-icon class="material-icons">menu</mat-icon>
-        </button>
-        <button mat-icon-button
-                [class.!hidden]="!forceFullscreen || displaySearchMode"
-                (click)="goBack()">
-          <mat-icon class="material-icons">arrow_back</mat-icon>
-        </button>
-        <button mat-icon-button
-                [class.!hidden]="!displaySearchMode()"
-                (click)="closeSearch()">
-          <mat-icon class="material-icons">arrow_back</mat-icon>
-        </button>
-        <tb-breadcrumb
-            [class.!hidden]="displaySearchMode()"
-            class="mat-toolbar-tools flex-1">
-        </tb-breadcrumb>
-        <div [class.!hidden]="!displaySearchMode()" class="tb-dark flex flex-1 flex-row">
-          <mat-form-field class="tb-appearance-transparent flex-1">
-            <input #searchInput matInput
-                   [formControl]="textSearch"
-                   placeholder="{{ 'common.enter-search' | translate }}"/>
-          </mat-form-field>
+  
+  <mat-sidenav-content class="gdt-main-wrapper">
+    <div class="gdt-main-container" role="main">
+      <!-- Modern Header -->
+      <header class="gdt-header">
+        <div class="gdt-header-left">
+          <button mat-icon-button id="main" class="gdt-menu-toggle"
+                  [class.!hidden]="forceFullscreen || displaySearchMode()"
+                  class="gt-sm:!hidden" (click)="sidenav.toggle()">
+            <mat-icon>menu</mat-icon>
+          </button>
+          <button mat-icon-button class="gdt-back-btn"
+                  [class.!hidden]="!forceFullscreen || displaySearchMode"
+                  (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <button mat-icon-button class="gdt-back-btn"
+                  [class.!hidden]="!displaySearchMode()"
+                  (click)="closeSearch()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <tb-breadcrumb
+              [class.!hidden]="displaySearchMode()"
+              class="gdt-breadcrumb">
+          </tb-breadcrumb>
         </div>
-        <tb-github-badge class="lt-md:!hidden"></tb-github-badge>
-        <button [class.!hidden]="!searchEnabled"
-                mat-icon-button (click)="openSearch()">
-          <mat-icon class="material-icons">search</mat-icon>
-        </button>
-        <button *ngIf="fullscreenEnabled"
-                [class.!hidden]="displaySearchMode()"
-                class="lt-md:!hidden"
-                mat-icon-button (click)="toggleFullscreen()">
-          <mat-icon class="material-icons">{{ isFullscreen() ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
-        </button>
-        <tb-notification-bell></tb-notification-bell>
-        <tb-user-menu [displayUserInfo]="!displaySearchMode()"></tb-user-menu>
-      </mat-toolbar>
-      <mat-progress-bar color="warn" style="z-index: 10; margin-bottom: -4px; width: 100%;" mode="indeterminate"
+        
+        <!-- Search Bar -->
+        <div [class.!hidden]="!displaySearchMode()" class="gdt-search-container">
+          <mat-icon class="gdt-search-icon">search</mat-icon>
+          <input #searchInput
+                 [formControl]="textSearch"
+                 class="gdt-search-input"
+                 placeholder="{{ 'common.enter-search' | translate }}"/>
+        </div>
+        
+        <!-- Header Actions -->
+        <div class="gdt-header-actions">
+          <button [class.!hidden]="!searchEnabled" mat-icon-button 
+                  class="gdt-action-btn" (click)="openSearch()">
+            <mat-icon>search</mat-icon>
+          </button>
+          <button *ngIf="fullscreenEnabled"
+                  [class.!hidden]="displaySearchMode()"
+                  class="gdt-action-btn lt-md:!hidden"
+                  mat-icon-button (click)="toggleFullscreen()">
+            <mat-icon>{{ isFullscreen() ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+          </button>
+          <tb-notification-bell class="gdt-notification"></tb-notification-bell>
+          <tb-user-menu [displayUserInfo]="!displaySearchMode()" class="gdt-user-menu"></tb-user-menu>
+        </div>
+      </header>
+      
+      <!-- Progress Bar -->
+      <mat-progress-bar color="accent" class="gdt-progress-bar" mode="indeterminate"
                         *ngIf="!hideLoadingBar && (isLoading$ | async)">
       </mat-progress-bar>
-      <div tb-toast class="tb-main-content flex flex-1 flex-col">
+      
+      <!-- Main Content Area -->
+      <main tb-toast class="gdt-content">
         <router-outlet (activate)="activeComponentChanged($event)"></router-outlet>
-      </div>
+      </main>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

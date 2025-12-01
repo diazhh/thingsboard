@@ -1,0 +1,224 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="gdt-dashboard">
+  <!-- Header Section -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="welcome-section">
+        <h1>Bienvenido a GDT Platform</h1>
+        <p class="subtitle">Sistema de Gestión y Monitoreo de Tanques</p>
+      </div>
+      <div class="header-info">
+        <div class="datetime">
+          <span class="time">{{ currentTime | date:'HH:mm:ss' }}</span>
+          <span class="date">{{ currentTime | date:'EEEE, d MMMM yyyy':'':'es' }}</span>
+        </div>
+        <button mat-icon-button class="refresh-btn" (click)="refreshData()" [disabled]="loading">
+          <mat-icon [class.spinning]="loading">refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  <div class="loading-overlay" *ngIf="loading">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Cargando datos del sistema...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dashboard-content" *ngIf="!loading">
+    
+    <!-- Stats Cards Row -->
+    <section class="stats-section">
+      <div class="stats-grid">
+        <!-- Total Tanks -->
+        <div class="stat-card">
+          <div class="stat-icon tanks">
+            <mat-icon>storage</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.totalTanks }}</span>
+            <span class="stat-label">Tanques Totales</span>
+          </div>
+        </div>
+
+        <!-- Online Tanks -->
+        <div class="stat-card">
+          <div class="stat-icon online">
+            <mat-icon>wifi</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.tanksOnline }}</span>
+            <span class="stat-label">En Línea</span>
+          </div>
+        </div>
+
+        <!-- Offline Tanks -->
+        <div class="stat-card">
+          <div class="stat-icon offline">
+            <mat-icon>wifi_off</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.tanksOffline }}</span>
+            <span class="stat-label">Fuera de Línea</span>
+          </div>
+        </div>
+
+        <!-- Alarms -->
+        <div class="stat-card" [class.has-alarms]="stats.tanksWithAlarms > 0">
+          <div class="stat-icon alarms">
+            <mat-icon>warning</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.tanksWithAlarms }}</span>
+            <span class="stat-label">Con Alarmas</span>
+          </div>
+        </div>
+
+        <!-- Total Volume -->
+        <div class="stat-card wide">
+          <div class="stat-icon volume">
+            <mat-icon>water_drop</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ formatVolume(stats.totalVolume) }} <small>BBL</small></span>
+            <span class="stat-label">Volumen Total</span>
+          </div>
+          <div class="stat-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" 
+                   [style.width.%]="stats.totalCapacity > 0 ? (stats.totalVolume / stats.totalCapacity) * 100 : 0">
+              </div>
+            </div>
+            <span class="progress-text">{{ stats.averageLevel | number:'1.1-1' }}% promedio</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      
+      <!-- Quick Access Section -->
+      <section class="quick-access-section">
+        <h2 class="section-title">
+          <mat-icon>apps</mat-icon>
+          Acceso Rápido
+        </h2>
+        <div class="quick-access-grid">
+          <div class="quick-access-card" 
+               *ngFor="let item of quickAccessItems"
+               (click)="navigateTo(item.route)"
+               [style.--accent-color]="item.color">
+            <div class="card-icon">
+              <mat-icon>{{ item.icon }}</mat-icon>
+            </div>
+            <div class="card-content">
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.subtitle }}</p>
+            </div>
+            <mat-icon class="card-arrow">arrow_forward</mat-icon>
+          </div>
+        </div>
+      </section>
+
+      <!-- Critical Tanks Section -->
+      <section class="critical-section" *ngIf="criticalTanks.length > 0">
+        <h2 class="section-title warning">
+          <mat-icon>notification_important</mat-icon>
+          Tanques con Alarmas
+        </h2>
+        <div class="critical-list">
+          <div class="critical-item" 
+               *ngFor="let tank of criticalTanks"
+               [class]="getAlarmClass(tank.currentAlarmLevel || 'none')"
+               (click)="goToTankDetail(tank)">
+            <div class="tank-indicator">
+              <div class="level-bar">
+                <div class="level-fill" [style.height.%]="tank.levelPercent || 0"></div>
+              </div>
+            </div>
+            <div class="tank-info">
+              <span class="tank-name">{{ tank.tankTag }}</span>
+              <span class="tank-product">{{ tank.productName }}</span>
+            </div>
+            <div class="tank-data">
+              <span class="level">{{ tank.levelPercent | number:'1.1-1' }}%</span>
+              <span class="alarm-badge" [class]="getAlarmClass(tank.currentAlarmLevel || 'none')">
+                {{ getAlarmText(tank.currentAlarmLevel || 'none') }}
+              </span>
+            </div>
+            <mat-icon class="arrow">chevron_right</mat-icon>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tank Overview Section -->
+      <section class="tanks-overview-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <mat-icon>view_module</mat-icon>
+            Vista General de Tanques
+          </h2>
+          <button mat-stroked-button color="primary" (click)="goToMonitoring()">
+            Ver Todos
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+        
+        <div class="tanks-mini-grid">
+          <div class="tank-mini-card" 
+               *ngFor="let tank of tanks.slice(0, 8)"
+               [class.offline]="tank.radarStatus !== 'online'"
+               [class]="getAlarmClass(tank.currentAlarmLevel || 'none')"
+               (click)="goToTankDetail(tank)">
+            <div class="mini-tank-visual">
+              <svg viewBox="0 0 40 60" class="tank-svg">
+                <!-- Tank shell -->
+                <rect x="5" y="10" width="30" height="45" rx="2" class="tank-shell"/>
+                <!-- Roof -->
+                <polygon points="5,10 20,2 35,10" class="tank-roof"/>
+                <!-- Liquid -->
+                <rect x="6" y="55" width="28" 
+                      [attr.height]="(tank.levelPercent || 0) * 0.44"
+                      [attr.y]="55 - (tank.levelPercent || 0) * 0.44"
+                      class="tank-liquid"/>
+              </svg>
+            </div>
+            <div class="mini-tank-info">
+              <span class="name">{{ tank.tankTag }}</span>
+              <span class="level">{{ tank.levelPercent | number:'1.0-0' }}%</span>
+            </div>
+            <div class="status-dot" [class.online]="tank.radarStatus === 'online'"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="error">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="refreshData()">
+      Reintentar
+    </button>
+  </div>
+</div>

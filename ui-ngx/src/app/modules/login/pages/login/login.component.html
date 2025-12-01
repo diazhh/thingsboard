@@ -15,74 +15,109 @@
     limitations under the License.
 
 -->
-<div class="tb-login-content mat-app-background tb-dark flex flex-1 items-center justify-center">
-  <mat-card appearance="raised" style="max-height: 80vh; overflow-y: auto;">
-    <mat-card-content>
+<div class="tb-login-wrapper">
+  <!-- Branding Section (Left) -->
+  <div class="tb-branding-section">
+    <div class="tb-branding-content">
+      <div class="tb-branding-logo">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+        </svg>
+      </div>
+      <h1 class="tb-branding-title">GDT Platform</h1>
+      <p class="tb-branding-subtitle">Sistema de Gestión y Monitoreo Industrial</p>
+      <div class="tb-branding-features">
+        <div class="tb-feature">
+          <span class="tb-feature-icon">📊</span>
+          <span>Monitoreo en tiempo real</span>
+        </div>
+        <div class="tb-feature">
+          <span class="tb-feature-icon">🔒</span>
+          <span>Seguridad avanzada</span>
+        </div>
+        <div class="tb-feature">
+          <span class="tb-feature-icon">⚡</span>
+          <span>Alertas instantáneas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Form Section (Right) -->
+  <div class="tb-login-content">
+    <div class="tb-login-card">
+      <div class="tb-login-header">
+        <h2>Bienvenido</h2>
+        <p>Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <mat-progress-bar color="accent" mode="indeterminate" *ngIf="isLoading$ | async"></mat-progress-bar>
+
       <form class="tb-login-form" [formGroup]="loginFormGroup" (ngSubmit)="login()">
-        <fieldset class="flex flex-col">
-          <div class="flex flex-col items-center justify-start" style="padding: 15px 0;">
-            <tb-logo link="https://thingsboard.io" target="_blank" class="login-logo"></tb-logo>
-          </div>
-          <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading$ | async">
-          </mat-progress-bar>
-          <span style="height: 4px;" *ngIf="!(isLoading$ | async)"></span>
-          <div tb-toast class="layout-padding flex flex-col">
-            <span style="height: 50px;"></span>
-            @if(oauth2Clients?.length) {
-              <div class="oauth-container tb-default flex flex-col gap-4">
-                @if(oauth2Clients.length === 1) {
-                  <a mat-stroked-button class="login-with-button" [href]=getOAuth2Uri(oauth2Clients[0])>
-                    <tb-icon matButtonIcon class="tb-mat-20">{{ oauth2Clients[0].icon }}</tb-icon>
-                    {{ 'login.login-with' | translate: {name: oauth2Clients[0].name} }}
-                  </a>
-                } @else {
-                  <div class="login-button-container flex flex-wrap justify-center gap-4">
-                    @for(oauth2Client of oauth2Clients; track oauth2Client.url) {
-                      <a mat-stroked-button class="login-with-button multiple"
-                         [matTooltip]="('login.login-with' | translate: {name: oauth2Client.name})"
-                         [href]=getOAuth2Uri(oauth2Client)>
-                        @if(oauth2Client.icon) {
-                          <tb-icon class="tb-mat-20">{{ oauth2Client.icon }}</tb-icon>
-                        } @else {
-                          <span>{{ oauth2Client.name }}</span>
-                        }
-                      </a>
-                    }
-                  </div>
-                }
-                <div class="container-divider">
-                  <div class="line"><mat-divider></mat-divider></div>
-                  <div class="text">{{ "login.or" | translate | uppercase }}</div>
-                  <div class="line"><mat-divider></mat-divider></div>
+        <div tb-toast class="tb-form-content">
+          @if(oauth2Clients?.length) {
+            <div class="oauth-container">
+              @if(oauth2Clients.length === 1) {
+                <a mat-stroked-button class="login-with-button" [href]=getOAuth2Uri(oauth2Clients[0])>
+                  <tb-icon matButtonIcon class="tb-mat-20">{{ oauth2Clients[0].icon }}</tb-icon>
+                  {{ 'login.login-with' | translate: {name: oauth2Clients[0].name} }}
+                </a>
+              } @else {
+                <div class="login-button-container">
+                  @for(oauth2Client of oauth2Clients; track oauth2Client.url) {
+                    <a mat-stroked-button class="login-with-button multiple"
+                       [matTooltip]="('login.login-with' | translate: {name: oauth2Client.name})"
+                       [href]=getOAuth2Uri(oauth2Client)>
+                      @if(oauth2Client.icon) {
+                        <tb-icon class="tb-mat-20">{{ oauth2Client.icon }}</tb-icon>
+                      } @else {
+                        <span>{{ oauth2Client.name }}</span>
+                      }
+                    </a>
+                  }
                 </div>
+              }
+              <div class="container-divider">
+                <div class="line"><mat-divider></mat-divider></div>
+                <div class="text">{{ "login.or" | translate | uppercase }}</div>
+                <div class="line"><mat-divider></mat-divider></div>
               </div>
-            }
-            <mat-form-field class="tb-appearance-transparent">
-              <mat-label translate>login.username</mat-label>
-              <input id="username-input" matInput type="email" autofocus formControlName="username"/>
-              <mat-icon matPrefix>email</mat-icon>
-              <mat-error *ngIf="loginFormGroup.get('username').invalid">
-                {{ 'login.invalid-email-format' | translate }}
-              </mat-error>
-            </mat-form-field>
-            <mat-form-field class="tb-appearance-transparent">
-              <mat-label translate>common.password</mat-label>
-              <input id="password-input" matInput type="password" formControlName="password"/>
-              <tb-toggle-password matSuffix></tb-toggle-password>
-              <mat-icon matPrefix>lock</mat-icon>
-            </mat-form-field>
-            <div class="forgot-password flex items-center justify-end">
-              <button class="tb-reset-password" mat-button type="button" routerLink="/login/resetPasswordRequest">
-                {{ (passwordViolation ? 'login.reset-password' : 'login.forgot-password') | translate }}
-              </button>
             </div>
-            <div class="tb-action-button flex flex-col">
-              <button mat-raised-button color="accent" [disabled]="(isLoading$ | async)"
-                      type="submit">{{ 'login.login' | translate }}</button>
+          }
+
+          <div class="tb-input-group">
+            <label for="username-input">Correo electrónico</label>
+            <div class="tb-input-wrapper">
+              <mat-icon class="tb-input-icon">email</mat-icon>
+              <input id="username-input" type="email" autofocus formControlName="username" 
+                     placeholder="ejemplo@correo.com"/>
+            </div>
+            <span class="tb-input-error" *ngIf="loginFormGroup.get('username').touched && loginFormGroup.get('username').invalid">
+              {{ 'login.invalid-email-format' | translate }}
+            </span>
+          </div>
+
+          <div class="tb-input-group">
+            <label for="password-input">Contraseña</label>
+            <div class="tb-input-wrapper">
+              <mat-icon class="tb-input-icon">lock</mat-icon>
+              <input id="password-input" type="password" formControlName="password" 
+                     placeholder="••••••••"/>
             </div>
           </div>
-        </fieldset>
+
+          <div class="tb-form-options">
+            <a class="tb-forgot-link" routerLink="/login/resetPasswordRequest">
+              {{ (passwordViolation ? 'login.reset-password' : 'login.forgot-password') | translate }}
+            </a>
+          </div>
+
+          <button class="tb-submit-btn" type="submit" [disabled]="(isLoading$ | async)">
+            <span *ngIf="!(isLoading$ | async)">Iniciar Sesión</span>
+            <span *ngIf="isLoading$ | async">Cargando...</span>
+          </button>
+        </div>
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 </div>

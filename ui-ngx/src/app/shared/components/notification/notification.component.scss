@@ -13,61 +13,93 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// GDT Modern Notification Styles
+$primary-color: #1a237e;
+$accent-color: #00bcd4;
+$text-primary: #263238;
+$text-muted: #607d8b;
+
 :host {
 
   .notification {
-    padding: 10px 0 10px 10px;
-    border: 1px solid;
-    border-radius: 4px;
-    margin: 4px;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    margin: 8px;
+    background: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      transform: translateY(-1px);
+    }
   }
 
   .icon {
-    margin-right: 14px;
-    color: rgba(0, 0, 0, 0.54);
+    margin-right: 16px;
+    color: $accent-color;
+    width: 24px;
+    height: 24px;
   }
 
   .content {
-    letter-spacing: .25px;
+    letter-spacing: 0;
     word-break: break-word;
+    
     .title {
-      margin-bottom: 4px;
-      font-weight: 500;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 15px;
+      color: $text-primary;
     }
+    
     .message {
       font-size: 14px;
-      line-height: 16px;
-      color: rgba(0, 0, 0, 0.76);
+      line-height: 20px;
+      color: $text-muted;
     }
 
     .button {
       margin-top: 12px;
-      border-color: initial;
+      border-color: $accent-color;
+      color: $accent-color;
       height: fit-content;
       line-height: 2;
+      border-radius: 8px;
+      font-weight: 600;
+
+      &:hover {
+        background: rgba(0, 188, 212, 0.08);
+      }
     }
   }
 
   .description {
-    margin-left: 8px;
+    margin-left: 12px;
     min-width: 70px;
-    color: rgba(0, 0, 0, 0.54);
+    color: $text-muted;
 
     .time {
       font-size: 12px;
-      letter-spacing: 0.25px;
+      letter-spacing: 0;
       margin-right: 12px;
       margin-top: 4px;
+      font-weight: 500;
     }
 
     .alarm-severity {
-      padding: 5px;
+      padding: 6px 10px;
       border-radius: 8px;
-      margin-right: 7px;
+      margin-right: 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
 
       .severity {
-        font-weight: 500;
-        letter-spacing: 0.25px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
       }
     }
   }

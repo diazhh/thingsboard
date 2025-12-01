@@ -292,23 +292,31 @@ export class AuthService {
           this.redirectUrl = null;
           result = this.router.parseUrl(redirectUrl);
         } else {
-          result = this.router.parseUrl('home');
-        }
-        if (authState.authUser.authority === Authority.TENANT_ADMIN || 
-            authState.authUser.authority === Authority.CUSTOMER_USER ||
-            authState.authUser.authority === Authority.INGENIERO ||
-            authState.authUser.authority === Authority.OPERADOR ||
-            authState.authUser.authority === Authority.REPORTES ||
-            authState.authUser.authority === Authority.LABORATORIO) {
-          if (this.userHasDefaultDashboard(authState)) {
-            const dashboardId = authState.userDetails.additionalInfo.defaultDashboardId;
-            if (authState.forceFullscreen) {
-              result = this.router.parseUrl(`dashboard/${dashboardId}`);
+          // GDT: Redirect to GDT dashboard for GDT users
+          const isGdtUser = authState.authUser.authority === Authority.TENANT_ADMIN || 
+                            authState.authUser.authority === Authority.CUSTOMER_USER ||
+                            authState.authUser.authority === Authority.INGENIERO ||
+                            authState.authUser.authority === Authority.OPERADOR ||
+                            authState.authUser.authority === Authority.REPORTES ||
+                            authState.authUser.authority === Authority.LABORATORIO;
+          
+          if (isGdtUser) {
+            // Check for user-specific default dashboard first
+            if (this.userHasDefaultDashboard(authState)) {
+              const dashboardId = authState.userDetails.additionalInfo.defaultDashboardId;
+              if (authState.forceFullscreen) {
+                result = this.router.parseUrl(`dashboard/${dashboardId}`);
+              } else {
+                result = this.router.parseUrl(`dashboards/${dashboardId}`);
+              }
+            } else if (authState.authUser.isPublic) {
+              result = this.router.parseUrl(`dashboard/${authState.lastPublicDashboardId}`);
             } else {
-              result = this.router.parseUrl(`dashboards/${dashboardId}`);
+              // Default to GDT Dashboard for GDT users
+              result = this.router.parseUrl('gdt/dashboard');
             }
-          } else if (authState.authUser.isPublic) {
-            result = this.router.parseUrl(`dashboard/${authState.lastPublicDashboardId}`);
+          } else {
+            result = this.router.parseUrl('home');
           }
         }
       }

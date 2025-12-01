@@ -20,10 +20,12 @@ import { SharedModule } from '@shared/shared.module';
 import { GdtRoutingModule } from './gdt-routing.module';
 
 // Main Components
+import { GdtDashboardComponent } from './dashboard/gdt-dashboard.component';
 import { TankMonitoringComponent } from './tank-monitoring/tank-monitoring.component';
 import { TankConfigurationComponent } from './tank-configuration/tank-configuration.component';
 import { GdtUserManagementComponent } from './user-management/user-management.component';
 import { AddTenantUserDialogComponent } from './user-management/add-tenant-user-dialog.component';
+import { GatewayConfigurationComponent } from './gateway-configuration/gateway-configuration.component';
 
 // Tank Monitoring Subcomponents
 import { LiquidGaugeDisplayComponent } from './tank-monitoring/components/liquid-gauge-display/liquid-gauge-display.component';
@@ -57,10 +59,12 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
 @NgModule({
   declarations: [
     // Main Components
+    GdtDashboardComponent,
     TankMonitoringComponent,
     TankConfigurationComponent,
     GdtUserManagementComponent,
     AddTenantUserDialogComponent,
+    GatewayConfigurationComponent,
     // Tank Monitoring Subcomponents
     LiquidGaugeDisplayComponent,
     CylinderGaugeComponent,
