@@ -15,69 +15,63 @@
     limitations under the License.
 
 -->
-<div class="tb-absolute-fill">
-  <mat-toolbar color="primary">
-    <h2>
-      <mat-icon class="tb-mat-20">science</mat-icon>
-      <span>Análisis de Laboratorio</span>
-    </h2>
-    <span fxFlex></span>
-    <button mat-icon-button
-            matTooltip="Ayuda"
-            matTooltipPosition="below">
-      <mat-icon>help_outline</mat-icon>
-    </button>
-  </mat-toolbar>
-
-  <div class="mat-content tb-form-panel no-border no-padding" fxLayout="column">
-    <div class="mat-content" fxLayout="column" fxFlex>
-      
-      <!-- Tank Selector -->
-      <div class="tb-form-panel stroked" style="margin: 16px;">
-        <div class="tb-form-panel-title">Seleccionar Tanque</div>
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px">
-          <mat-form-field fxFlex appearance="outline" class="mat-block">
-            <mat-label>Tanque</mat-label>
-            <mat-select [(value)]="selectedTank"
-                        (selectionChange)="onTankSelected($event.value)"
-                        [disabled]="loading">
-              <mat-option *ngFor="let tank of tanks" [value]="tank">
-                {{ tank.attributes.tankTag || tank.asset.name }} - {{ tank.attributes.productName || 'Sin producto' }}
-              </mat-option>
-            </mat-select>
-            <mat-icon matSuffix>storage</mat-icon>
-            <mat-progress-spinner *ngIf="loading"
-                                  mode="indeterminate"
-                                  diameter="20"
-                                  matSuffix>
-            </mat-progress-spinner>
-          </mat-form-field>
+<div class="gdt-laboratorio">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <mat-icon class="header-icon">science</mat-icon>
+        <div>
+          <h1>Análisis de Laboratorio</h1>
+          <p class="subtitle">Registre y consulte análisis de laboratorio por tanque</p>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Main Content -->
-      <div fxLayout="row" fxLayoutGap="16px" style="padding: 0 16px 16px 16px;" fxFlex>
-        
-        <!-- Left Panel: Form -->
-        <div fxFlex="40" fxLayout="column">
-          <tb-lab-form 
-            [selectedTank]="selectedTank"
-            [widgetContext]="widgetContext"
-            (analysisSaved)="onAnalysisSaved($event)">
-          </tb-lab-form>
-        </div>
+  <!-- Tank Selector -->
+  <div class="tank-selector-panel">
+    <div class="panel-header">
+      <h3>Seleccionar Tanque</h3>
+    </div>
+    <div class="panel-content">
+      <mat-form-field appearance="outline" class="tank-select-field">
+        <mat-label>Tanque</mat-label>
+        <mat-select [(value)]="selectedTank"
+                    (selectionChange)="onTankSelected($event.value)"
+                    [disabled]="loading">
+          <mat-option *ngFor="let tank of tanks" [value]="tank">
+            {{ tank.attributes.tankTag || tank.asset.name }} - {{ tank.attributes.productName || 'Sin producto' }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matSuffix>storage</mat-icon>
+        <mat-progress-spinner *ngIf="loading"
+                              mode="indeterminate"
+                              diameter="20"
+                              matSuffix>
+        </mat-progress-spinner>
+      </mat-form-field>
+    </div>
+  </div>
 
-        <!-- Right Panel: History -->
-        <div fxFlex="60" fxLayout="column">
-          <tb-lab-history
-            [selectedTank]="selectedTank"
-            [analysisHistory]="analysisHistory"
-            [loading]="loadingHistory">
-          </tb-lab-history>
-        </div>
+  <!-- Main Content -->
+  <div class="content-panels" fxLayout="row" fxLayoutGap="24px">
+    <!-- Left Panel: Form -->
+    <div fxFlex="40" fxLayout="column">
+      <tb-lab-form
+        [selectedTank]="selectedTank"
+        [widgetContext]="widgetContext"
+        (analysisSaved)="onAnalysisSaved($event)">
+      </tb-lab-form>
+    </div>
 
-      </div>
-
+    <!-- Right Panel: History -->
+    <div fxFlex="60" fxLayout="column">
+      <tb-lab-history
+        [selectedTank]="selectedTank"
+        [analysisHistory]="analysisHistory"
+        [loading]="loadingHistory">
+      </tb-lab-history>
     </div>
   </div>
 </div>

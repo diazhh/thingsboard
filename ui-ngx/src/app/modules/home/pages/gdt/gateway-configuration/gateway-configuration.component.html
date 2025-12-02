@@ -23,21 +23,31 @@
         <mat-icon class="header-icon">router</mat-icon>
         <div>
           <h1>Configuración del Gateway</h1>
-          <p class="subtitle">Gestione el gateway MQTT para comunicación con los radares</p>
+          <p class="subtitle">Gestione el gateway MQTT y puertos seriales</p>
         </div>
-      </div>
-      <div class="header-actions">
-        <button mat-raised-button color="primary" (click)="toggleCreateForm()" *ngIf="!gateway && !showCreateForm">
-          <mat-icon>add</mat-icon>
-          Crear Gateway
-        </button>
-        <button mat-button (click)="loadGateway()" *ngIf="!showCreateForm">
-          <mat-icon>refresh</mat-icon>
-          Actualizar
-        </button>
       </div>
     </div>
   </div>
+
+  <!-- Tabs -->
+  <mat-tab-group class="gateway-tabs">
+    <!-- Credentials Tab -->
+    <mat-tab label="Credenciales MQTT">
+      <ng-template matTabLabel>
+        <mat-icon class="tab-icon">vpn_key</mat-icon>
+        Credenciales MQTT
+      </ng-template>
+      <div class="tab-content">
+        <div class="tab-header-actions">
+          <button mat-raised-button color="primary" (click)="toggleCreateForm()" *ngIf="!gateway && !showCreateForm">
+            <mat-icon>add</mat-icon>
+            Crear Gateway
+          </button>
+          <button mat-button (click)="loadGateway()" *ngIf="!showCreateForm">
+            <mat-icon>refresh</mat-icon>
+            Actualizar
+          </button>
+        </div>
 
   <!-- Loading -->
   <div class="loading-container" *ngIf="isLoading">
@@ -294,4 +304,18 @@ MQTT_PORT=1883
 MQTT_ACCESS_TOKEN={{ showCredentials ? gateway.credentials.credentialsId : '********' }}</pre>
     </div>
   </div>
+      </div>
+    </mat-tab>
+
+    <!-- Port Manager Tab -->
+    <mat-tab label="Puertos Seriales">
+      <ng-template matTabLabel>
+        <mat-icon class="tab-icon">settings_input_component</mat-icon>
+        Puertos Seriales
+      </ng-template>
+      <div class="tab-content">
+        <tb-port-list></tb-port-list>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>

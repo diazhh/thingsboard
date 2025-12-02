@@ -34,6 +34,10 @@ import { BatchDetailDialogComponent } from './batch-management/components/batch-
 import { CloseBatchDialogComponent } from './batch-management/components/close-batch-dialog/close-batch-dialog.component';
 import { RecalculateBatchDialogComponent } from './batch-management/components/recalculate-batch-dialog/recalculate-batch-dialog.component';
 
+// Gateway Configuration Subcomponents
+import { PortListComponent } from './gateway-configuration/components/port-list/port-list.component';
+import { AddPortDialogComponent } from './gateway-configuration/components/add-port-dialog/add-port-dialog.component';
+
 // Tank Monitoring Subcomponents
 import { LiquidGaugeDisplayComponent } from './tank-monitoring/components/liquid-gauge-display/liquid-gauge-display.component';
 import { CylinderGaugeComponent } from './tank-monitoring/components/cylinder-gauge/cylinder-gauge.component';
@@ -74,6 +78,8 @@ import { BatchService } from './shared/services/batch.service';
 import { BatchMockService } from './shared/services/batch-mock.service';
 import { BatchCalculationService } from './shared/services/batch-calculation.service';
 import { ManualTelemetryService } from './tank-monitoring/services/manual-telemetry.service';
+import { GatewayApiService } from './shared/services/gateway-api.service';
+import { BatchPdfService } from './shared/services/batch-pdf.service';
 
 @NgModule({
   declarations: [
@@ -91,6 +97,9 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     BatchDetailDialogComponent,
     CloseBatchDialogComponent,
     RecalculateBatchDialogComponent,
+    // Gateway Configuration Subcomponents
+    PortListComponent,
+    AddPortDialogComponent,
     // Tank Monitoring Subcomponents
     LiquidGaugeDisplayComponent,
     CylinderGaugeComponent,
@@ -133,7 +142,10 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     // Batch Management Services
     BatchService,
     BatchMockService,
-    BatchCalculationService
+    BatchCalculationService,
+    BatchPdfService,
+    // Gateway Services
+    GatewayApiService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

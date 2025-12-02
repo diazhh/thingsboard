@@ -29,33 +29,90 @@
 /// limitations under the License.
 ///
 
-:host {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
+.gdt-laboratorio {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
 
-.tb-absolute-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-}
+  // Header
+  .page-header {
+    margin-bottom: 24px;
 
-mat-toolbar {
-  h2 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-    font-size: 20px;
-    font-weight: 500;
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .header-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #0d7377;
+        background: rgba(13, 115, 119, 0.1);
+        border-radius: 12px;
+        padding: 8px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #212529;
+      }
+
+      .subtitle {
+        margin: 4px 0 0 0;
+        font-size: 14px;
+        color: #6c757d;
+      }
+    }
   }
-}
 
-.mat-content {
-  overflow: auto;
+  // Tank Selector Panel
+  .tank-selector-panel {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    margin-bottom: 24px;
+    overflow: hidden;
+
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      background: #f8f9fa;
+
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #212529;
+      }
+    }
+
+    .panel-content {
+      padding: 20px;
+    }
+
+    .tank-select-field {
+      width: 100%;
+      max-width: 500px;
+
+      ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+    }
+  }
+
+  // Content Panels
+  .content-panels {
+    display: flex;
+    gap: 24px;
+  }
 }

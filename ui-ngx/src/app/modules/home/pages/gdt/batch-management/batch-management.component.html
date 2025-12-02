@@ -15,36 +15,36 @@
     limitations under the License.
 
 -->
-<div class="tb-absolute-fill">
-  <mat-toolbar color="primary">
-    <h2>
-      <mat-icon class="tb-mat-20">inventory_2</mat-icon>
-      <span>Gestión de Batches</span>
-    </h2>
-    <span fxFlex></span>
-    <button mat-raised-button
-            color="accent"
-            (click)="createBatch()">
-      <mat-icon>add</mat-icon>
-      Crear Batch
-    </button>
-    <button mat-icon-button
-            matTooltip="Exportar a CSV"
-            (click)="exportToCsv()"
-            [disabled]="filteredBatches.length === 0">
-      <mat-icon>download</mat-icon>
-    </button>
-    <button mat-icon-button
-            matTooltip="Ayuda"
-            matTooltipPosition="below">
-      <mat-icon>help_outline</mat-icon>
-    </button>
-  </mat-toolbar>
+<div class="gdt-batch-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <mat-icon class="header-icon">inventory_2</mat-icon>
+        <div>
+          <h1>Gestión de Batches</h1>
+          <p class="subtitle">Administre batches de recepción y despacho</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="createBatch()">
+          <mat-icon>add</mat-icon>
+          Crear Batch
+        </button>
+        <button mat-icon-button
+                matTooltip="Exportar a CSV"
+                (click)="exportToCsv()"
+                [disabled]="filteredBatches.length === 0">
+          <mat-icon>download</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
 
-  <div class="mat-content tb-form-panel no-border no-padding" fxLayout="column">
-    
+  <div class="content-container" fxLayout="column">
+
     <!-- Filters Panel -->
-    <div class="filters-panel" fxLayout="column" fxLayoutGap="16px">
+    <div class="filters-panel">
       <div class="filters-header">
         <h3>Filtros</h3>
         <button mat-icon-button
@@ -105,20 +105,18 @@
     </div>
 
     <!-- Batches Table -->
-    <div class="table-container" fxFlex>
-      <div *ngIf="loading" class="loading-overlay">
-        <mat-spinner diameter="40"></mat-spinner>
-      </div>
+    <div class="table-container">
+      <mat-progress-bar *ngIf="loading" mode="indeterminate" color="primary"></mat-progress-bar>
 
       <div *ngIf="!loading && filteredBatches.length === 0" class="no-data-message">
         <mat-icon>inbox</mat-icon>
         <p>No hay batches que coincidan con los filtros</p>
       </div>
 
-      <table mat-table
-             [dataSource]="filteredBatches"
-             *ngIf="!loading && filteredBatches.length > 0"
-             class="mat-elevation-z0">
+      <div class="table-wrapper" *ngIf="!loading && filteredBatches.length > 0">
+        <table mat-table
+               [dataSource]="filteredBatches"
+               class="batches-table">
 
         <!-- Batch Number Column -->
         <ng-container matColumnDef="batchNumber">
@@ -213,9 +211,10 @@
           </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
     </div>
 
   </div>

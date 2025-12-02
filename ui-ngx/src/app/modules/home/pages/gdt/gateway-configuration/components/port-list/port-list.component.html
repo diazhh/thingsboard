@@ -1,0 +1,210 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="port-list-container">
+  <!-- Gateway Status Card -->
+  <div class="status-card" *ngIf="gatewayStatus">
+    <div class="status-header">
+      <mat-icon [class.running]="gatewayStatus.running" [class.stopped]="!gatewayStatus.running">
+        {{ gatewayStatus.running ? 'check_circle' : 'cancel' }}
+      </mat-icon>
+      <div>
+        <h3>Estado del Gateway</h3>
+        <span class="status-label" [class.running]="gatewayStatus.running">
+          {{ gatewayStatus.running ? 'En Ejecución' : 'Detenido' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="status-metrics">
+      <div class="metric">
+        <span class="metric-value">{{ gatewayStatus.total_ports }}</span>
+        <span class="metric-label">Total</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value connected">{{ gatewayStatus.connected_ports }}</span>
+        <span class="metric-label">Conectados</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value enabled">{{ gatewayStatus.enabled_ports }}</span>
+        <span class="metric-label">Habilitados</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value disabled">{{ gatewayStatus.disabled_ports }}</span>
+        <span class="metric-label">Deshabilitados</span>
+      </div>
+      <div class="metric" *ngIf="gatewayStatus.error_ports > 0">
+        <span class="metric-value error">{{ gatewayStatus.error_ports }}</span>
+        <span class="metric-label">Con Error</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="section-header">
+    <div class="header-content">
+      <h2>
+        <mat-icon>settings_input_component</mat-icon>
+        Puertos Seriales
+      </h2>
+      <p class="subtitle">Gestione los puertos seriales para comunicación con radares</p>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="openAddPortDialog()">
+        <mat-icon>add</mat-icon>
+        Agregar Puerto
+      </button>
+      <button mat-icon-button (click)="refreshPorts()" matTooltip="Actualizar">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && dataSource.data.length === 0">
+    <mat-icon>settings_input_component</mat-icon>
+    <h3>No hay puertos configurados</h3>
+    <p>Agregue un puerto serial para comenzar a comunicarse con los radares TRL2.</p>
+    <button mat-raised-button color="primary" (click)="openAddPortDialog()">
+      <mat-icon>add</mat-icon>
+      Agregar Puerto
+    </button>
+  </div>
+
+  <!-- Ports Table -->
+  <div class="table-container" *ngIf="!isLoading && dataSource.data.length > 0">
+    <table mat-table [dataSource]="dataSource" class="ports-table">
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let port">
+          <div class="port-name-cell">
+            <strong>{{ port.name }}</strong>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Device Column -->
+      <ng-container matColumnDef="device">
+        <th mat-header-cell *matHeaderCellDef>Dispositivo</th>
+        <td mat-cell *matCellDef="let port">
+          <code class="device-path">{{ port.device }}</code>
+        </td>
+      </ng-container>
+
+      <!-- Protocol Column -->
+      <ng-container matColumnDef="protocol">
+        <th mat-header-cell *matHeaderCellDef>Protocolo</th>
+        <td mat-cell *matCellDef="let port">
+          <span class="protocol-badge">{{ port.protocol }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Baudrate Column -->
+      <ng-container matColumnDef="baudrate">
+        <th mat-header-cell *matHeaderCellDef>Baudrate</th>
+        <td mat-cell *matCellDef="let port">
+          {{ port.baudrate }}
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let port">
+          <div class="status-cell">
+            <mat-icon
+              [class]="'status-icon ' + getStatusColor(port.status)"
+              [matTooltip]="port.last_error || getStatusLabel(port.status)">
+              {{ getStatusIcon(port.status) }}
+            </mat-icon>
+            <span class="status-label">{{ getStatusLabel(port.status) }}</span>
+          </div>
+          <div class="connection-info" *ngIf="port.connected_at">
+            <small>Conectado: {{ formatTimestamp(port.connected_at) }}</small>
+          </div>
+          <div class="error-info" *ngIf="port.last_error">
+            <small class="error-text">{{ port.last_error }}</small>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Description Column -->
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Descripción</th>
+        <td mat-cell *matCellDef="let port">
+          <span class="description-text">{{ port.description || 'Sin descripción' }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="actions-header">Acciones</th>
+        <td mat-cell *matCellDef="let port" class="actions-cell">
+          <button mat-icon-button
+            [color]="port.enabled ? 'primary' : 'accent'"
+            (click)="togglePortEnabled(port)"
+            [matTooltip]="port.enabled ? 'Deshabilitar' : 'Habilitar'">
+            <mat-icon>{{ port.enabled ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+          </button>
+
+          <button mat-icon-button
+            color="accent"
+            (click)="openEditPortDialog(port)"
+            matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+
+          <button mat-icon-button
+            color="warn"
+            (click)="deletePort(port)"
+            matTooltip="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="port-row"></tr>
+    </table>
+  </div>
+
+  <!-- Available Ports Info -->
+  <div class="available-ports-info" *ngIf="availablePorts.length > 0">
+    <details>
+      <summary>
+        <mat-icon>usb</mat-icon>
+        <span>Puertos disponibles en el sistema ({{ availablePorts.length }})</span>
+      </summary>
+      <div class="available-ports-list">
+        <div class="available-port-item" *ngFor="let port of availablePorts">
+          <code>{{ port.device }}</code>
+          <span class="port-description">{{ port.description }}</span>
+          <span class="port-details" *ngIf="port.manufacturer !== 'Unknown'">
+            {{ port.manufacturer }} - {{ port.product }}
+          </span>
+        </div>
+      </div>
+    </details>
+  </div>
+</div>

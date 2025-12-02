@@ -34,6 +34,7 @@ import {
   GaugeReading
 } from '../models/batch.model';
 import { BatchMockService } from './batch-mock.service';
+import { BatchPdfService } from './batch-pdf.service';
 import { AttributeService } from '@core/http/attribute.service';
 import { AttributeScope } from '@shared/models/telemetry/telemetry.models';
 import { TankAssetService } from './tank-asset.service';
@@ -58,7 +59,9 @@ export class BatchService {
 
   private readonly USE_MOCK = false; // Using ThingsBoard attributes for persistence
   private readonly USE_PERSISTENT_STORAGE = true; // Store in tank attributes
+  private readonly USE_BACKEND_PDF = true; // Use backend Java PDF generation (false = frontend jsPDF)
   private apiUrl = '/api/gdt/batches';
+  private gdtApiUrl = '/api/gdt/batch'; // GDT backend API
   
   private batchesSubject = new BehaviorSubject<Batch[]>([]);
   public batches$ = this.batchesSubject.asObservable();
@@ -71,6 +74,7 @@ export class BatchService {
   constructor(
     private http: HttpClient,
     private mockService: BatchMockService,
+    private pdfService: BatchPdfService,
     private attributeService: AttributeService,
     private tankAssetService: TankAssetService
   ) {
@@ -617,15 +621,49 @@ export class BatchService {
     if (this.USE_MOCK) {
       return this.mockService.downloadBatchReport(batchId);
     }
-    
-    return this.http.get(`${this.apiUrl}/${batchId}/report`, {
-      responseType: 'blob'
-    }).pipe(
-      catchError(error => {
-        console.error('Error downloading report:', error);
-        throw error;
-      })
-    );
+
+    // Use backend PDF generation if enabled
+    if (this.USE_BACKEND_PDF) {
+      console.log('[BatchService] Using backend Java PDF generation');
+      return this.http.get(`${this.gdtApiUrl}/${batchId}/pdf`, {
+        responseType: 'blob'
+      }).pipe(
+        catchError(error => {
+          console.error('Error downloading PDF from backend:', error);
+          // Fallback to frontend generation if backend fails
+          console.log('[BatchService] Backend failed, falling back to frontend PDF generation');
+          return this.generateFrontendPdf(batchId);
+        })
+      );
+    }
+
+    // Use frontend PDF generation
+    return this.generateFrontendPdf(batchId);
+  }
+
+  /**
+   * Generate PDF using frontend jsPDF library
+   */
+  private generateFrontendPdf(batchId: string): Observable<Blob> {
+    console.log('[BatchService] Using frontend jsPDF generation');
+
+    const batch = this.batchesSubject.value.find(b => b.id === batchId);
+    if (!batch) {
+      return throwError(() => new Error('Batch not found'));
+    }
+
+    // Generate PDF using the PDF service
+    return new Observable(observer => {
+      this.pdfService.generateBatchPdf(batch)
+        .then(blob => {
+          observer.next(blob);
+          observer.complete();
+        })
+        .catch(error => {
+          console.error('Error generating PDF:', error);
+          observer.error(error);
+        });
+    });
   }
 
   /**
