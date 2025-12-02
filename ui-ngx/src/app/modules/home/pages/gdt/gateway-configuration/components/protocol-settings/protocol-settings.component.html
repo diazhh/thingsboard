@@ -1,0 +1,189 @@
+<!--
+  Copyright © 2024 GDT - Grupo de Desarrollo Tecnológico
+  Licensed under the Apache License, Version 2.0
+-->
+
+<form [formGroup]="form" class="protocol-settings-form">
+  <!-- Modbus RTU Settings -->
+  <ng-container *ngIf="protocol === ProtocolType.MODBUS_RTU">
+    <h3 class="settings-title">Modbus RTU Configuration</h3>
+    
+    <mat-form-field class="full-width">
+      <mat-label>Serial Device</mat-label>
+      <mat-select formControlName="device">
+        <mat-option *ngFor="let port of availablePorts" [value]="port.device">
+          {{ port.device }} ({{ port.description }})
+        </mat-option>
+      </mat-select>
+      <mat-hint>Select the serial port for communication</mat-hint>
+      <mat-error *ngIf="hasError('device', 'required')">Device is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Baudrate</mat-label>
+      <mat-select formControlName="baudrate">
+        <mat-option *ngFor="let br of baudrates" [value]="br">
+          {{ br }} bps
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="hasError('baudrate', 'required')">Baudrate is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Parity</mat-label>
+      <mat-select formControlName="parity">
+        <mat-option *ngFor="let p of parities" [value]="p">
+          {{ p === 'N' ? 'None' : p === 'E' ? 'Even' : p === 'O' ? 'Odd' : p }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="hasError('parity', 'required')">Parity is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Data Bits</mat-label>
+      <mat-select formControlName="bytesize">
+        <mat-option [value]="7">7</mat-option>
+        <mat-option [value]="8">8</mat-option>
+      </mat-select>
+      <mat-error *ngIf="hasError('bytesize', 'required')">Data bits required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Stop Bits</mat-label>
+      <mat-select formControlName="stopbits">
+        <mat-option *ngFor="let sb of stopbits" [value]="sb">
+          {{ sb }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="hasError('stopbits', 'required')">Stop bits required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Timeout (seconds)</mat-label>
+      <input matInput type="number" formControlName="timeout" step="0.1" min="0.1">
+      <mat-hint>Communication timeout in seconds</mat-hint>
+      <mat-error *ngIf="hasError('timeout', 'required')">Timeout is required</mat-error>
+      <mat-error *ngIf="hasError('timeout', 'min')">Timeout must be at least 0.1</mat-error>
+    </mat-form-field>
+  </ng-container>
+
+  <!-- Modbus TCP Settings -->
+  <ng-container *ngIf="protocol === ProtocolType.MODBUS_TCP">
+    <h3 class="settings-title">Modbus TCP Configuration</h3>
+    
+    <mat-form-field class="full-width">
+      <mat-label>Host</mat-label>
+      <input matInput formControlName="host" placeholder="localhost or IP address">
+      <mat-hint>IP address or hostname of the Modbus server</mat-hint>
+      <mat-error *ngIf="hasError('host', 'required')">Host is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Port</mat-label>
+      <input matInput type="number" formControlName="port" min="1" max="65535">
+      <mat-hint>TCP port (default: 502)</mat-hint>
+      <mat-error *ngIf="hasError('port', 'required')">Port is required</mat-error>
+      <mat-error *ngIf="hasError('port', 'min') || hasError('port', 'max')">Port must be 1-65535</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Unit ID</mat-label>
+      <input matInput type="number" formControlName="unitId" min="0" max="247">
+      <mat-hint>Modbus unit identifier (0-247)</mat-hint>
+      <mat-error *ngIf="hasError('unitId', 'required')">Unit ID is required</mat-error>
+      <mat-error *ngIf="hasError('unitId', 'min') || hasError('unitId', 'max')">Unit ID must be 0-247</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Timeout (seconds)</mat-label>
+      <input matInput type="number" formControlName="timeout" step="0.1" min="0.1">
+      <mat-hint>Communication timeout in seconds</mat-hint>
+      <mat-error *ngIf="hasError('timeout', 'required')">Timeout is required</mat-error>
+      <mat-error *ngIf="hasError('timeout', 'min')">Timeout must be at least 0.1</mat-error>
+    </mat-form-field>
+  </ng-container>
+
+  <!-- Enraf GPU Settings -->
+  <ng-container *ngIf="protocol === ProtocolType.ENRAF_GPU">
+    <h3 class="settings-title">Enraf GPU Configuration</h3>
+    
+    <mat-form-field class="full-width">
+      <mat-label>Serial Device</mat-label>
+      <mat-select formControlName="device">
+        <mat-option *ngFor="let port of availablePorts" [value]="port.device">
+          {{ port.device }} ({{ port.description }})
+        </mat-option>
+      </mat-select>
+      <mat-hint>Select the serial port for communication</mat-hint>
+      <mat-error *ngIf="hasError('device', 'required')">Device is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Baudrate</mat-label>
+      <mat-select formControlName="baudrate">
+        <mat-option *ngFor="let br of baudrates" [value]="br">
+          {{ br }} bps
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="hasError('baudrate', 'required')">Baudrate is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Device Address</mat-label>
+      <input matInput type="number" formControlName="address" min="1" max="247">
+      <mat-hint>Enraf device address (1-247)</mat-hint>
+      <mat-error *ngIf="hasError('address', 'required')">Address is required</mat-error>
+      <mat-error *ngIf="hasError('address', 'min') || hasError('address', 'max')">Address must be 1-247</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Timeout (seconds)</mat-label>
+      <input matInput type="number" formControlName="timeout" step="0.1" min="0.1">
+      <mat-hint>Communication timeout in seconds</mat-hint>
+      <mat-error *ngIf="hasError('timeout', 'required')">Timeout is required</mat-error>
+      <mat-error *ngIf="hasError('timeout', 'min')">Timeout must be at least 0.1</mat-error>
+    </mat-form-field>
+  </ng-container>
+
+  <!-- Varec Mark/Space Settings -->
+  <ng-container *ngIf="protocol === ProtocolType.VAREC_MARKSPACE">
+    <h3 class="settings-title">Varec Mark/Space Configuration</h3>
+    
+    <mat-form-field class="full-width">
+      <mat-label>Serial Device</mat-label>
+      <mat-select formControlName="device">
+        <mat-option *ngFor="let port of availablePorts" [value]="port.device">
+          {{ port.device }} ({{ port.description }})
+        </mat-option>
+      </mat-select>
+      <mat-hint>Select the serial port for communication</mat-hint>
+      <mat-error *ngIf="hasError('device', 'required')">Device is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Baudrate</mat-label>
+      <mat-select formControlName="baudrate">
+        <mat-option *ngFor="let br of baudrates" [value]="br">
+          {{ br }} bps
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="hasError('baudrate', 'required')">Baudrate is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Device Address</mat-label>
+      <input matInput type="number" formControlName="address" min="1" max="247">
+      <mat-hint>Varec device address (1-247)</mat-hint>
+      <mat-error *ngIf="hasError('address', 'required')">Address is required</mat-error>
+      <mat-error *ngIf="hasError('address', 'min') || hasError('address', 'max')">Address must be 1-247</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="half-width">
+      <mat-label>Timeout (seconds)</mat-label>
+      <input matInput type="number" formControlName="timeout" step="0.1" min="0.1">
+      <mat-hint>Communication timeout in seconds</mat-hint>
+      <mat-error *ngIf="hasError('timeout', 'required')">Timeout is required</mat-error>
+      <mat-error *ngIf="hasError('timeout', 'min')">Timeout must be at least 0.1</mat-error>
+    </mat-form-field>
+  </ng-container>
+</form>

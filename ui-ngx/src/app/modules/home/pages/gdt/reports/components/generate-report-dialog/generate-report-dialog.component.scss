@@ -1,0 +1,137 @@
+.generate-report-dialog {
+  min-width: 600px;
+
+  h2[mat-dialog-title] {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 16px 0;
+    font-size: 24px;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: var(--mdc-theme-primary);
+    }
+  }
+
+  mat-dialog-content {
+    padding: 0 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+
+    .report-description {
+      margin: 0 0 24px 0;
+      padding: 12px;
+      background-color: rgba(0, 0, 0, 0.04);
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--mdc-theme-text-secondary-on-background);
+    }
+
+    .report-form {
+      .full-width {
+        width: 100%;
+        margin-bottom: 16px;
+      }
+
+      .parameters-section {
+        margin: 24px 0;
+
+        h3 {
+          margin: 0 0 16px 0;
+          font-size: 18px;
+          font-weight: 500;
+          color: var(--mdc-theme-text-primary-on-background);
+        }
+
+        .checkbox-field {
+          margin-bottom: 16px;
+        }
+      }
+
+      .advanced-options {
+        margin: 24px 0;
+
+        mat-expansion-panel-header {
+          mat-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            mat-icon {
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
+            }
+          }
+        }
+
+        .full-width {
+          margin-top: 16px;
+        }
+      }
+
+      .info-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        margin-top: 24px;
+        background-color: rgba(33, 150, 243, 0.1);
+        border-left: 4px solid #2196f3;
+        border-radius: 4px;
+        font-size: 14px;
+        color: var(--mdc-theme-text-primary-on-background);
+
+        mat-icon {
+          color: #2196f3;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+  }
+
+  mat-dialog-actions {
+    padding: 16px 24px;
+    margin: 0;
+
+    button {
+      mat-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .generate-report-dialog {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
+// Dark Mode Support
+:host-context(.dark-theme) {
+  .generate-report-dialog {
+    mat-dialog-content {
+      .report-description {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .report-form {
+        .info-box {
+          background-color: rgba(33, 150, 243, 0.15);
+          color: rgba(255, 255, 255, 0.87);
+        }
+      }
+    }
+  }
+}

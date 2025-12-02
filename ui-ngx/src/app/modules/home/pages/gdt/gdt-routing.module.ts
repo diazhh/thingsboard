@@ -26,6 +26,7 @@ import { GatewayConfigurationComponent } from './gateway-configuration/gateway-c
 import { AforoManualComponent } from './aforo-manual/aforo-manual.component';
 import { LaboratorioComponent } from './laboratorio/laboratorio.component';
 import { BatchManagementComponent } from './batch-management/batch-management.component';
+import { ReportsComponent } from './reports/reports.component';
 
 const routes: Routes = [
   {
@@ -179,6 +180,24 @@ const routes: Routes = [
             menuId: 'gdt_batch_management' as any,
             label: 'Gestión de Batches',
             icon: 'inventory_2'
+          }
+        }
+      },
+      {
+        path: 'reports',
+        component: ReportsComponent,
+        data: {
+          auth: [
+            Authority.SYS_ADMIN,
+            Authority.TENANT_ADMIN,
+            Authority.INGENIERO,
+            Authority.REPORTES
+          ],
+          title: 'gdt.reports',
+          breadcrumb: {
+            menuId: 'gdt_reports' as any,
+            label: 'Reports & Analytics',
+            icon: 'assessment'
           }
         }
       },

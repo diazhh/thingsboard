@@ -1,0 +1,172 @@
+<!--
+  Copyright © 2024 GDT - Grupo de Desarrollo Tecnológico
+  Licensed under the Apache License, Version 2.0
+-->
+
+<div class="monitoring-dashboard">
+  <!-- Header with Controls -->
+  <mat-toolbar class="dashboard-toolbar">
+    <h2>Gateway Monitoring Dashboard</h2>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="toggleMonitoring()" [color]="isMonitoring ? 'accent' : ''">
+      <mat-icon>{{ isMonitoring ? 'pause_circle_filled' : 'play_circle_filled' }}</mat-icon>
+    </button>
+    <mat-icon class="status-indicator" [ngClass]="isMonitoring ? 'monitoring' : 'paused'">
+      {{ isMonitoring ? 'fiber_manual_record' : 'fiber_manual_record' }}
+    </mat-icon>
+  </mat-toolbar>
+
+  <div class="dashboard-content" *ngIf="monitoringState">
+    <!-- Gateway Metrics -->
+    <div class="metrics-grid">
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon>schedule</mat-icon>
+          <mat-card-title>Uptime</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value">{{ formatUptime(getGatewayMetrics()?.uptime || 0) }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon>memory</mat-icon>
+          <mat-card-title>CPU Usage</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value">{{ getGatewayMetrics()?.cpuUsage.toFixed(1) || 0 }}%</div>
+          <mat-progress-bar mode="determinate" [value]="getGatewayMetrics()?.cpuUsage || 0"></mat-progress-bar>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon>storage</mat-icon>
+          <mat-card-title>Memory Usage</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value">{{ getGatewayMetrics()?.memoryUsage.toFixed(1) || 0 }}%</div>
+          <mat-progress-bar mode="determinate" [value]="getGatewayMetrics()?.memoryUsage || 0"></mat-progress-bar>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon>router</mat-icon>
+          <mat-card-title>Active Ports</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value">{{ getGatewayMetrics()?.activePorts || 0 }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon>devices</mat-icon>
+          <mat-card-title>Total Devices</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value">{{ getGatewayMetrics()?.totalDevices || 0 }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <mat-card-header>
+          <mat-icon>error_outline</mat-icon>
+          <mat-card-title>Total Errors</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value error">{{ getGatewayMetrics()?.totalErrors || 0 }}</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Ports Status -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Port Status</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="ports-grid">
+          <div class="port-item" *ngFor="let port of getPorts()" [ngClass]="getPortStatusClass(port)">
+            <mat-icon class="port-icon">{{ getPortStatusIcon(port) }}</mat-icon>
+            <div class="port-info">
+              <div class="port-name">{{ port.name }}</div>
+              <div class="port-protocol">{{ port.protocol }}</div>
+              <div class="port-stats">
+                <span>↓ {{ formatBytes(port.bytesReceived) }}</span>
+                <span>↑ {{ formatBytes(port.bytesSent) }}</span>
+                <span class="error-count" *ngIf="port.errorCount > 0">⚠ {{ port.errorCount }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Devices Status -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Device Status</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-table [dataSource]="getDevices()" class="devices-table">
+          <!-- Device Name Column -->
+          <ng-container matColumnDef="name">
+            <mat-header-cell *matHeaderCellDef>Device</mat-header-cell>
+            <mat-cell *matCellDef="let device">{{ device.deviceName }}</mat-cell>
+          </ng-container>
+
+          <!-- Port Column -->
+          <ng-container matColumnDef="port">
+            <mat-header-cell *matHeaderCellDef>Port</mat-header-cell>
+            <mat-cell *matCellDef="let device">{{ device.portName }}</mat-cell>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+            <mat-cell *matCellDef="let device" [ngClass]="'status-' + device.status">
+              <mat-icon>{{ getDeviceStatusIcon(device) }}</mat-icon>
+              {{ device.status }}
+            </mat-cell>
+          </ng-container>
+
+          <!-- Read Count Column -->
+          <ng-container matColumnDef="reads">
+            <mat-header-cell *matHeaderCellDef>Reads</mat-header-cell>
+            <mat-cell *matCellDef="let device">{{ device.readCount }}</mat-cell>
+          </ng-container>
+
+          <!-- Errors Column -->
+          <ng-container matColumnDef="errors">
+            <mat-header-cell *matHeaderCellDef>Errors</mat-header-cell>
+            <mat-cell *matCellDef="let device" [ngClass]="device.errorCount > 0 ? 'error' : ''">
+              {{ device.errorCount }}
+            </mat-cell>
+          </ng-container>
+
+          <!-- Response Time Column -->
+          <ng-container matColumnDef="latency">
+            <mat-header-cell *matHeaderCellDef>Avg Latency</mat-header-cell>
+            <mat-cell *matCellDef="let device">{{ device.averageResponseTime }}ms</mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="['name', 'port', 'status', 'reads', 'errors', 'latency']"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: ['name', 'port', 'status', 'reads', 'errors', 'latency'];"></mat-row>
+        </mat-table>
+
+        <div class="no-data" *ngIf="getDevices().length === 0">
+          No devices connected
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="!monitoringState">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading monitoring data...</p>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+<!-- Copyright © 2016-2025 The Thingsboard Authors -->
+
+<div class="dialog-container">
+  <h2 mat-dialog-title>
+    <mat-icon>add_circle</mat-icon>
+    Provisionar Dispositivo
+  </h2>
+
+  <mat-dialog-content>
+    <div class="device-info">
+      <h3>Dispositivo Descubierto</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Tipo:</span>
+          <span class="value">{{ getDeviceTypeLabel() }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Dirección:</span>
+          <span class="value">{{ device.address }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Baudrate:</span>
+          <span class="value">{{ device.baudrate }} bps</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Puerto:</span>
+          <span class="value">{{ device.port_name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="provisionForm">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre del Asset</mat-label>
+        <input matInput formControlName="asset_name">
+        <mat-icon matPrefix>label</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Etiqueta</mat-label>
+        <input matInput formControlName="asset_label">
+        <mat-icon matPrefix>bookmark</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>ID del Tanque (opcional)</mat-label>
+        <input matInput formControlName="tank_id">
+        <mat-icon matPrefix>water</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput formControlName="description" rows="3"></textarea>
+        <mat-icon matPrefix>description</mat-icon>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="isProvisioning">Cancelar</button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="provisionForm.invalid || isProvisioning">
+      <mat-spinner *ngIf="isProvisioning" diameter="20"></mat-spinner>
+      <mat-icon *ngIf="!isProvisioning">add_circle</mat-icon>
+      {{ isProvisioning ? 'Provisionando...' : 'Provisionar' }}
+    </button>
+  </mat-dialog-actions>
+</div>

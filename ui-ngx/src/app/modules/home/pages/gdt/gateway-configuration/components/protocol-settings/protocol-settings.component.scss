@@ -1,0 +1,83 @@
+/*
+ * Copyright © 2024 GDT - Grupo de Desarrollo Tecnológico
+ * Licensed under the Apache License, Version 2.0
+ */
+
+.protocol-settings-form {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .settings-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+    margin: 8px 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #3f51b5;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .half-width {
+    width: calc(50% - 8px);
+
+    &:nth-child(odd) {
+      margin-right: 8px;
+    }
+
+    &:nth-child(even) {
+      margin-left: 8px;
+    }
+  }
+
+  mat-form-field {
+    display: inline-block;
+    vertical-align: top;
+
+    &.full-width {
+      margin-bottom: 8px;
+    }
+
+    &.half-width {
+      margin-bottom: 8px;
+    }
+  }
+
+  mat-hint {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  mat-error {
+    font-size: 12px;
+  }
+}
+
+// Responsive layout for smaller screens
+@media (max-width: 768px) {
+  .protocol-settings-form {
+    .half-width {
+      width: 100%;
+      margin-right: 0 !important;
+      margin-left: 0 !important;
+    }
+  }
+}
+
+// Dark mode support
+:host-context(.dark-mode) {
+  .protocol-settings-form {
+    .settings-title {
+      color: rgba(255, 255, 255, 0.87);
+      border-bottom-color: #5c6bc0;
+    }
+
+    mat-hint {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+}

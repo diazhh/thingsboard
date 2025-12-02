@@ -1,0 +1,44 @@
+<!--
+  Copyright © 2024 GDT - Grupo de Desarrollo Tecnológico
+  Licensed under the Apache License, Version 2.0
+-->
+
+<div class="protocol-selector-container">
+  <form [formGroup]="form">
+    <mat-form-field class="full-width">
+      <mat-label>Protocol</mat-label>
+      <mat-select formControlName="protocol" (selectionChange)="onProtocolChange($event.value)">
+        <mat-option *ngFor="let protocol of protocols" [value]="protocol.type">
+          <mat-icon class="protocol-icon">{{ getProtocolIcon(protocol) }}</mat-icon>
+          {{ protocol.name }}
+        </mat-option>
+      </mat-select>
+      <mat-hint>Select the communication protocol for your device</mat-hint>
+    </mat-form-field>
+  </form>
+
+  <!-- Protocol Information Card -->
+  <mat-card *ngIf="selectedProtocolInfo" class="protocol-info-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="protocol-icon-large">{{ getProtocolIcon(selectedProtocolInfo) }}</mat-icon>
+        {{ selectedProtocolInfo.name }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p class="protocol-description">{{ getProtocolDescription(selectedProtocolInfo) }}</p>
+
+      <div class="protocol-features">
+        <div class="feature" *ngIf="isSerialProtocol(selectedProtocolInfo)">
+          <mat-icon>usb</mat-icon>
+          <span>Serial Communication</span>
+        </div>
+        <div class="feature" *ngIf="isNetworkProtocol(selectedProtocolInfo)">
+          <mat-icon>cloud_queue</mat-icon>
+          <span>Network Communication</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

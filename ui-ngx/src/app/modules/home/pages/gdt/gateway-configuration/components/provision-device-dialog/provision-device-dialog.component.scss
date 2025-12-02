@@ -1,0 +1,61 @@
+/**
+ * Copyright © 2016-2025 The Thingsboard Authors
+ */
+
+.dialog-container {
+  min-width: 500px;
+}
+
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  mat-icon {
+    color: #1976d2;
+  }
+}
+
+.device-info {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+
+  h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .label {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .value {
+      font-weight: 600;
+      color: #333;
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-dialog-actions button mat-icon {
+  margin-right: 8px;
+}

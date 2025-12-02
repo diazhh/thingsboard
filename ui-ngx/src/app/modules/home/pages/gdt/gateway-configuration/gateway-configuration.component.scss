@@ -509,3 +509,29 @@
     }
   }
 }
+
+// ============================================================================
+// TABS STYLES
+// ============================================================================
+
+.gateway-tabs {
+  margin-top: 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+  ::ng-deep .mat-tab-label {
+    .tab-icon {
+      margin-right: 8px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .tab-content {
+    padding: 0;
+    min-height: 400px;
+  }
+}

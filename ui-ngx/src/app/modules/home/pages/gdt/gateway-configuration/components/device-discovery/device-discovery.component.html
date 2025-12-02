@@ -1,0 +1,246 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<div class="device-discovery-container">
+
+  <!-- Loading Spinner -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- Discovery Status Card -->
+  <div class="status-card" *ngIf="discoveryState">
+    <div class="status-header">
+      <mat-icon [style.color]="getStatusColor()">{{ getStatusIcon() }}</mat-icon>
+      <h3>{{ getStatusLabel() }}</h3>
+    </div>
+    
+    <div class="status-progress" *ngIf="isDiscoveryRunning()">
+      <mat-progress-bar 
+        mode="determinate" 
+        [value]="discoveryState.progress">
+      </mat-progress-bar>
+      <div class="progress-info">
+        <span>{{ discoveryState.progress }}% completado</span>
+        <span *ngIf="discoveryState.current_address">
+          Escaneando dirección {{ discoveryState.current_address }} &#64; {{ discoveryState.current_baudrate }} bps
+        </span>
+      </div>
+    </div>
+
+    <div class="status-summary" *ngIf="!isDiscoveryRunning() && discoveryState.devices_found !== undefined">
+      <div class="summary-item">
+        <mat-icon>devices</mat-icon>
+        <span>{{ discoveryState.devices_found }} dispositivo(s) encontrado(s)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configuration Form -->
+  <div class="config-card">
+    <div class="card-header">
+      <mat-icon>settings</mat-icon>
+      <h3>Configuración de Discovery</h3>
+    </div>
+
+    <form [formGroup]="discoveryForm" class="discovery-form">
+      
+      <!-- Port Selection -->
+      <div class="form-section">
+        <h4>Puerto Serial</h4>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Seleccionar Puerto</mat-label>
+          <mat-select formControlName="port_name" [disabled]="isDiscoveryRunning()">
+            <mat-option *ngFor="let port of availablePorts" [value]="port.name">
+              <div class="port-option">
+                <strong>{{ port.name }}</strong>
+                <span class="port-device">{{ port.device }}</span>
+                <span class="port-protocol">{{ port.protocol }}</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>settings_input_component</mat-icon>
+          <mat-hint *ngIf="availablePorts.length === 0">No hay puertos disponibles. Configure un puerto primero.</mat-hint>
+          <mat-error *ngIf="hasError('port_name')">
+            {{ getErrorMessage('port_name') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Address Range -->
+      <div class="form-section">
+        <div class="section-header">
+          <h4>Rango de Direcciones Modbus</h4>
+          <div class="preset-buttons">
+            <button 
+              *ngFor="let preset of addressRangePresets"
+              mat-button 
+              type="button"
+              (click)="applyAddressRangePreset(preset)"
+              [disabled]="isDiscoveryRunning()">
+              {{ preset.label }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row two-columns">
+          <mat-form-field appearance="outline">
+            <mat-label>Dirección Inicial</mat-label>
+            <input matInput 
+                   type="number" 
+                   formControlName="start_address"
+                   min="1"
+                   max="247"
+                   [readonly]="isDiscoveryRunning()">
+            <mat-icon matPrefix>first_page</mat-icon>
+            <mat-error *ngIf="hasError('start_address')">
+              {{ getErrorMessage('start_address') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Dirección Final</mat-label>
+            <input matInput 
+                   type="number" 
+                   formControlName="end_address"
+                   min="1"
+                   max="247"
+                   [readonly]="isDiscoveryRunning()">
+            <mat-icon matPrefix>last_page</mat-icon>
+            <mat-error *ngIf="hasError('end_address')">
+              {{ getErrorMessage('end_address') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Baudrates -->
+      <div class="form-section">
+        <div class="section-header">
+          <h4>Baudrates a Probar</h4>
+          <div class="preset-buttons">
+            <button 
+              *ngFor="let preset of baudratePresets"
+              mat-button 
+              type="button"
+              (click)="applyBaudratePreset(preset)"
+              [disabled]="isDiscoveryRunning()">
+              {{ preset.label }}
+            </button>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Baudrates</mat-label>
+          <mat-select formControlName="baudrates" multiple [disabled]="isDiscoveryRunning()">
+            <mat-option [value]="4800">4800 bps</mat-option>
+            <mat-option [value]="9600">9600 bps</mat-option>
+            <mat-option [value]="19200">19200 bps</mat-option>
+            <mat-option [value]="38400">38400 bps</mat-option>
+            <mat-option [value]="57600">57600 bps</mat-option>
+            <mat-option [value]="115200">115200 bps</mat-option>
+            <mat-option [value]="230400">230400 bps</mat-option>
+          </mat-select>
+          <mat-icon matPrefix>speed</mat-icon>
+          <mat-hint>Seleccione uno o más baudrates</mat-hint>
+          <mat-error *ngIf="hasError('baudrates')">
+            {{ getErrorMessage('baudrates') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Advanced Options -->
+      <div class="form-section">
+        <h4>Opciones Avanzadas</h4>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Timeout por Dirección</mat-label>
+          <input matInput 
+                 type="number" 
+                 formControlName="timeout"
+                 step="0.1"
+                 min="0.1"
+                 max="5"
+                 [readonly]="isDiscoveryRunning()">
+          <span matSuffix>segundos</span>
+          <mat-icon matPrefix>timer</mat-icon>
+          <mat-hint>Tiempo de espera por cada dirección</mat-hint>
+          <mat-error *ngIf="hasError('timeout')">
+            {{ getErrorMessage('timeout') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Estimated Time -->
+      <div class="estimated-time">
+        <mat-icon>schedule</mat-icon>
+        <span>Tiempo estimado: <strong>{{ getEstimatedTime() }}</strong></span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="button"
+          (click)="startDiscovery()"
+          [disabled]="discoveryForm.invalid || isDiscoveryRunning() || availablePorts.length === 0">
+          <mat-icon>search</mat-icon>
+          Iniciar Discovery
+        </button>
+
+        <button 
+          mat-raised-button 
+          color="warn"
+          type="button"
+          (click)="cancelDiscovery()"
+          *ngIf="isDiscoveryRunning()">
+          <mat-icon>cancel</mat-icon>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Discovery Results -->
+  <div class="results-card" *ngIf="discoveredDevices.length > 0">
+    <div class="card-header">
+      <mat-icon>devices</mat-icon>
+      <h3>Dispositivos Encontrados ({{ discoveredDevices.length }})</h3>
+    </div>
+
+    <tb-discovery-results-table 
+      [devices]="discoveredDevices">
+    </tb-discovery-results-table>
+  </div>
+
+  <!-- No Results Message -->
+  <div class="no-results-card" *ngIf="discoveryState && !isDiscoveryRunning() && discoveredDevices.length === 0">
+    <mat-icon>search_off</mat-icon>
+    <h3>No se encontraron dispositivos</h3>
+    <p>Intente con diferentes parámetros de configuración:</p>
+    <ul>
+      <li>Amplíe el rango de direcciones</li>
+      <li>Pruebe con más baudrates</li>
+      <li>Aumente el timeout</li>
+      <li>Verifique las conexiones físicas</li>
+    </ul>
+  </div>
+
+</div>

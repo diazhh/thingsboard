@@ -1,0 +1,121 @@
+<div class="generate-report-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>{{ reportInfo.icon }}</mat-icon>
+    Generate {{ reportInfo.name }}
+  </h2>
+
+  <mat-dialog-content>
+    <p class="report-description">{{ reportInfo.description }}</p>
+
+    <form [formGroup]="reportForm" class="report-form">
+      <!-- Format Selection -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Output Format</mat-label>
+        <mat-select formControlName="format" required>
+          <mat-option *ngFor="let format of availableFormats" [value]="format">
+            {{ format.toUpperCase() }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>description</mat-icon>
+      </mat-form-field>
+
+      <!-- Dynamic Parameters -->
+      <div class="parameters-section">
+        <h3>Report Parameters</h3>
+
+        <!-- Iterate through required and optional parameters -->
+        <ng-container *ngFor="let param of reportInfo.requiredParameters.concat(reportInfo.optionalParameters)">
+          
+          <!-- Text Input -->
+          <mat-form-field *ngIf="getParameterType(param) === 'text'" appearance="outline" class="full-width">
+            <mat-label>{{ getParameterLabel(param) }}</mat-label>
+            <input matInput [formControlName]="param" [required]="isRequired(param)">
+            <mat-icon matPrefix>edit</mat-icon>
+          </mat-form-field>
+
+          <!-- Date Input -->
+          <mat-form-field *ngIf="getParameterType(param) === 'date'" appearance="outline" class="full-width">
+            <mat-label>{{ getParameterLabel(param) }}</mat-label>
+            <input matInput [matDatepicker]="picker" [formControlName]="param" 
+                   [required]="isRequired(param)" [max]="maxDate" [min]="minDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-icon matPrefix>calendar_today</mat-icon>
+          </mat-form-field>
+
+          <!-- Select Input -->
+          <mat-form-field *ngIf="getParameterType(param) === 'select'" appearance="outline" class="full-width">
+            <mat-label>{{ getParameterLabel(param) }}</mat-label>
+            <mat-select [formControlName]="param" [required]="isRequired(param)">
+              <mat-option *ngFor="let option of getParameterOptions(param)" [value]="option">
+                {{ option }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>list</mat-icon>
+          </mat-form-field>
+
+          <!-- Multi-select Input (for tankIds) -->
+          <mat-form-field *ngIf="getParameterType(param) === 'multiselect'" appearance="outline" class="full-width">
+            <mat-label>{{ getParameterLabel(param) }}</mat-label>
+            <mat-select [formControlName]="param" [required]="isRequired(param)" multiple>
+              <mat-option *ngFor="let tank of availableTanks" [value]="tank.id">
+                {{ tank.name }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>storage</mat-icon>
+          </mat-form-field>
+
+          <!-- Checkbox Input -->
+          <div *ngIf="getParameterType(param) === 'checkbox'" class="checkbox-field">
+            <mat-checkbox [formControlName]="param">
+              {{ getParameterLabel(param) }}
+            </mat-checkbox>
+          </div>
+
+        </ng-container>
+      </div>
+
+      <!-- Advanced Options -->
+      <mat-expansion-panel class="advanced-options">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>settings</mat-icon>
+            Advanced Options
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Locale</mat-label>
+          <mat-select formControlName="locale">
+            <mat-option value="en">English</mat-option>
+            <mat-option value="es">Español</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Timezone</mat-label>
+          <mat-select formControlName="timezone">
+            <mat-option value="UTC">UTC</mat-option>
+            <mat-option value="America/New_York">America/New_York</mat-option>
+            <mat-option value="America/Los_Angeles">America/Los_Angeles</mat-option>
+            <mat-option value="Europe/London">Europe/London</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <!-- Estimated Generation Time -->
+      <div class="info-box">
+        <mat-icon>info</mat-icon>
+        <span>Estimated generation time: ~{{ reportInfo.estimatedGenerationTime }} seconds</span>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="generate()" [disabled]="!reportForm.valid">
+      <mat-icon>play_arrow</mat-icon>
+      Generate Report
+    </button>
+  </mat-dialog-actions>
+</div>

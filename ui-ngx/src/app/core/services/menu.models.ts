@@ -115,6 +115,7 @@ export enum MenuId {
   gdt_aforo_manual = 'gdt_aforo_manual',
   gdt_laboratorio = 'gdt_laboratorio',
   gdt_batch_management = 'gdt_batch_management',
+  gdt_reports = 'gdt_reports',
   gdt_tank_configuration = 'gdt_tank_configuration',
   gdt_user_management = 'gdt_user_management',
   gdt_gateway_configuration = 'gdt_gateway_configuration'
@@ -868,6 +869,16 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
       path: '/gdt/batches',
       icon: 'inventory_2'
     }
+  ],
+  [
+    MenuId.gdt_reports,
+    {
+      id: MenuId.gdt_reports,
+      name: 'gdt.reports',
+      type: 'link',
+      path: '/gdt/reports',
+      icon: 'assessment'
+    }
   ]
 ]);
 
@@ -969,6 +980,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_aforo_manual},
           {id: MenuId.gdt_laboratorio},
           {id: MenuId.gdt_batch_management},
+          {id: MenuId.gdt_reports},
           {id: MenuId.gdt_tank_configuration},
           {id: MenuId.gdt_user_management},
           {id: MenuId.gdt_gateway_configuration}
@@ -1125,6 +1137,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_aforo_manual},
           {id: MenuId.gdt_laboratorio},
           {id: MenuId.gdt_batch_management},
+          {id: MenuId.gdt_reports},
           {id: MenuId.gdt_tank_configuration},
           {id: MenuId.gdt_user_management},
           {id: MenuId.gdt_gateway_configuration}
@@ -1148,6 +1161,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       {id: MenuId.dashboards},
       {id: MenuId.gdt_dashboard},
       {id: MenuId.gdt_tank_monitoring},
+      {id: MenuId.gdt_reports},
       {id: MenuId.audit_log}
     ]
   ],

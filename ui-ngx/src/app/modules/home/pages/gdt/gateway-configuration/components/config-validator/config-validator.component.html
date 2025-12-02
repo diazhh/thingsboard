@@ -1,0 +1,79 @@
+<!--
+  Copyright © 2024 GDT - Grupo de Desarrollo Tecnológico
+  Licensed under the Apache License, Version 2.0
+-->
+
+<div class="config-validator-container" *ngIf="validationState">
+  <!-- Valid State -->
+  <mat-card *ngIf="isValid()" class="validation-card valid">
+    <mat-card-header>
+      <mat-icon class="success-icon">{{ getSuccessIcon() }}</mat-icon>
+      <mat-card-title>Configuration Valid</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Your protocol configuration is valid and ready to use.</p>
+      <button mat-raised-button color="primary" 
+              (click)="testConnection()" 
+              [disabled]="isTestingConnection">
+        <mat-icon *ngIf="!isTestingConnection">cloud_queue</mat-icon>
+        <mat-spinner *ngIf="isTestingConnection" diameter="20"></mat-spinner>
+        {{ isTestingConnection ? 'Testing...' : 'Test Connection' }}
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Connection Test Result -->
+  <mat-card *ngIf="connectionTestResult !== null" class="validation-card" 
+            [ngClass]="connectionTestResult ? 'success' : 'error'">
+    <mat-card-header>
+      <mat-icon [class]="connectionTestResult ? 'success-icon' : 'error-icon'">
+        {{ connectionTestResult ? getSuccessIcon() : getErrorIcon() }}
+      </mat-icon>
+      <mat-card-title>
+        {{ connectionTestResult ? 'Connection Successful' : 'Connection Failed' }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p *ngIf="connectionTestResult">
+        Successfully connected to the device. Configuration is working properly.
+      </p>
+      <p *ngIf="!connectionTestResult">
+        Failed to connect to the device. Please check your configuration and try again.
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Invalid State - Errors -->
+  <mat-card *ngIf="hasErrors()" class="validation-card error">
+    <mat-card-header>
+      <mat-icon class="error-icon">{{ getErrorIcon() }}</mat-icon>
+      <mat-card-title>Configuration Errors</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list>
+        <mat-list-item *ngFor="let error of validationState.errors">
+          <mat-icon matListItemIcon class="error-icon">error</mat-icon>
+          <div matListItemTitle>{{ error }}</div>
+        </mat-list-item>
+      </mat-list>
+      <p class="error-hint">Please fix the errors above before proceeding.</p>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Warnings -->
+  <mat-card *ngIf="hasWarnings()" class="validation-card warning">
+    <mat-card-header>
+      <mat-icon class="warning-icon">{{ getWarningIcon() }}</mat-icon>
+      <mat-card-title>Configuration Warnings</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list>
+        <mat-list-item *ngFor="let warning of validationState.warnings">
+          <mat-icon matListItemIcon class="warning-icon">warning</mat-icon>
+          <div matListItemTitle>{{ warning }}</div>
+        </mat-list-item>
+      </mat-list>
+      <p class="warning-hint">These warnings don't prevent configuration, but may affect performance.</p>
+    </mat-card-content>
+  </mat-card>
+</div>

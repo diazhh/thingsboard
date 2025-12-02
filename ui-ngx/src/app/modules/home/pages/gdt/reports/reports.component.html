@@ -1,0 +1,119 @@
+<div class="gdt-reports-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <mat-icon class="page-icon">assessment</mat-icon>
+        <div>
+          <h1>Reports & Analytics</h1>
+          <p class="subtitle">Generate and manage system reports</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" [routerLink]="['/gdt/reports/scheduled']">
+          <mat-icon>schedule</mat-icon>
+          Scheduled Reports
+        </button>
+        <button mat-raised-button [routerLink]="['/gdt/reports/history']">
+          <mat-icon>history</mat-icon>
+          Report History
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Tabs -->
+  <mat-tab-group [(selectedIndex)]="selectedCategoryIndex" (selectedIndexChange)="onCategoryTabChange($event)" class="category-tabs">
+    <mat-tab *ngFor="let category of reportCategories">
+      <ng-template mat-tab-label>
+        <mat-icon>{{ getCategoryIcon(category) }}</mat-icon>
+        <span>{{ getCategoryLabel(category) }}</span>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search reports</mat-label>
+      <input matInput [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" placeholder="Search by name or description">
+      <mat-icon matPrefix>search</mat-icon>
+      <button mat-icon-button matSuffix *ngIf="searchText" (click)="searchText = ''; onSearchChange()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <!-- Reports Grid -->
+  <div class="reports-grid" *ngIf="!loading">
+    <mat-card *ngFor="let report of filteredReports" class="report-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="report-icon">{{ report.icon }}</mat-icon>
+        <mat-card-title>{{ report.name }}</mat-card-title>
+        <mat-card-subtitle>{{ report.description }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="report-info">
+          <div class="info-item">
+            <mat-icon class="info-icon">schedule</mat-icon>
+            <span>~{{ report.estimatedGenerationTime }}s</span>
+          </div>
+          <div class="info-item">
+            <mat-icon class="info-icon">description</mat-icon>
+            <span>{{ report.supportedFormats.length }} formats</span>
+          </div>
+        </div>
+
+        <div class="format-badges">
+          <mat-chip *ngFor="let format of report.supportedFormats" 
+                    [ngClass]="'format-chip-' + format">
+            {{ format.toUpperCase() }}
+          </mat-chip>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="generateReport(report)">
+          <mat-icon>play_arrow</mat-icon>
+          Generate Report
+        </button>
+        <button mat-button>
+          <mat-icon>info</mat-icon>
+          Details
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredReports.length === 0" class="empty-state">
+      <mat-icon>search_off</mat-icon>
+      <h3>No reports found</h3>
+      <p>Try adjusting your search or select a different category</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading reports...</p>
+  </div>
+
+  <!-- Recent Reports Section -->
+  <div class="recent-reports-section" *ngIf="recentReports.length > 0">
+    <h2>
+      <mat-icon>history</mat-icon>
+      Recent Reports
+    </h2>
+    <mat-list>
+      <mat-list-item *ngFor="let report of recentReports">
+        <mat-icon matListItemIcon>description</mat-icon>
+        <div matListItemTitle>{{ report.fileName }}</div>
+        <div matListItemLine>Generated {{ report.generatedAt | date:'short' }}</div>
+        <button mat-icon-button matListItemMeta>
+          <mat-icon>download</mat-icon>
+        </button>
+      </mat-list-item>
+    </mat-list>
+  </div>
+</div>

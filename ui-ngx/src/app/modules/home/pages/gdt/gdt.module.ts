@@ -33,6 +33,8 @@ import { CreateBatchDialogComponent } from './batch-management/components/create
 import { BatchDetailDialogComponent } from './batch-management/components/batch-detail-dialog/batch-detail-dialog.component';
 import { CloseBatchDialogComponent } from './batch-management/components/close-batch-dialog/close-batch-dialog.component';
 import { RecalculateBatchDialogComponent } from './batch-management/components/recalculate-batch-dialog/recalculate-batch-dialog.component';
+import { ReportsComponent } from './reports/reports.component';
+import { GenerateReportDialogComponent } from './reports/components/generate-report-dialog/generate-report-dialog.component';
 
 // Tank Monitoring Subcomponents
 import { LiquidGaugeDisplayComponent } from './tank-monitoring/components/liquid-gauge-display/liquid-gauge-display.component';
@@ -47,6 +49,13 @@ import { AforoHistoryComponent } from './aforo-manual/components/aforo-history/a
 // Laboratorio Subcomponents
 import { LabFormComponent } from './laboratorio/components/lab-form/lab-form.component';
 import { LabHistoryComponent } from './laboratorio/components/lab-history/lab-history.component';
+
+// Gateway Configuration Subcomponents
+import { PortListComponent } from './gateway-configuration/components/port-list/port-list.component';
+import { AddPortDialogComponent } from './gateway-configuration/components/add-port-dialog/add-port-dialog.component';
+import { DeviceDiscoveryComponent } from './gateway-configuration/components/device-discovery/device-discovery.component';
+import { DiscoveryResultsTableComponent } from './gateway-configuration/components/discovery-results-table/discovery-results-table.component';
+import { ProvisionDeviceDialogComponent } from './gateway-configuration/components/provision-device-dialog/provision-device-dialog.component';
 
 // Tank Configuration Subcomponents
 import { FeetInchesFractionInputComponent } from './tank-configuration/components/feet-inches-fraction-input/feet-inches-fraction-input.component';
@@ -74,6 +83,10 @@ import { BatchService } from './shared/services/batch.service';
 import { BatchMockService } from './shared/services/batch-mock.service';
 import { BatchCalculationService } from './shared/services/batch-calculation.service';
 import { ManualTelemetryService } from './tank-monitoring/services/manual-telemetry.service';
+import { GatewayApiService } from './shared/services/gateway-api.service';
+import { ReportService } from './shared/services/report.service';
+import { InventoryReportGeneratorService } from './shared/services/report-generators/inventory-report-generator.service';
+import { ReportExportService } from './shared/services/report-export.service';
 
 @NgModule({
   declarations: [
@@ -91,6 +104,8 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     BatchDetailDialogComponent,
     CloseBatchDialogComponent,
     RecalculateBatchDialogComponent,
+    ReportsComponent,
+    GenerateReportDialogComponent,
     // Tank Monitoring Subcomponents
     LiquidGaugeDisplayComponent,
     CylinderGaugeComponent,
@@ -102,6 +117,12 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     // Laboratorio Subcomponents
     LabFormComponent,
     LabHistoryComponent,
+    // Gateway Configuration Subcomponents
+    PortListComponent,
+    AddPortDialogComponent,
+    DeviceDiscoveryComponent,
+    DiscoveryResultsTableComponent,
+    ProvisionDeviceDialogComponent,
     // Tank Configuration Subcomponents
     FeetInchesFractionInputComponent,
     FeetInchesInputComponent,
@@ -133,7 +154,13 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     // Batch Management Services
     BatchService,
     BatchMockService,
-    BatchCalculationService
+    BatchCalculationService,
+    // Gateway Services
+    GatewayApiService,
+    // Report Services
+    ReportService,
+    InventoryReportGeneratorService,
+    ReportExportService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

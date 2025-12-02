@@ -1,0 +1,100 @@
+/*
+ * Copyright © 2024 GDT - Grupo de Desarrollo Tecnológico
+ * Licensed under the Apache License, Version 2.0
+ */
+
+.protocol-selector-container {
+  padding: 16px;
+
+  .full-width {
+    width: 100%;
+  }
+
+  .protocol-info-card {
+    margin-top: 24px;
+    background: linear-gradient(135deg, rgba(63, 81, 181, 0.05) 0%, rgba(33, 150, 243, 0.05) 100%);
+    border-left: 4px solid #3f51b5;
+
+    mat-card-header {
+      margin-bottom: 16px;
+
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 18px;
+        font-weight: 500;
+      }
+    }
+
+    mat-card-content {
+      padding-top: 0;
+
+      .protocol-description {
+        color: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+        margin-bottom: 16px;
+        line-height: 1.5;
+      }
+
+      .protocol-features {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+
+        .feature {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          background: rgba(255, 255, 255, 0.5);
+          border-radius: 4px;
+          font-size: 13px;
+          color: rgba(0, 0, 0, 0.7);
+
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: #3f51b5;
+          }
+        }
+      }
+    }
+  }
+
+  .protocol-icon {
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .protocol-icon-large {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #3f51b5;
+    margin-right: 12px;
+  }
+}
+
+// Dark mode support
+:host-context(.dark-mode) {
+  .protocol-selector-container {
+    .protocol-info-card {
+      background: linear-gradient(135deg, rgba(63, 81, 181, 0.1) 0%, rgba(33, 150, 243, 0.1) 100%);
+
+      mat-card-content {
+        .protocol-description {
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        .protocol-features {
+          .feature {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+          }
+        }
+      }
+    }
+  }
+}
