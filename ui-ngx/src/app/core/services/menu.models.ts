@@ -118,7 +118,8 @@ export enum MenuId {
   gdt_reports = 'gdt_reports',
   gdt_tank_configuration = 'gdt_tank_configuration',
   gdt_user_management = 'gdt_user_management',
-  gdt_gateway_configuration = 'gdt_gateway_configuration'
+  gdt_gateway_configuration = 'gdt_gateway_configuration',
+  gdt_scheduled_reports = 'gdt_scheduled_reports'
 }
 
 declare type MenuFilter = (authState: AuthState) => boolean;
@@ -879,6 +880,16 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
       path: '/gdt/reports',
       icon: 'assessment'
     }
+  ],
+  [
+    MenuId.gdt_scheduled_reports,
+    {
+      id: MenuId.gdt_scheduled_reports,
+      name: 'gdt.scheduled-reports',
+      type: 'link',
+      path: '/gdt/scheduled-reports',
+      icon: 'schedule'
+    }
   ]
 ]);
 
@@ -981,6 +992,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_laboratorio},
           {id: MenuId.gdt_batch_management},
           {id: MenuId.gdt_reports},
+          {id: MenuId.gdt_scheduled_reports},
           {id: MenuId.gdt_tank_configuration},
           {id: MenuId.gdt_user_management},
           {id: MenuId.gdt_gateway_configuration}
@@ -1138,6 +1150,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_laboratorio},
           {id: MenuId.gdt_batch_management},
           {id: MenuId.gdt_reports},
+          {id: MenuId.gdt_scheduled_reports},
           {id: MenuId.gdt_tank_configuration},
           {id: MenuId.gdt_user_management},
           {id: MenuId.gdt_gateway_configuration}
@@ -1162,6 +1175,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       {id: MenuId.gdt_dashboard},
       {id: MenuId.gdt_tank_monitoring},
       {id: MenuId.gdt_reports},
+      {id: MenuId.gdt_scheduled_reports},
       {id: MenuId.audit_log}
     ]
   ],

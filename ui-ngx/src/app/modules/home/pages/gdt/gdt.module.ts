@@ -35,6 +35,8 @@ import { CloseBatchDialogComponent } from './batch-management/components/close-b
 import { RecalculateBatchDialogComponent } from './batch-management/components/recalculate-batch-dialog/recalculate-batch-dialog.component';
 import { ReportsComponent } from './reports/reports.component';
 import { GenerateReportDialogComponent } from './reports/components/generate-report-dialog/generate-report-dialog.component';
+import { ScheduledReportsComponent } from './reports/components/scheduled-reports/scheduled-reports.component';
+import { ScheduledReportConfigDialogComponent } from './reports/components/scheduled-report-config-dialog/scheduled-report-config-dialog.component';
 
 // Tank Monitoring Subcomponents
 import { LiquidGaugeDisplayComponent } from './tank-monitoring/components/liquid-gauge-display/liquid-gauge-display.component';
@@ -87,6 +89,7 @@ import { GatewayApiService } from './shared/services/gateway-api.service';
 import { ReportService } from './shared/services/report.service';
 import { InventoryReportGeneratorService } from './shared/services/report-generators/inventory-report-generator.service';
 import { ReportExportService } from './shared/services/report-export.service';
+import { ScheduledReportService } from './reports/services/scheduled-report.service';
 
 @NgModule({
   declarations: [
@@ -106,6 +109,8 @@ import { ReportExportService } from './shared/services/report-export.service';
     RecalculateBatchDialogComponent,
     ReportsComponent,
     GenerateReportDialogComponent,
+    ScheduledReportsComponent,
+    ScheduledReportConfigDialogComponent,
     // Tank Monitoring Subcomponents
     LiquidGaugeDisplayComponent,
     CylinderGaugeComponent,
@@ -160,7 +165,8 @@ import { ReportExportService } from './shared/services/report-export.service';
     // Report Services
     ReportService,
     InventoryReportGeneratorService,
-    ReportExportService
+    ReportExportService,
+    ScheduledReportService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

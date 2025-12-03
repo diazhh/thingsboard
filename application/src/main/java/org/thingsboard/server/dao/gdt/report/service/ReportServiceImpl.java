@@ -81,8 +81,8 @@ public class ReportServiceImpl implements ReportService {
             // 3. Export to requested format
             byte[] fileData = exportService.exportReport(
                 reportData, 
-                request.getReportType(), 
-                request.getFormat()
+                request.getFormat(),
+                request.getReportType()
             );
 
             // 4. Generate file name
@@ -105,6 +105,7 @@ public class ReportServiceImpl implements ReportService {
                 .fileName(fileName)
                 .fileContent(fileContent)
                 .fileSize(fileData.length)
+                .data(reportData)
                 .build();
 
         } catch (Exception e) {

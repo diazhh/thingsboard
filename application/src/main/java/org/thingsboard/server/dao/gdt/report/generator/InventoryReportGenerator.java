@@ -70,7 +70,16 @@ public class InventoryReportGenerator implements ReportGenerator {
                 return generateDailyInventory(request, tenantId, reportService);
             case TANK_INVENTORY_SUMMARY:
                 return generateTankInventorySummary(request, tenantId, reportService);
-            // TODO: Implement other report types
+            case PRODUCT_INVENTORY_BY_GROUP:
+                return generateProductInventoryByGroup(request, tenantId, reportService);
+            case TANK_STATUS:
+                return generateTankStatus(request, tenantId, reportService);
+            case CAPACITY_UTILIZATION:
+                return generateCapacityUtilization(request, tenantId, reportService);
+            case LOW_STOCK_ALERT:
+                return generateLowStockAlert(request, tenantId, reportService);
+            case OVERFILL_RISK:
+                return generateOverfillRisk(request, tenantId, reportService);
             default:
                 throw new IllegalArgumentException(
                     "Unsupported report type: " + request.getReportType());
@@ -170,15 +179,174 @@ public class InventoryReportGenerator implements ReportGenerator {
     }
 
     /**
-     * Generate Tank Inventory Summary
+     * Generate Tank Inventory Summary - Aggregated by product
      */
     private DailyInventoryReportData generateTankInventorySummary(
             ReportRequest request, 
             TenantId tenantId, 
             ReportService reportService) {
         
-        // For now, use same logic as Daily Inventory
+        log.info("[{}] Generating Tank Inventory Summary Report", tenantId);
+        
+        // Get base inventory data
+        DailyInventoryReportData baseData = generateDailyInventory(request, tenantId, reportService);
+        
+        // Group tanks by product and create summary entries
+        Map<String, List<DailyInventoryReportData.TankInventoryData>> byProduct = 
+            baseData.getTanks().stream()
+                .collect(Collectors.groupingBy(DailyInventoryReportData.TankInventoryData::getProduct));
+        
+        List<DailyInventoryReportData.TankInventoryData> summaryList = new ArrayList<>();
+        
+        byProduct.forEach((product, tanks) -> {
+            double totalVolume = tanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getTov).sum();
+            double totalCapacity = tanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getCapacity).sum();
+            double avgTemp = tanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getTemperature).average().orElse(0);
+            double totalMass = tanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getMass).sum();
+            
+            summaryList.add(DailyInventoryReportData.TankInventoryData.builder()
+                .tankId(product + "_SUMMARY")
+                .tankName(product + " - Total")
+                .product(product)
+                .level(0)
+                .temperature(avgTemp)
+                .tov(totalVolume)
+                .gov(tanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getGov).sum())
+                .gsv(tanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getGsv).sum())
+                .nsv(tanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getNsv).sum())
+                .density(tanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getDensity).average().orElse(0))
+                .mass(totalMass)
+                .capacity(totalCapacity)
+                .utilization(totalCapacity > 0 ? (totalVolume / totalCapacity) * 100 : 0)
+                .status("SUMMARY")
+                .lastUpdate(System.currentTimeMillis())
+                .build());
+        });
+        
+        return DailyInventoryReportData.builder()
+            .reportDate(baseData.getReportDate())
+            .generatedAt(baseData.getGeneratedAt())
+            .totalTanks(baseData.getTotalTanks())
+            .activeTanks(baseData.getActiveTanks())
+            .totalVolume(baseData.getTotalVolume())
+            .totalCapacity(baseData.getTotalCapacity())
+            .averageUtilization(baseData.getAverageUtilization())
+            .tanks(summaryList)
+            .summary(baseData.getSummary())
+            .build();
+    }
+    
+    /**
+     * Generate Product Inventory By Group
+     */
+    private DailyInventoryReportData generateProductInventoryByGroup(
+            ReportRequest request, 
+            TenantId tenantId, 
+            ReportService reportService) {
+        
+        log.info("[{}] Generating Product Inventory By Group Report", tenantId);
+        return generateTankInventorySummary(request, tenantId, reportService);
+    }
+    
+    /**
+     * Generate Tank Status Report
+     */
+    private DailyInventoryReportData generateTankStatus(
+            ReportRequest request, 
+            TenantId tenantId, 
+            ReportService reportService) {
+        
+        log.info("[{}] Generating Tank Status Report", tenantId);
         return generateDailyInventory(request, tenantId, reportService);
+    }
+    
+    /**
+     * Generate Capacity Utilization Report
+     */
+    private DailyInventoryReportData generateCapacityUtilization(
+            ReportRequest request, 
+            TenantId tenantId, 
+            ReportService reportService) {
+        
+        log.info("[{}] Generating Capacity Utilization Report", tenantId);
+        DailyInventoryReportData baseData = generateDailyInventory(request, tenantId, reportService);
+        
+        // Sort tanks by utilization
+        List<DailyInventoryReportData.TankInventoryData> sortedTanks = baseData.getTanks().stream()
+            .sorted((t1, t2) -> Double.compare(t2.getUtilization(), t1.getUtilization()))
+            .collect(Collectors.toList());
+        
+        return DailyInventoryReportData.builder()
+            .reportDate(baseData.getReportDate())
+            .generatedAt(baseData.getGeneratedAt())
+            .totalTanks(baseData.getTotalTanks())
+            .activeTanks(baseData.getActiveTanks())
+            .totalVolume(baseData.getTotalVolume())
+            .totalCapacity(baseData.getTotalCapacity())
+            .averageUtilization(baseData.getAverageUtilization())
+            .tanks(sortedTanks)
+            .summary(baseData.getSummary())
+            .build();
+    }
+    
+    /**
+     * Generate Low Stock Alert Report
+     */
+    private DailyInventoryReportData generateLowStockAlert(
+            ReportRequest request, 
+            TenantId tenantId, 
+            ReportService reportService) {
+        
+        log.info("[{}] Generating Low Stock Alert Report", tenantId);
+        DailyInventoryReportData baseData = generateDailyInventory(request, tenantId, reportService);
+        
+        // Filter tanks with utilization < 20%
+        List<DailyInventoryReportData.TankInventoryData> lowStockTanks = baseData.getTanks().stream()
+            .filter(t -> t.getUtilization() < 20)
+            .sorted((t1, t2) -> Double.compare(t1.getUtilization(), t2.getUtilization()))
+            .collect(Collectors.toList());
+        
+        return DailyInventoryReportData.builder()
+            .reportDate(baseData.getReportDate())
+            .generatedAt(baseData.getGeneratedAt())
+            .totalTanks(lowStockTanks.size())
+            .activeTanks(baseData.getActiveTanks())
+            .totalVolume(lowStockTanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getTov).sum())
+            .totalCapacity(lowStockTanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getCapacity).sum())
+            .averageUtilization(baseData.getAverageUtilization())
+            .tanks(lowStockTanks)
+            .summary(baseData.getSummary())
+            .build();
+    }
+    
+    /**
+     * Generate Overfill Risk Report
+     */
+    private DailyInventoryReportData generateOverfillRisk(
+            ReportRequest request, 
+            TenantId tenantId, 
+            ReportService reportService) {
+        
+        log.info("[{}] Generating Overfill Risk Report", tenantId);
+        DailyInventoryReportData baseData = generateDailyInventory(request, tenantId, reportService);
+        
+        // Filter tanks with utilization > 85%
+        List<DailyInventoryReportData.TankInventoryData> highRiskTanks = baseData.getTanks().stream()
+            .filter(t -> t.getUtilization() > 85)
+            .sorted((t1, t2) -> Double.compare(t2.getUtilization(), t1.getUtilization()))
+            .collect(Collectors.toList());
+        
+        return DailyInventoryReportData.builder()
+            .reportDate(baseData.getReportDate())
+            .generatedAt(baseData.getGeneratedAt())
+            .totalTanks(highRiskTanks.size())
+            .activeTanks(baseData.getActiveTanks())
+            .totalVolume(highRiskTanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getTov).sum())
+            .totalCapacity(highRiskTanks.stream().mapToDouble(DailyInventoryReportData.TankInventoryData::getCapacity).sum())
+            .averageUtilization(baseData.getAverageUtilization())
+            .tanks(highRiskTanks)
+            .summary(baseData.getSummary())
+            .build();
     }
 
     // ==================== Helper Methods ====================

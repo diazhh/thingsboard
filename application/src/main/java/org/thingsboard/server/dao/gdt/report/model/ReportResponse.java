@@ -40,4 +40,5 @@ public class ReportResponse {
     private int estimatedTimeSeconds;
     private String fileName;
     private String fileContent; // Base64 encoded file content
+    private Object data; // Report data object
 }

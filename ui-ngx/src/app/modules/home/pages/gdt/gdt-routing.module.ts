@@ -27,6 +27,7 @@ import { AforoManualComponent } from './aforo-manual/aforo-manual.component';
 import { LaboratorioComponent } from './laboratorio/laboratorio.component';
 import { BatchManagementComponent } from './batch-management/batch-management.component';
 import { ReportsComponent } from './reports/reports.component';
+import { ScheduledReportsComponent } from './reports/components/scheduled-reports/scheduled-reports.component';
 
 const routes: Routes = [
   {
@@ -198,6 +199,24 @@ const routes: Routes = [
             menuId: 'gdt_reports' as any,
             label: 'Reports & Analytics',
             icon: 'assessment'
+          }
+        }
+      },
+      {
+        path: 'scheduled-reports',
+        component: ScheduledReportsComponent,
+        data: {
+          auth: [
+            Authority.SYS_ADMIN,
+            Authority.TENANT_ADMIN,
+            Authority.INGENIERO,
+            Authority.REPORTES
+          ],
+          title: 'gdt.scheduled-reports',
+          breadcrumb: {
+            menuId: 'gdt_scheduled_reports' as any,
+            label: 'Reportes Programados',
+            icon: 'schedule'
           }
         }
       },

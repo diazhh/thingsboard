@@ -10160,6 +10160,7 @@
         "aforo-manual": "Manual Gauging",
         "laboratorio": "Laboratory Analysis",
         "batch-management": "Batch Management",
-        "reports": "Reports & Analytics"
+        "reports": "Reports & Analytics",
+        "scheduled-reports": "Scheduled Reports"
     }
 }

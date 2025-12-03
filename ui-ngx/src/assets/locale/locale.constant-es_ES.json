@@ -9530,6 +9530,7 @@
     "aforo-manual": "Aforo Manual",
     "laboratorio": "Laboratorio",
     "batch-management": "Gestión de Batches",
-    "reports": "Reportes e Informes"
+    "reports": "Reportes e Informes",
+    "scheduled-reports": "Reportes Programados"
   }
 }
