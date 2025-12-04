@@ -37,6 +37,8 @@ import { ReportsComponent } from './reports/reports.component';
 import { GenerateReportDialogComponent } from './reports/components/generate-report-dialog/generate-report-dialog.component';
 import { ScheduledReportsComponent } from './reports/components/scheduled-reports/scheduled-reports.component';
 import { ScheduledReportConfigDialogComponent } from './reports/components/scheduled-report-config-dialog/scheduled-report-config-dialog.component';
+import { HistoricalTrendsComponent } from './historical-trends/historical-trends.component';
+import { HistoricalDataTableComponent } from './historical-trends/components/historical-data-table/historical-data-table.component';
 
 // Tank Monitoring Subcomponents
 import { LiquidGaugeDisplayComponent } from './tank-monitoring/components/liquid-gauge-display/liquid-gauge-display.component';
@@ -90,6 +92,9 @@ import { ReportService } from './shared/services/report.service';
 import { InventoryReportGeneratorService } from './shared/services/report-generators/inventory-report-generator.service';
 import { ReportExportService } from './shared/services/report-export.service';
 import { ScheduledReportService } from './reports/services/scheduled-report.service';
+import { HistoricalDataService } from './shared/services/historical-data.service';
+import { ChartConfigService } from './shared/services/chart-config.service';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 @NgModule({
   declarations: [
@@ -111,6 +116,8 @@ import { ScheduledReportService } from './reports/services/scheduled-report.serv
     GenerateReportDialogComponent,
     ScheduledReportsComponent,
     ScheduledReportConfigDialogComponent,
+    HistoricalTrendsComponent,
+    HistoricalDataTableComponent,
     // Tank Monitoring Subcomponents
     LiquidGaugeDisplayComponent,
     CylinderGaugeComponent,
@@ -141,7 +148,10 @@ import { ScheduledReportService } from './reports/services/scheduled-report.serv
   imports: [
     CommonModule,
     SharedModule,
-    GdtRoutingModule
+    GdtRoutingModule,
+    NgxEchartsModule.forRoot({
+      echarts: () => import('echarts')
+    })
   ],
   providers: [
     // GDT Services
@@ -166,7 +176,10 @@ import { ScheduledReportService } from './reports/services/scheduled-report.serv
     ReportService,
     InventoryReportGeneratorService,
     ReportExportService,
-    ScheduledReportService
+    ScheduledReportService,
+    // Historical Data Services
+    HistoricalDataService,
+    ChartConfigService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

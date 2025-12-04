@@ -17,7 +17,11 @@ package org.thingsboard.server.dao.gdt.report.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thingsboard.rule.engine.api.MailService;
+import org.thingsboard.rule.engine.api.TbEmail;
+import org.thingsboard.server.common.data.id.TenantId;
 import org.thingsboard.server.dao.gdt.report.model.ScheduledReportConfig;
 import org.thingsboard.server.dao.gdt.report.model.ScheduledReportExecution;
 
@@ -35,6 +39,9 @@ import java.util.Date;
 public class ReportNotificationService {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    
+    @Autowired(required = false)
+    private MailService mailService;
 
     /**
      * Send notification when report generation completes successfully
@@ -181,18 +188,34 @@ public class ReportNotificationService {
     private void sendEmailNotification(ScheduledReportConfig config, String subject, String body) {
         log.info("[{}] Sending email notification", config.getTenantId());
         
-        // TODO: Integrate with ThingsBoard mail service or external email service
-        // For now, just log the notification
-        
         if (config.getNotificationEmails() != null && !config.getNotificationEmails().isEmpty()) {
             for (String email : config.getNotificationEmails()) {
-                log.info("[{}] Email notification to: {}", config.getTenantId(), email);
-                log.debug("Subject: {}", subject);
-                log.debug("Body: {}", body);
-                
-                // TODO: Actual email sending
-                // mailService.sendEmail(email, subject, body);
+                try {
+                    if (mailService != null) {
+                        log.info("[{}] Sending email to: {} with subject: {}", config.getTenantId(), email, subject);
+                        
+                        // Create TbEmail object for ThingsBoard mail service using builder
+                        TbEmail tbEmail = TbEmail.builder()
+                                .to(email)
+                                .subject(subject)
+                                .body(body)
+                                .html(false)
+                                .build();
+                        
+                        // Send email using ThingsBoard mail service
+                        TenantId tenantId = TenantId.fromUUID(java.util.UUID.fromString(config.getTenantId()));
+                        mailService.send(tenantId, null, tbEmail);
+                        
+                        log.info("[{}] Email sent successfully to: {}", config.getTenantId(), email);
+                    } else {
+                        log.warn("[{}] MailService not available. Email notification not sent to: {}", config.getTenantId(), email);
+                    }
+                } catch (Exception e) {
+                    log.error("[{}] Failed to send email to: {}", config.getTenantId(), email, e);
+                }
             }
+        } else {
+            log.warn("[{}] No notification emails configured", config.getTenantId());
         }
     }
 

@@ -119,7 +119,8 @@ export enum MenuId {
   gdt_tank_configuration = 'gdt_tank_configuration',
   gdt_user_management = 'gdt_user_management',
   gdt_gateway_configuration = 'gdt_gateway_configuration',
-  gdt_scheduled_reports = 'gdt_scheduled_reports'
+  gdt_scheduled_reports = 'gdt_scheduled_reports',
+  gdt_historical_trends = 'gdt_historical_trends'
 }
 
 declare type MenuFilter = (authState: AuthState) => boolean;
@@ -350,6 +351,14 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
           type: 'link',
           path: '/gdt/users',
           icon: 'group',
+          customTranslate: true
+        },
+        {
+          id: MenuId.gdt_historical_trends,
+          name: 'Tendencias Históricas',
+          type: 'link',
+          path: '/gdt/historical-trends',
+          icon: 'trending_up',
           customTranslate: true
         }
       ]
@@ -890,6 +899,17 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
       path: '/gdt/scheduled-reports',
       icon: 'schedule'
     }
+  ],
+  [
+    MenuId.gdt_historical_trends,
+    {
+      id: MenuId.gdt_historical_trends,
+      name: 'Tendencias Históricas',
+      type: 'link',
+      path: '/gdt/historical-trends',
+      icon: 'trending_up',
+      customTranslate: true
+    }
   ]
 ]);
 
@@ -993,6 +1013,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_batch_management},
           {id: MenuId.gdt_reports},
           {id: MenuId.gdt_scheduled_reports},
+          {id: MenuId.gdt_historical_trends},
           {id: MenuId.gdt_tank_configuration},
           {id: MenuId.gdt_user_management},
           {id: MenuId.gdt_gateway_configuration}
@@ -1151,6 +1172,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_batch_management},
           {id: MenuId.gdt_reports},
           {id: MenuId.gdt_scheduled_reports},
+          {id: MenuId.gdt_historical_trends},
           {id: MenuId.gdt_tank_configuration},
           {id: MenuId.gdt_user_management},
           {id: MenuId.gdt_gateway_configuration}
@@ -1176,6 +1198,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       {id: MenuId.gdt_tank_monitoring},
       {id: MenuId.gdt_reports},
       {id: MenuId.gdt_scheduled_reports},
+      {id: MenuId.gdt_historical_trends},
       {id: MenuId.audit_log}
     ]
   ],

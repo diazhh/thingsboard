@@ -28,6 +28,7 @@ import { LaboratorioComponent } from './laboratorio/laboratorio.component';
 import { BatchManagementComponent } from './batch-management/batch-management.component';
 import { ReportsComponent } from './reports/reports.component';
 import { ScheduledReportsComponent } from './reports/components/scheduled-reports/scheduled-reports.component';
+import { HistoricalTrendsComponent } from './historical-trends/historical-trends.component';
 
 const routes: Routes = [
   {
@@ -217,6 +218,26 @@ const routes: Routes = [
             menuId: 'gdt_scheduled_reports' as any,
             label: 'Reportes Programados',
             icon: 'schedule'
+          }
+        }
+      },
+      {
+        path: 'historical-trends',
+        component: HistoricalTrendsComponent,
+        data: {
+          auth: [
+            Authority.SYS_ADMIN,
+            Authority.TENANT_ADMIN,
+            Authority.CUSTOMER_USER,
+            Authority.INGENIERO,
+            Authority.OPERADOR,
+            Authority.REPORTES
+          ],
+          title: 'gdt.historical-trends',
+          breadcrumb: {
+            menuId: 'gdt_historical_trends' as any,
+            label: 'Tendencias Históricas',
+            icon: 'trending_up'
           }
         }
       },
