@@ -18,6 +18,23 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '@shared/shared.module';
 import { GdtRoutingModule } from './gdt-routing.module';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 // Main Components
 import { GdtDashboardComponent } from './dashboard/gdt-dashboard.component';
@@ -39,6 +56,8 @@ import { ScheduledReportsComponent } from './reports/components/scheduled-report
 import { ScheduledReportConfigDialogComponent } from './reports/components/scheduled-report-config-dialog/scheduled-report-config-dialog.component';
 import { HistoricalTrendsComponent } from './historical-trends/historical-trends.component';
 import { HistoricalDataTableComponent } from './historical-trends/components/historical-data-table/historical-data-table.component';
+import { EventLogViewerComponent } from './audit/event-log-viewer/event-log-viewer.component';
+import { SealManagementComponent } from './audit/seal-management/seal-management.component';
 
 // Tank Monitoring Subcomponents
 import { LiquidGaugeDisplayComponent } from './tank-monitoring/components/liquid-gauge-display/liquid-gauge-display.component';
@@ -94,7 +113,7 @@ import { ReportExportService } from './shared/services/report-export.service';
 import { ScheduledReportService } from './reports/services/scheduled-report.service';
 import { HistoricalDataService } from './shared/services/historical-data.service';
 import { ChartConfigService } from './shared/services/chart-config.service';
-import { NgxEchartsModule } from 'ngx-echarts';
+import { AuditEventService } from './shared/services/audit-event.service';
 
 @NgModule({
   declarations: [
@@ -118,6 +137,9 @@ import { NgxEchartsModule } from 'ngx-echarts';
     ScheduledReportConfigDialogComponent,
     HistoricalTrendsComponent,
     HistoricalDataTableComponent,
+    // Audit & Compliance Components
+    EventLogViewerComponent,
+    SealManagementComponent,
     // Tank Monitoring Subcomponents
     LiquidGaugeDisplayComponent,
     CylinderGaugeComponent,
@@ -149,6 +171,25 @@ import { NgxEchartsModule } from 'ngx-echarts';
     CommonModule,
     SharedModule,
     GdtRoutingModule,
+    ReactiveFormsModule,
+    FormsModule,
+    // Material Modules
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatChipsModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatDialogModule,
+    MatTooltipModule,
+    // Charts
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts')
     })
@@ -179,7 +220,9 @@ import { NgxEchartsModule } from 'ngx-echarts';
     ScheduledReportService,
     // Historical Data Services
     HistoricalDataService,
-    ChartConfigService
+    ChartConfigService,
+    // Audit & Compliance Services
+    AuditEventService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

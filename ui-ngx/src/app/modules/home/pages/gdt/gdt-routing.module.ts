@@ -29,6 +29,8 @@ import { BatchManagementComponent } from './batch-management/batch-management.co
 import { ReportsComponent } from './reports/reports.component';
 import { ScheduledReportsComponent } from './reports/components/scheduled-reports/scheduled-reports.component';
 import { HistoricalTrendsComponent } from './historical-trends/historical-trends.component';
+import { EventLogViewerComponent } from './audit/event-log-viewer/event-log-viewer.component';
+import { SealManagementComponent } from './audit/seal-management/seal-management.component';
 
 const routes: Routes = [
   {
@@ -238,6 +240,32 @@ const routes: Routes = [
             menuId: 'gdt_historical_trends' as any,
             label: 'Tendencias Históricas',
             icon: 'trending_up'
+          }
+        }
+      },
+      {
+        path: 'audit/event-log-viewer',
+        component: EventLogViewerComponent,
+        data: {
+          auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.INGENIERO],
+          title: 'gdt.event-log-viewer',
+          breadcrumb: {
+            menuId: 'gdt_event_log_viewer' as any,
+            label: 'Visor de Eventos',
+            icon: 'history'
+          }
+        }
+      },
+      {
+        path: 'audit/seal-management',
+        component: SealManagementComponent,
+        data: {
+          auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.INGENIERO],
+          title: 'gdt.seal-management',
+          breadcrumb: {
+            menuId: 'gdt_seal_management' as any,
+            label: 'Gestión de Sellado',
+            icon: 'lock'
           }
         }
       },

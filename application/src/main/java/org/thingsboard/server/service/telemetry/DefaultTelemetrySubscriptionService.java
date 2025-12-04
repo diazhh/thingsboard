@@ -54,6 +54,7 @@ import org.thingsboard.server.common.msg.queue.TbCallback;
 import org.thingsboard.server.common.msg.rule.engine.DeviceAttributesEventNotificationMsg;
 import org.thingsboard.server.common.stats.TbApiUsageReportClient;
 import org.thingsboard.server.dao.attributes.AttributesService;
+import org.thingsboard.server.dao.gdt.audit.listener.AttributeEventPublisher;
 import org.thingsboard.server.dao.timeseries.TimeseriesService;
 import org.thingsboard.server.dao.util.KvUtils;
 import org.thingsboard.server.service.apiusage.TbApiUsageStateService;
@@ -90,6 +91,7 @@ public class DefaultTelemetrySubscriptionService extends AbstractSubscriptionSer
     private final TbApiUsageStateService apiUsageStateService;
     private final CalculatedFieldQueueService calculatedFieldQueueService;
     private final DeviceStateManager deviceStateManager;
+    private final AttributeEventPublisher attributeEventPublisher;
 
     private ExecutorService tsCallBackExecutor;
 
@@ -104,7 +106,8 @@ public class DefaultTelemetrySubscriptionService extends AbstractSubscriptionSer
                                                TbApiUsageReportClient apiUsageClient,
                                                TbApiUsageStateService apiUsageStateService,
                                                CalculatedFieldQueueService calculatedFieldQueueService,
-                                               DeviceStateManager deviceStateManager) {
+                                               DeviceStateManager deviceStateManager,
+                                               @Lazy(value = false) AttributeEventPublisher attributeEventPublisher) {
         this.attrService = attrService;
         this.tsService = tsService;
         this.tbEntityViewService = tbEntityViewService;
@@ -112,6 +115,7 @@ public class DefaultTelemetrySubscriptionService extends AbstractSubscriptionSer
         this.apiUsageStateService = apiUsageStateService;
         this.calculatedFieldQueueService = calculatedFieldQueueService;
         this.deviceStateManager = deviceStateManager;
+        this.attributeEventPublisher = attributeEventPublisher;
     }
 
     @PostConstruct
@@ -228,7 +232,38 @@ public class DefaultTelemetrySubscriptionService extends AbstractSubscriptionSer
         if (strategy.sendWsUpdate()) {
             addWsCallback(resultFuture, success -> onAttributesUpdate(tenantId, entityId, request.getScope().name(), request.getEntries()));
         }
+        
+        // Publish audit events for attribute changes
+        if (strategy.saveAttributes() && attributeEventPublisher != null) {
+            addMainCallback(resultFuture, success -> publishAttributeEvents(tenantId, entityId, request.getScope(), request.getEntries()));
+        }
+        
         return resultFuture;
+    }
+    
+    /**
+     * Publishes audit events for attribute changes
+     */
+    private void publishAttributeEvents(TenantId tenantId, EntityId entityId, AttributeScope scope, List<AttributeKvEntry> entries) {
+        try {
+            log.info("[{}] Publishing attribute events for entity {} with scope {}, entries count: {}", 
+                tenantId, entityId, scope, entries.size());
+            
+            for (AttributeKvEntry entry : entries) {
+                String attributeName = entry.getKey();
+                String newValue = entry.getValueAsString();
+                
+                log.info("[{}] Publishing attribute update: {} = {}", tenantId, attributeName, newValue);
+                
+                if (scope == AttributeScope.SERVER_SCOPE) {
+                    attributeEventPublisher.publishServerAttributeUpdate(tenantId, entityId, attributeName, null, newValue);
+                } else if (scope == AttributeScope.SHARED_SCOPE) {
+                    attributeEventPublisher.publishSharedAttributeUpdate(tenantId, entityId, attributeName, null, newValue);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("[{}] Error publishing attribute events for entity {}", tenantId, entityId, e);
+        }
     }
 
     private static boolean shouldSendSharedAttributesUpdatedNotification(AttributesSaveRequest request) {
