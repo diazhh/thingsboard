@@ -892,16 +892,17 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
       icon: 'assessment'
     }
   ],
-  [
-    MenuId.gdt_scheduled_reports,
-    {
-      id: MenuId.gdt_scheduled_reports,
-      name: 'gdt.scheduled-reports',
-      type: 'link',
-      path: '/gdt/scheduled-reports',
-      icon: 'schedule'
-    }
-  ],
+  // Scheduled Reports hidden for now
+  // [
+  //   MenuId.gdt_scheduled_reports,
+  //   {
+  //     id: MenuId.gdt_scheduled_reports,
+  //     name: 'gdt.scheduled-reports',
+  //     type: 'link',
+  //     path: '/gdt/scheduled-reports',
+  //     icon: 'schedule'
+  //   }
+  // ],
   [
     MenuId.gdt_historical_trends,
     {
@@ -1036,7 +1037,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_laboratorio},
           {id: MenuId.gdt_batch_management},
           {id: MenuId.gdt_reports},
-          {id: MenuId.gdt_scheduled_reports},
+          // {id: MenuId.gdt_scheduled_reports},
           {id: MenuId.gdt_historical_trends},
           {id: MenuId.gdt_event_log_viewer},
           {id: MenuId.gdt_seal_management},
@@ -1197,7 +1198,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_laboratorio},
           {id: MenuId.gdt_batch_management},
           {id: MenuId.gdt_reports},
-          {id: MenuId.gdt_scheduled_reports},
+          // {id: MenuId.gdt_scheduled_reports},
           {id: MenuId.gdt_historical_trends},
           {id: MenuId.gdt_event_log_viewer},
           {id: MenuId.gdt_seal_management},
@@ -1225,7 +1226,7 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       {id: MenuId.gdt_dashboard},
       {id: MenuId.gdt_tank_monitoring},
       {id: MenuId.gdt_reports},
-      {id: MenuId.gdt_scheduled_reports},
+      // {id: MenuId.gdt_scheduled_reports},
       {id: MenuId.gdt_historical_trends},
       {id: MenuId.audit_log}
     ]

@@ -20,24 +20,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
-/**
- * Seal Status Model
- */
-export interface SealStatus {
-  deviceId: string;
-  deviceName: string;
-  state: 'SEALED' | 'UNSEALED' | 'BROKEN';
-  sealedAt?: Date;
-  sealedBy?: string;
-  sealReason?: string;
-  lastVerifiedAt?: Date;
-  configurationChanges: number;
-  dataModifications: number;
-  complianceStatus: 'COMPLIANT' | 'NON_COMPLIANT' | 'WARNING' | 'EXPIRED';
-}
+import { SealManagementService } from '../../shared/services/seal-management.service';
+import type { SealStatus } from '../../shared/services/seal-management.service';
 
 /**
  * Seal Management Component
@@ -60,7 +47,9 @@ export class SealManagementComponent implements OnInit, OnDestroy {
   sealedDevices: SealStatus[] = [];
   unsealedDevices: SealStatus[] = [];
   dataSource: MatTableDataSource<SealStatus>;
-  displayedColumns: string[] = [
+  
+  // Different column sets for each tab
+  sealedDisplayedColumns: string[] = [
     'deviceName',
     'state',
     'sealedBy',
@@ -70,6 +59,20 @@ export class SealManagementComponent implements OnInit, OnDestroy {
     'dataModifications',
     'actions'
   ];
+  
+  unsealedDisplayedColumns: string[] = [
+    'deviceName',
+    'state',
+    'complianceStatus',
+    'configurationChanges',
+    'dataModifications',
+    'actions'
+  ];
+  
+  // Dynamic property that returns the correct columns for the current tab
+  get displayedColumns(): string[] {
+    return this.selectedTab === 0 ? this.sealedDisplayedColumns : this.unsealedDisplayedColumns;
+  }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -79,18 +82,20 @@ export class SealManagementComponent implements OnInit, OnDestroy {
   selectedTab = 0;
   showSealDialog = false;
   showUnsealDialog = false;
+  showHistoryDialog = false;
+  showVerificationModal = false;
   selectedDevice: SealStatus | null = null;
+  sealHistory: any[] = [];
+  verificationResult: any = null;
 
-  // Available devices (mock data)
-  availableDevices = [
-    { id: 'device1', name: 'Radar Tank 01' },
-    { id: 'device2', name: 'Radar Tank 02' },
-    { id: 'device3', name: 'Radar Tank 03' }
-  ];
+  // Available devices - loaded from unsealed devices
+  availableDevices: Array<{ id: string; name: string }> = [];
 
   constructor(
     private fb: FormBuilder,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private sealService: SealManagementService,
+    private snackBar: MatSnackBar
   ) {
     this.sealForm = this.fb.group({
       deviceId: ['', Validators.required],
@@ -105,6 +110,10 @@ export class SealManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log('SealManagementComponent initialized, selectedTab:', this.selectedTab);
+    // Initialize dataSource with empty data for the selected tab
+    this.updateDataSource();
+    // Load data
     this.loadSealedDevices();
     this.loadUnsealedDevices();
   }
@@ -118,77 +127,101 @@ export class SealManagementComponent implements OnInit, OnDestroy {
    * Load sealed devices
    */
   loadSealedDevices(): void {
-    this.loading = true;
-
-    // TODO: Call SealManagementService
-    // For now, use mock data
-    this.sealedDevices = [
-      {
-        deviceId: 'device1',
-        deviceName: 'Radar Tank 01',
-        state: 'SEALED',
-        sealedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        sealedBy: 'Admin User',
-        sealReason: 'Compliance verification',
-        lastVerifiedAt: new Date(),
-        configurationChanges: 0,
-        dataModifications: 0,
-        complianceStatus: 'COMPLIANT'
-      }
-    ];
-
-    this.updateDataSource();
-    this.loading = false;
+    this.sealService.getSealedDevices()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (devices) => {
+          console.log('Sealed devices loaded:', devices);
+          this.sealedDevices = devices;
+          // Update data source if we're on the sealed tab
+          if (this.selectedTab === 0) {
+            this.updateDataSource();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading sealed devices:', error);
+          this.snackBar.open('Error al cargar dispositivos sellados', 'Cerrar', { duration: 3000 });
+        }
+      });
   }
 
   /**
    * Load unsealed devices
    */
   loadUnsealedDevices(): void {
-    this.unsealedDevices = [
-      {
-        deviceId: 'device2',
-        deviceName: 'Radar Tank 02',
-        state: 'UNSEALED',
-        configurationChanges: 0,
-        dataModifications: 0,
-        complianceStatus: 'COMPLIANT'
-      },
-      {
-        deviceId: 'device3',
-        deviceName: 'Radar Tank 03',
-        state: 'UNSEALED',
-        configurationChanges: 0,
-        dataModifications: 0,
-        complianceStatus: 'COMPLIANT'
-      }
-    ];
-
-    this.updateDataSource();
+    console.log('Loading unsealed devices...');
+    this.sealService.getUnsealedDevices()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (devices) => {
+          console.log('Unsealed devices loaded:', devices);
+          this.unsealedDevices = devices;
+          // Update available devices for seal dialog
+          this.availableDevices = devices.map(d => ({
+            id: d.deviceId,
+            name: d.deviceName
+          }));
+          console.log('Available devices updated:', this.availableDevices);
+          // Update data source if we're on the unsealed tab
+          if (this.selectedTab === 1) {
+            this.updateDataSource();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading unsealed devices:', error);
+          this.snackBar.open('Error al cargar dispositivos sin sellar', 'Cerrar', { duration: 3000 });
+        }
+      });
   }
 
   /**
    * Update data source based on selected tab
    */
   private updateDataSource(): void {
-    const data = this.selectedTab === 0 ? this.sealedDevices : this.unsealedDevices;
+    // Default to tab 0 if selectedTab is undefined
+    const currentTab = this.selectedTab ?? 0;
+    const data = currentTab === 0 ? this.sealedDevices : this.unsealedDevices;
+    console.log(`Updating dataSource for tab ${currentTab}:`, data);
     this.dataSource.data = data;
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    
+    // Force table to refresh
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    }
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
+    
+    // Trigger change detection
+    this.dataSource._updateChangeSubscription();
   }
 
   /**
    * Handle tab change
    */
   onTabChange(event: any): void {
-    this.selectedTab = event.index;
-    this.updateDataSource();
+    const newIndex = typeof event === 'number' ? event : event.index;
+    console.log(`Tab changed to: ${newIndex}`);
+    
+    if (newIndex !== undefined && newIndex !== null) {
+      this.selectedTab = newIndex;
+      this.updateDataSource();
+    }
   }
 
   /**
    * Open seal dialog
    */
-  openSealDialog(): void {
+  openSealDialog(device?: SealStatus): void {
+    // If a device is provided, preselect it
+    if (device) {
+      this.sealForm.patchValue({
+        deviceId: device.deviceId
+      });
+    } else {
+      // Reset form if no device provided
+      this.sealForm.reset();
+    }
     this.showSealDialog = true;
   }
 
@@ -211,16 +244,28 @@ export class SealManagementComponent implements OnInit, OnDestroy {
     this.loading = true;
     const formValue = this.sealForm.value;
 
-    // TODO: Call SealManagementService.sealDevice()
-    console.log('Sealing device:', formValue);
-
-    // Simulate API call
-    setTimeout(() => {
-      this.loadSealedDevices();
-      this.loadUnsealedDevices();
-      this.closeSealDialog();
-      this.loading = false;
-    }, 1000);
+    this.sealService.sealDevice({
+      deviceId: formValue.deviceId,
+      reason: formValue.reason
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          console.log('Device sealed successfully:', result);
+          this.snackBar.open('Dispositivo sellado exitosamente', 'Cerrar', { duration: 3000 });
+          this.closeSealDialog();
+          this.loading = false;
+          
+          // Reload both lists - they will update their respective tabs
+          this.loadSealedDevices();
+          this.loadUnsealedDevices();
+        },
+        error: (error) => {
+          console.error('Error sealing device:', error);
+          this.snackBar.open('Error al sellar dispositivo', 'Cerrar', { duration: 3000 });
+          this.loading = false;
+        }
+      });
   }
 
   /**
@@ -251,16 +296,28 @@ export class SealManagementComponent implements OnInit, OnDestroy {
     this.loading = true;
     const formValue = this.unsealForm.value;
 
-    // TODO: Call SealManagementService.unsealDevice()
-    console.log('Unsealing device:', this.selectedDevice.deviceId, formValue);
-
-    // Simulate API call
-    setTimeout(() => {
-      this.loadSealedDevices();
-      this.loadUnsealedDevices();
-      this.closeUnsealDialog();
-      this.loading = false;
-    }, 1000);
+    this.sealService.unsealDevice({
+      deviceId: this.selectedDevice.deviceId,
+      reason: formValue.reason
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          console.log('Device unsealed successfully:', result);
+          this.snackBar.open('Dispositivo desellado exitosamente', 'Cerrar', { duration: 3000 });
+          this.closeUnsealDialog();
+          this.loading = false;
+          
+          // Reload both lists - they will update their respective tabs
+          this.loadSealedDevices();
+          this.loadUnsealedDevices();
+        },
+        error: (error) => {
+          console.error('Error unsealing device:', error);
+          this.snackBar.open('Error al dessellar dispositivo', 'Cerrar', { duration: 3000 });
+          this.loading = false;
+        }
+      });
   }
 
   /**
@@ -268,23 +325,72 @@ export class SealManagementComponent implements OnInit, OnDestroy {
    */
   verifySeal(device: SealStatus): void {
     this.loading = true;
+    this.selectedDevice = device;
 
-    // TODO: Call SealManagementService.verifySealIntegrity()
-    console.log('Verifying seal for device:', device.deviceId);
+    this.sealService.verifySeal(device.deviceId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          console.log('Seal verification result:', result);
+          this.verificationResult = result;
+          // Show verification result in a dialog
+          this.showVerificationDialog();
+          this.loadSealedDevices();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error verifying seal:', error);
+          this.snackBar.open('Error al verificar integridad del sello', 'Cerrar', { duration: 3000 });
+          this.loading = false;
+        }
+      });
+  }
 
-    // Simulate API call
-    setTimeout(() => {
-      alert('Seal verification completed. Status: ' + device.complianceStatus);
-      this.loading = false;
-    }, 1000);
+  /**
+   * Show verification result modal
+   */
+  showVerificationDialog(): void {
+    this.showVerificationModal = true;
+  }
+
+  /**
+   * Close verification modal
+   */
+  closeVerificationModal(): void {
+    this.showVerificationModal = false;
+    this.verificationResult = null;
   }
 
   /**
    * View seal history
    */
   viewHistory(device: SealStatus): void {
-    // TODO: Open dialog with seal history
-    console.log('Viewing history for device:', device.deviceId);
+    this.selectedDevice = device;
+    this.loading = true;
+
+    this.sealService.getSealHistory(device.deviceId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (history) => {
+          console.log('Seal history for device:', device.deviceId, history);
+          this.sealHistory = history || [];
+          this.showHistoryDialog = true;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading seal history:', error);
+          this.snackBar.open('Error al cargar historial del sello', 'Cerrar', { duration: 3000 });
+          this.loading = false;
+        }
+      });
+  }
+
+  /**
+   * Close history dialog
+   */
+  closeHistoryDialog(): void {
+    this.showHistoryDialog = false;
+    this.sealHistory = [];
   }
 
   /**

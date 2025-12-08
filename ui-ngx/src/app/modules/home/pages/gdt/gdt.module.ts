@@ -114,6 +114,7 @@ import { ScheduledReportService } from './reports/services/scheduled-report.serv
 import { HistoricalDataService } from './shared/services/historical-data.service';
 import { ChartConfigService } from './shared/services/chart-config.service';
 import { AuditEventService } from './shared/services/audit-event.service';
+import { SealManagementService } from './shared/services/seal-management.service';
 
 @NgModule({
   declarations: [
@@ -222,7 +223,8 @@ import { AuditEventService } from './shared/services/audit-event.service';
     HistoricalDataService,
     ChartConfigService,
     // Audit & Compliance Services
-    AuditEventService
+    AuditEventService,
+    SealManagementService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

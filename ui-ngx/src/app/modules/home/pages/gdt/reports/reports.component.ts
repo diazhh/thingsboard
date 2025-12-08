@@ -42,8 +42,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  // Report categories
-  reportCategories = Object.values(ReportCategory);
+  // Report categories (excluding ANALYSIS for now)
+  reportCategories = Object.values(ReportCategory).filter(cat => cat !== ReportCategory.ANALYSIS);
   selectedCategory: ReportCategory = ReportCategory.INVENTORY;
   selectedCategoryIndex = 0;
 
@@ -87,7 +87,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (reports) => {
-          this.availableReports = reports;
+          // Filter only ready reports (backend implemented)
+          this.availableReports = reports.filter(report => report.ready !== false);
           this.filterReports();
           this.loading = false;
         },

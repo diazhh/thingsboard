@@ -27,10 +27,11 @@
         </div>
       </div>
       <div class="header-actions">
-        <button mat-raised-button color="primary" [routerLink]="['/gdt/reports/scheduled']">
+        <!-- Scheduled Reports button hidden for now -->
+        <!-- <button mat-raised-button color="primary" [routerLink]="['/gdt/reports/scheduled']">
           <mat-icon>schedule</mat-icon>
           Scheduled Reports
-        </button>
+        </button> -->
         <button mat-raised-button [routerLink]="['/gdt/reports/history']">
           <mat-icon>history</mat-icon>
           Report History
@@ -79,6 +80,10 @@
           <div class="info-item">
             <mat-icon class="info-icon">description</mat-icon>
             <span>{{ report.supportedFormats.length }} formats</span>
+          </div>
+          <div class="info-item" *ngIf="report.ready === false">
+            <mat-icon class="info-icon warning">info</mat-icon>
+            <span class="status-text">Coming Soon</span>
           </div>
         </div>
 

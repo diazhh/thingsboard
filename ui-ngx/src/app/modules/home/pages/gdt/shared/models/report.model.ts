@@ -119,6 +119,7 @@ export interface ReportInfo {
   requiredParameters: string[];
   optionalParameters: string[];
   estimatedGenerationTime: number; // seconds
+  ready?: boolean; // true if backend is implemented, false if only frontend
 }
 
 /**
@@ -286,7 +287,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: ['date'],
     optionalParameters: ['tankIds', 'productFilter'],
-    estimatedGenerationTime: 30
+    estimatedGenerationTime: 30,
+    ready: true
   },
   [ReportType.TANK_INVENTORY_SUMMARY]: {
     type: ReportType.TANK_INVENTORY_SUMMARY,
@@ -297,7 +299,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: [],
     optionalParameters: ['tankIds', 'productFilter', 'includeCharts'],
-    estimatedGenerationTime: 20
+    estimatedGenerationTime: 20,
+    ready: true
   },
   [ReportType.PRODUCT_INVENTORY_BY_GROUP]: {
     type: ReportType.PRODUCT_INVENTORY_BY_GROUP,
@@ -308,7 +311,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: [],
     optionalParameters: ['productFilter', 'groupFilter'],
-    estimatedGenerationTime: 25
+    estimatedGenerationTime: 25,
+    ready: true
   },
   [ReportType.TANK_STATUS]: {
     type: ReportType.TANK_STATUS,
@@ -319,7 +323,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: [],
     optionalParameters: ['tankIds'],
-    estimatedGenerationTime: 15
+    estimatedGenerationTime: 15,
+    ready: true
   },
   [ReportType.CAPACITY_UTILIZATION]: {
     type: ReportType.CAPACITY_UTILIZATION,
@@ -330,7 +335,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF],
     requiredParameters: [],
     optionalParameters: ['tankIds', 'startDate', 'endDate'],
-    estimatedGenerationTime: 35
+    estimatedGenerationTime: 35,
+    ready: true
   },
   [ReportType.LOW_STOCK_ALERT]: {
     type: ReportType.LOW_STOCK_ALERT,
@@ -341,7 +347,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: [],
     optionalParameters: ['threshold'],
-    estimatedGenerationTime: 10
+    estimatedGenerationTime: 10,
+    ready: true
   },
   [ReportType.OVERFILL_RISK]: {
     type: ReportType.OVERFILL_RISK,
@@ -352,7 +359,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF],
     requiredParameters: [],
     optionalParameters: ['threshold'],
-    estimatedGenerationTime: 10
+    estimatedGenerationTime: 10,
+    ready: true
   },
   [ReportType.BATCH_TRANSFER]: {
     type: ReportType.BATCH_TRANSFER,
@@ -363,7 +371,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF],
     requiredParameters: ['batchId'],
     optionalParameters: [],
-    estimatedGenerationTime: 20
+    estimatedGenerationTime: 20,
+    ready: false
   },
   [ReportType.BATCH_HISTORY]: {
     type: ReportType.BATCH_HISTORY,
@@ -374,7 +383,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: ['tankIds', 'batchType'],
-    estimatedGenerationTime: 30
+    estimatedGenerationTime: 30,
+    ready: false
   },
   [ReportType.MASS_BALANCE]: {
     type: ReportType.MASS_BALANCE,
@@ -385,7 +395,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: ['tankIds'],
-    estimatedGenerationTime: 40
+    estimatedGenerationTime: 40,
+    ready: true
   },
   [ReportType.TRANSFER_RECONCILIATION]: {
     type: ReportType.TRANSFER_RECONCILIATION,
@@ -396,7 +407,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: ['sourceBatchId', 'destinationBatchId'],
     optionalParameters: [],
-    estimatedGenerationTime: 25
+    estimatedGenerationTime: 25,
+    ready: false
   },
   [ReportType.LABORATORY_ANALYSIS]: {
     type: ReportType.LABORATORY_ANALYSIS,
@@ -407,7 +419,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: ['tankIds', 'includeCharts'],
-    estimatedGenerationTime: 30
+    estimatedGenerationTime: 30,
+    ready: false
   },
   [ReportType.MANUAL_GAUGING]: {
     type: ReportType.MANUAL_GAUGING,
@@ -418,7 +431,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: ['tankIds'],
-    estimatedGenerationTime: 25
+    estimatedGenerationTime: 25,
+    ready: false
   },
   [ReportType.DEVIATION_ANALYSIS]: {
     type: ReportType.DEVIATION_ANALYSIS,
@@ -429,7 +443,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: ['tankIds'],
-    estimatedGenerationTime: 35
+    estimatedGenerationTime: 35,
+    ready: false
   },
   [ReportType.TEMPERATURE_PROFILE]: {
     type: ReportType.TEMPERATURE_PROFILE,
@@ -440,7 +455,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF],
     requiredParameters: ['tankId', 'startDate', 'endDate'],
     optionalParameters: [],
-    estimatedGenerationTime: 30
+    estimatedGenerationTime: 30,
+    ready: false
   },
   [ReportType.DENSITY_VARIATION]: {
     type: ReportType.DENSITY_VARIATION,
@@ -451,7 +467,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: ['tankIds'],
-    estimatedGenerationTime: 30
+    estimatedGenerationTime: 30,
+    ready: false
   },
   [ReportType.HISTORICAL_LEVEL_TRENDS]: {
     type: ReportType.HISTORICAL_LEVEL_TRENDS,
@@ -462,7 +479,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: ['tankIds', 'startDate', 'endDate'],
     optionalParameters: ['aggregation'],
-    estimatedGenerationTime: 40
+    estimatedGenerationTime: 40,
+    ready: true
   },
   [ReportType.HISTORICAL_VOLUME_TRENDS]: {
     type: ReportType.HISTORICAL_VOLUME_TRENDS,
@@ -473,7 +491,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: ['tankIds', 'startDate', 'endDate'],
     optionalParameters: ['aggregation'],
-    estimatedGenerationTime: 40
+    estimatedGenerationTime: 40,
+    ready: true
   },
   [ReportType.ALARM_HISTORY]: {
     type: ReportType.ALARM_HISTORY,
@@ -484,7 +503,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: ['tankIds', 'alarmType', 'severity'],
-    estimatedGenerationTime: 35
+    estimatedGenerationTime: 35,
+    ready: true
   },
   [ReportType.EVENT_LOG]: {
     type: ReportType.EVENT_LOG,
@@ -495,7 +515,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.CSV],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: ['eventType', 'userId'],
-    estimatedGenerationTime: 30
+    estimatedGenerationTime: 30,
+    ready: true
   },
   [ReportType.CONFIGURATION_CHANGE_HISTORY]: {
     type: ReportType.CONFIGURATION_CHANGE_HISTORY,
@@ -506,7 +527,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: ['changeType'],
-    estimatedGenerationTime: 25
+    estimatedGenerationTime: 25,
+    ready: false
   },
   [ReportType.PERFORMANCE_METRICS]: {
     type: ReportType.PERFORMANCE_METRICS,
@@ -517,7 +539,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: [],
-    estimatedGenerationTime: 30
+    estimatedGenerationTime: 30,
+    ready: false
   },
   [ReportType.OIML_R85_COMPLIANCE]: {
     type: ReportType.OIML_R85_COMPLIANCE,
@@ -528,7 +551,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF],
     requiredParameters: [],
     optionalParameters: [],
-    estimatedGenerationTime: 60
+    estimatedGenerationTime: 60,
+    ready: true
   },
   [ReportType.AUDIT_TRAIL_SUMMARY]: {
     type: ReportType.AUDIT_TRAIL_SUMMARY,
@@ -539,7 +563,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF],
     requiredParameters: ['startDate', 'endDate'],
     optionalParameters: [],
-    estimatedGenerationTime: 35
+    estimatedGenerationTime: 35,
+    ready: true
   },
   [ReportType.CALIBRATION_STATUS]: {
     type: ReportType.CALIBRATION_STATUS,
@@ -550,7 +575,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
     requiredParameters: [],
     optionalParameters: ['deviceType'],
-    estimatedGenerationTime: 20
+    estimatedGenerationTime: 20,
+    ready: true
   }
 };
 

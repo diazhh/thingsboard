@@ -14,7 +14,7 @@
 
   <!-- Tabs -->
   <mat-card class="tabs-card">
-    <mat-tab-group (selectedIndexChange)="onTabChange($event)">
+    <mat-tab-group [selectedIndex]="selectedTab" (selectedIndexChange)="onTabChange($event)">
       <!-- Sealed Devices Tab -->
       <mat-tab label="Dispositivos Sellados">
         <ng-template mat-tab-label>
@@ -104,15 +104,17 @@
                 <ng-container matColumnDef="actions">
                   <th mat-header-cell *matHeaderCellDef>Acciones</th>
                   <td mat-cell *matCellDef="let element">
-                    <button mat-icon-button (click)="verifySeal(element)" matTooltip="Verificar Integridad">
-                      <mat-icon>verified_user</mat-icon>
-                    </button>
-                    <button mat-icon-button (click)="viewHistory(element)" matTooltip="Ver Historial">
-                      <mat-icon>history</mat-icon>
-                    </button>
-                    <button mat-icon-button (click)="openUnsealDialog(element)" matTooltip="Dessellar">
-                      <mat-icon>lock_open</mat-icon>
-                    </button>
+                    <div class="action-buttons">
+                      <button mat-icon-button (click)="verifySeal(element)" matTooltip="Verificar Integridad">
+                        <mat-icon>verified_user</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="viewHistory(element)" matTooltip="Ver Historial">
+                        <mat-icon>history</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="openUnsealDialog(element)" matTooltip="Dessellar">
+                        <mat-icon>lock_open</mat-icon>
+                      </button>
+                    </div>
                   </td>
                 </ng-container>
 
@@ -196,7 +198,7 @@
                 <ng-container matColumnDef="actions">
                   <th mat-header-cell *matHeaderCellDef>Acciones</th>
                   <td mat-cell *matCellDef="let element">
-                    <button mat-icon-button (click)="openSealDialog()" matTooltip="Sellar">
+                    <button mat-icon-button (click)="openSealDialog(element)" matTooltip="Sellar">
                       <mat-icon>lock</mat-icon>
                     </button>
                   </td>
@@ -281,6 +283,93 @@
           <mat-icon>lock_open</mat-icon>
           Dessellar
         </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- History Dialog -->
+  <div *ngIf="showHistoryDialog" class="dialog-overlay">
+    <mat-card class="dialog-card">
+      <mat-card-header>
+        <mat-card-title>Historial de Sellado - {{ selectedDevice?.deviceName }}</mat-card-title>
+        <button mat-icon-button (click)="closeHistoryDialog()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="sealHistory.length > 0; else noHistory">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Razón</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of sealHistory">
+                <td>{{ record.sealedAt | date:'short' || record.timestamp | date:'short' }}</td>
+                <td>
+                  <mat-chip [color]="record.state === 'SEALED' ? 'primary' : 'warn'" selected>
+                    {{ record.state || 'UNKNOWN' }}
+                  </mat-chip>
+                </td>
+                <td>{{ record.sealedBy || record.userId || '-' }}</td>
+                <td>{{ record.sealReason || record.reason || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noHistory>
+          <p class="info-text">No hay registros de historial para este dispositivo</p>
+        </ng-template>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button (click)="closeHistoryDialog()">Cerrar</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Verification Result Modal -->
+  <div *ngIf="showVerificationModal" class="dialog-overlay">
+    <mat-card class="dialog-card verification-modal">
+      <mat-card-header>
+        <mat-card-title>Resultado de Verificación</mat-card-title>
+        <button mat-icon-button (click)="closeVerificationModal()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="verification-result" [ngClass]="verificationResult?.isValid ? 'valid' : 'invalid'">
+          <mat-icon class="result-icon">{{ verificationResult?.isValid ? 'check_circle' : 'error' }}</mat-icon>
+          <h2 class="result-message">
+            {{ verificationResult?.isValid ? '✓ Sello Válido' : '✗ Sello Inválido' }}
+          </h2>
+          <p class="result-description">
+            {{ verificationResult?.isValid 
+              ? 'El sello electrónico es válido e íntegro. No ha sido comprometido.' 
+              : 'El sello electrónico ha sido comprometido o modificado. Requiere investigación inmediata.' }}
+          </p>
+          
+          <div class="result-details">
+            <div class="detail-item">
+              <span class="detail-label">Dispositivo:</span>
+              <span class="detail-value">{{ selectedDevice?.deviceName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Fecha de Verificación:</span>
+              <span class="detail-value">{{ verificationResult?.timestamp | date:'medium' }}</span>
+            </div>
+            <div class="detail-item" *ngIf="verificationResult?.deviceId">
+              <span class="detail-label">ID del Dispositivo:</span>
+              <span class="detail-value">{{ verificationResult?.deviceId }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="closeVerificationModal()">Cerrar</button>
       </mat-card-actions>
     </mat-card>
   </div>
