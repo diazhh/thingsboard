@@ -33,6 +33,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgxEchartsModule } from 'ngx-echarts';
 
@@ -68,10 +69,12 @@ import { TankShapeVisualComponent } from './tank-monitoring/components/tank-shap
 // Aforo Manual Subcomponents
 import { AforoFormComponent } from './aforo-manual/components/aforo-form/aforo-form.component';
 import { AforoHistoryComponent } from './aforo-manual/components/aforo-history/aforo-history.component';
+import { AforoFormDialogComponent } from './aforo-manual/dialogs/aforo-form-dialog.component';
 
 // Laboratorio Subcomponents
 import { LabFormComponent } from './laboratorio/components/lab-form/lab-form.component';
 import { LabHistoryComponent } from './laboratorio/components/lab-history/lab-history.component';
+import { LabFormDialogComponent } from './laboratorio/dialogs/lab-form-dialog.component';
 
 // Gateway Configuration Subcomponents
 import { PortListComponent } from './gateway-configuration/components/port-list/port-list.component';
@@ -149,9 +152,11 @@ import { SealManagementService } from './shared/services/seal-management.service
     // Aforo Manual Subcomponents
     AforoFormComponent,
     AforoHistoryComponent,
+    AforoFormDialogComponent,
     // Laboratorio Subcomponents
     LabFormComponent,
     LabHistoryComponent,
+    LabFormDialogComponent,
     // Gateway Configuration Subcomponents
     PortListComponent,
     AddPortDialogComponent,
@@ -190,6 +195,7 @@ import { SealManagementService } from './shared/services/seal-management.service
     MatNativeDateModule,
     MatDialogModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
     // Charts
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts')

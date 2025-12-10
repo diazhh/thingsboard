@@ -17,7 +17,7 @@
 -->
 <h2 mat-dialog-title>
   <mat-icon>inventory_2</mat-icon>
-  Detalle del Batch {{ batch.batchNumber }}
+  Detalle del Lote {{ batch.batchNumber }}
 </h2>
 
 <div mat-dialog-content>
@@ -28,7 +28,7 @@
       <h3>Información General</h3>
       <div class="info-grid">
         <div class="info-item">
-          <span class="label">Batch Number:</span>
+          <span class="label">Número de Lote:</span>
           <span class="value">{{ batch.batchNumber }}</span>
         </div>
         <div class="info-item">
@@ -44,7 +44,7 @@
         <div class="info-item">
           <span class="label">Estado:</span>
           <span class="badge badge-status">
-            {{ batch.status.toUpperCase() }}
+            {{ getStatusLabel(batch.status) }}
           </span>
         </div>
       </div>
@@ -71,7 +71,7 @@
           <span class="value">{{ formatNumber(batch.opening.temperature, 1) }} °C</span>
         </div>
         <div class="info-item">
-          <span class="label">API Gravity:</span>
+          <span class="label">Gravedad API:</span>
           <span class="value">{{ formatNumber(batch.opening.apiGravity, 2) }} °API</span>
         </div>
         <div class="info-item">
@@ -130,7 +130,7 @@
           <span class="value">{{ formatNumber(batch.closing.temperature, 1) }} °C</span>
         </div>
         <div class="info-item">
-          <span class="label">API Gravity:</span>
+          <span class="label">Gravedad API:</span>
           <span class="value">{{ formatNumber(batch.closing.apiGravity, 2) }} °API</span>
         </div>
         <div class="info-item">

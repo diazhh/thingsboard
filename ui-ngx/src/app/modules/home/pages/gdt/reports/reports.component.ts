@@ -115,7 +115,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
    */
   filterReports(): void {
     this.filteredReports = this.availableReports.filter(report => {
-      const matchesCategory = report.category === this.selectedCategory;
+      const matchesCategory = !this.selectedCategory || report.category === this.selectedCategory;
       const matchesSearch = !this.searchText ||
         report.name.toLowerCase().includes(this.searchText.toLowerCase()) ||
         report.description.toLowerCase().includes(this.searchText.toLowerCase());
@@ -126,16 +126,16 @@ export class ReportsComponent implements OnInit, OnDestroy {
   /**
    * Handle category change
    */
-  onCategoryChange(category: ReportCategory): void {
-    this.selectedCategory = category;
+  onCategoryChange(): void {
     this.filterReports();
   }
 
   /**
-   * Handle category tab change
+   * Clear filters
    */
-  onCategoryTabChange(index: number): void {
-    this.selectedCategory = this.reportCategories[index];
+  clearFilters(): void {
+    this.searchText = '';
+    this.selectedCategory = null;
     this.filterReports();
   }
 

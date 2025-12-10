@@ -21,11 +21,15 @@ import { AppState } from '@core/core.state';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { WidgetContext } from '@home/models/widget-component.models';
+import { MatDialog } from '@angular/material/dialog';
 
 // GDT Services
 import { TankAssetService, TankAsset } from '../shared/services/tank-asset.service';
 import { ManualTelemetryService, ManualTelemetryEntry } from '../tank-monitoring/services/manual-telemetry.service';
 import { GdtWidgetContextService } from '../shared/services/gdt-widget-context.service';
+
+// Dialog Component
+import { AforoFormDialogComponent } from './dialogs/aforo-form-dialog.component';
 
 @Component({
   selector: 'tb-aforo-manual',
@@ -38,8 +42,9 @@ export class AforoManualComponent extends PageComponent implements OnInit, OnDes
   widgetContext: WidgetContext;
 
   tanks: Array<{ asset: TankAsset, attributes: any }> = [];
-  selectedTank: { asset: TankAsset, attributes: any } | null = null;
+  selectedTankFilter: { asset: TankAsset, attributes: any } | null = null;
   telemetryHistory: ManualTelemetryEntry[] = [];
+  allTelemetryHistory: ManualTelemetryEntry[] = [];
   loading = false;
   loadingHistory = false;
 
@@ -48,7 +53,8 @@ export class AforoManualComponent extends PageComponent implements OnInit, OnDes
     private tankAssetService: TankAssetService,
     private manualTelemetryService: ManualTelemetryService,
     private gdtContextService: GdtWidgetContextService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     super(store);
   }
@@ -72,11 +78,8 @@ export class AforoManualComponent extends PageComponent implements OnInit, OnDes
         next: (tanks) => {
           this.tanks = tanks;
           this.loading = false;
-          
-          // Auto-select first tank if available
-          if (tanks.length > 0 && !this.selectedTank) {
-            this.onTankSelected(tanks[0]);
-          }
+          // Load all telemetry history after tanks are loaded
+          this.loadAllTelemetryHistory();
         },
         error: (err) => {
           console.error('Error loading tanks:', err);
@@ -85,36 +88,99 @@ export class AforoManualComponent extends PageComponent implements OnInit, OnDes
       });
   }
 
-  onTankSelected(tank: { asset: TankAsset, attributes: any }) {
-    this.selectedTank = tank;
-    if (tank.asset.id) {
-      this.loadTelemetryHistory(tank.asset.id.id);
+  onTankFilterChanged(tank: { asset: TankAsset, attributes: any } | null) {
+    this.selectedTankFilter = tank;
+    this.applyTankFilter();
+  }
+
+  applyTankFilter() {
+    if (this.selectedTankFilter) {
+      // Filter history by selected tank
+      this.telemetryHistory = this.allTelemetryHistory.filter(
+        entry => entry.tankId === this.selectedTankFilter?.asset.id.id
+      );
+    } else {
+      // Show all history
+      this.telemetryHistory = [...this.allTelemetryHistory];
     }
   }
 
-  loadTelemetryHistory(tankId: string) {
+  loadAllTelemetryHistory() {
     this.loadingHistory = true;
     const endTime = Date.now();
     const startTime = endTime - (30 * 24 * 60 * 60 * 1000); // Last 30 days
     
-    this.manualTelemetryService.getManualEntryHistory(this.widgetContext, tankId, startTime, endTime, 100)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (history) => {
-          this.telemetryHistory = history;
-          this.loadingHistory = false;
-        },
-        error: (err) => {
-          console.error('Error loading telemetry history:', err);
-          this.loadingHistory = false;
-        }
-      });
+    // Load history for all tanks
+    const tankIds = this.tanks.map(t => t.asset.id.id);
+    if (tankIds.length === 0) {
+      this.loadingHistory = false;
+      return;
+    }
+
+    // Load history for each tank and combine
+    let completedRequests = 0;
+    const allHistory: ManualTelemetryEntry[] = [];
+
+    tankIds.forEach(tankId => {
+      // Find tank info
+      const tankInfo = this.tanks.find(t => t.asset.id.id === tankId);
+      const tankTag = tankInfo?.attributes.tankTag || tankInfo?.asset.name || 'N/A';
+      
+      this.manualTelemetryService.getManualEntryHistory(this.widgetContext, tankId, startTime, endTime, 100)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (history) => {
+            // Enrich entries with tankTag
+            const enrichedHistory = history.map(entry => ({
+              ...entry,
+              tankTag: tankTag
+            }));
+            allHistory.push(...enrichedHistory);
+            completedRequests++;
+            
+            if (completedRequests === tankIds.length) {
+              // Sort by timestamp descending
+              this.allTelemetryHistory = allHistory.sort((a, b) => b.timestamp - a.timestamp);
+              this.applyTankFilter();
+              this.loadingHistory = false;
+              console.log('[AforoManual] Loaded history entries:', this.allTelemetryHistory.length);
+              console.log('[AforoManual] Sample entry:', this.allTelemetryHistory[0]);
+            }
+          },
+          error: (err) => {
+            console.error('Error loading telemetry history:', err);
+            completedRequests++;
+            
+            if (completedRequests === tankIds.length) {
+              this.allTelemetryHistory = allHistory.sort((a, b) => b.timestamp - a.timestamp);
+              this.applyTankFilter();
+              this.loadingHistory = false;
+            }
+          }
+        });
+    });
   }
 
   onEntrySaved(entry: ManualTelemetryEntry) {
-    // Reload history after saving new entry
-    if (this.selectedTank && this.selectedTank.asset.id) {
-      this.loadTelemetryHistory(this.selectedTank.asset.id.id);
-    }
+    // Reload all history after saving new entry
+    this.loadAllTelemetryHistory();
+  }
+
+  openAforoDialog() {
+    const dialogRef = this.dialog.open(AforoFormDialogComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: {
+        tanks: this.tanks,
+        widgetContext: this.widgetContext
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Reload history after saving new entry
+        this.onEntrySaved(result);
+      }
+    });
   }
 }
