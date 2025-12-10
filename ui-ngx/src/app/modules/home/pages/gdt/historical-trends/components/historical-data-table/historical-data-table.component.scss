@@ -1,0 +1,125 @@
+.historical-data-table-container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .filter-field {
+    max-width: 400px;
+  }
+
+  .export-button {
+    align-self: flex-end;
+    margin-bottom: 8px;
+
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  .table-container {
+    overflow-x: auto;
+    max-height: 600px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+
+    .data-table {
+      width: 100%;
+      background-color: white;
+
+      th {
+        background-color: #f5f5f5;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.87);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      td {
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      tr.mat-row:hover {
+        background-color: #f5f5f5;
+      }
+
+      .no-data {
+        text-align: center;
+        padding: 40px 16px;
+        color: rgba(0, 0, 0, 0.4);
+
+        mat-icon {
+          vertical-align: middle;
+          margin-right: 8px;
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+
+        span {
+          vertical-align: middle;
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  mat-paginator {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .historical-data-table-container {
+    padding: 8px;
+
+    .filter-field {
+      max-width: 100%;
+    }
+
+    .export-button {
+      width: 100%;
+      align-self: stretch;
+    }
+
+    .table-container {
+      max-height: 400px;
+    }
+  }
+}
+
+// Dark theme support
+.dark-theme {
+  .historical-data-table-container {
+    .table-container {
+      border-color: rgba(255, 255, 255, 0.12);
+
+      .data-table {
+        background-color: #303030;
+
+        th {
+          background-color: #424242;
+          color: rgba(255, 255, 255, 0.87);
+        }
+
+        td {
+          color: rgba(255, 255, 255, 0.87);
+        }
+
+        tr.mat-row:hover {
+          background-color: #424242;
+        }
+
+        .no-data {
+          color: rgba(255, 255, 255, 0.5);
+        }
+      }
+    }
+
+    mat-paginator {
+      border-top-color: rgba(255, 255, 255, 0.12);
+    }
+  }
+}

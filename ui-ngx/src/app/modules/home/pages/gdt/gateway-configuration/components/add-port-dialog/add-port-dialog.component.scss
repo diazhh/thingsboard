@@ -1,0 +1,283 @@
+/**
+ * Copyright © 2016-2025 The Thingsboard Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.dialog-container {
+  min-width: 600px;
+  max-width: 700px;
+}
+
+// ============================================================================
+// DIALOG HEADER
+// ============================================================================
+
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 24px 24px 16px;
+  font-size: 24px;
+  font-weight: 500;
+
+  mat-icon {
+    color: #1976d2;
+  }
+}
+
+// ============================================================================
+// DIALOG CONTENT
+// ============================================================================
+
+mat-dialog-content {
+  padding: 0 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+// ============================================================================
+// AVAILABLE PORTS SECTION
+// ============================================================================
+
+.available-ports-section {
+  margin-bottom: 24px;
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .section-description {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .section-divider {
+    margin: 24px 0;
+  }
+}
+
+.available-ports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.available-port-button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px;
+  background: #f5f5f5;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+
+  &:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .port-device {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+
+    mat-icon {
+      color: #1976d2;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    code {
+      background: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #333;
+      font-weight: 600;
+    }
+  }
+
+  .port-description {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  .port-manufacturer {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+  }
+}
+
+// ============================================================================
+// FORM SECTIONS
+// ============================================================================
+
+.port-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+}
+
+.form-row {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  &.two-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  &.three-columns {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+// ============================================================================
+// FORM FIELDS
+// ============================================================================
+
+mat-form-field {
+  mat-icon[matPrefix] {
+    margin-right: 12px;
+    color: #666;
+  }
+
+  input[readonly] {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// ============================================================================
+// CHECKBOXES
+// ============================================================================
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  mat-checkbox {
+    .checkbox-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      strong {
+        font-size: 14px;
+        color: #333;
+      }
+
+      .checkbox-description {
+        font-size: 12px;
+        color: #666;
+        font-weight: normal;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// DIALOG ACTIONS
+// ============================================================================
+
+mat-dialog-actions {
+  padding: 16px 24px;
+  margin: 0;
+  border-top: 1px solid #e0e0e0;
+
+  button {
+    margin-left: 8px;
+
+    mat-icon {
+      margin-right: 8px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+
+@media (max-width: 600px) {
+  .dialog-container {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .form-row {
+    &.two-columns,
+    &.three-columns {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .available-ports-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============================================================================
+// DARK MODE SUPPORT
+// ============================================================================
+
+@media (prefers-color-scheme: dark) {
+  .available-port-button {
+    background: rgba(255, 255, 255, 0.05);
+
+    &:hover {
+      background: rgba(33, 150, 243, 0.1);
+    }
+
+    .port-device code {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+    }
+  }
+}

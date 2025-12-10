@@ -1,0 +1,125 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="device-diagnostics" *ngIf="diagnostics">
+  <!-- Header -->
+  <mat-card class="header-card" [ngClass]="getStatusClass()">
+    <mat-card-header>
+      <mat-icon class="status-icon">{{ getStatusIcon() }}</mat-icon>
+      <div class="header-content">
+        <mat-card-title>{{ diagnostics.deviceName }}</mat-card-title>
+        <mat-card-subtitle>{{ diagnostics.protocol }} on {{ diagnostics.portName }}</mat-card-subtitle>
+      </div>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Statistics Grid -->
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <mat-icon>check_circle</mat-icon>
+        <mat-card-title>Total Reads</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value">{{ diagnostics.statistics.totalReads }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <mat-icon>done_all</mat-icon>
+        <mat-card-title>Successful</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value success">{{ diagnostics.statistics.successfulReads }}</div>
+        <div class="stat-percentage">{{ getSuccessRate().toFixed(1) }}%</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <mat-icon>error_outline</mat-icon>
+        <mat-card-title>Failed</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value error">{{ diagnostics.statistics.failedReads }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <mat-icon>schedule</mat-icon>
+        <mat-card-title>Avg Read Time</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value">{{ formatTime(diagnostics.statistics.averageReadTime) }}</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Last Value -->
+  <mat-card class="section-card" *ngIf="diagnostics.statistics.lastValue">
+    <mat-card-header>
+      <mat-card-title>Last Value</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="last-value">
+        <pre>{{ diagnostics.statistics.lastValue | json }}</pre>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Last Error -->
+  <mat-card class="section-card error-card" *ngIf="diagnostics.statistics.lastError">
+    <mat-card-header>
+      <mat-icon>error</mat-icon>
+      <mat-card-title>Last Error</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="error-message">{{ diagnostics.statistics.lastError }}</div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Last Update -->
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>Last Update</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="last-update">{{ formatDate(diagnostics.lastUpdate) }}</div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Refresh Button -->
+  <button mat-raised-button color="primary" (click)="loadDiagnostics()" [disabled]="isLoading" class="refresh-btn">
+    <mat-icon *ngIf="!isLoading">refresh</mat-icon>
+    <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+    {{ isLoading ? 'Loading...' : 'Refresh' }}
+  </button>
+</div>
+
+<!-- Loading State -->
+<div class="loading-state" *ngIf="isLoading && !diagnostics">
+  <mat-spinner diameter="50"></mat-spinner>
+  <p>Loading device diagnostics...</p>
+</div>
+
+<!-- Empty State -->
+<div class="empty-state" *ngIf="!diagnostics && !isLoading">
+  <mat-icon>info</mat-icon>
+  <p>No device selected</p>
+</div>

@@ -1,0 +1,376 @@
+<div class="seal-management-container">
+  <!-- Header -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>lock</mat-icon>
+        Gestión de Sellado Electrónico
+      </mat-card-title>
+      <mat-card-subtitle>
+        Control de sellado de dispositivos para cumplimiento OIML R85
+      </mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Tabs -->
+  <mat-card class="tabs-card">
+    <mat-tab-group [selectedIndex]="selectedTab" (selectedIndexChange)="onTabChange($event)">
+      <!-- Sealed Devices Tab -->
+      <mat-tab label="Dispositivos Sellados">
+        <ng-template mat-tab-label>
+          <mat-icon>lock</mat-icon>
+          <span>Sellados ({{ sealedDevices.length }})</span>
+        </ng-template>
+
+        <mat-card-content>
+          <div class="tab-content">
+            <button mat-raised-button color="primary" (click)="openSealDialog()" [disabled]="loading">
+              <mat-icon>add</mat-icon>
+              Sellar Dispositivo
+            </button>
+
+            <div class="table-container" *ngIf="selectedTab === 0">
+              <table mat-table [dataSource]="dataSource" matSort class="seal-table">
+                <!-- Device Name Column -->
+                <ng-container matColumnDef="deviceName">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Dispositivo</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element.deviceName }}
+                  </td>
+                </ng-container>
+
+                <!-- State Column -->
+                <ng-container matColumnDef="state">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
+                  <td mat-cell *matCellDef="let element">
+                    <mat-chip-list>
+                      <mat-chip [color]="getStateColor(element.state)" selected>
+                        <mat-icon>{{ getStateIcon(element.state) }}</mat-icon>
+                        {{ element.state }}
+                      </mat-chip>
+                    </mat-chip-list>
+                  </td>
+                </ng-container>
+
+                <!-- Sealed By Column -->
+                <ng-container matColumnDef="sealedBy">
+                  <th mat-header-cell *matHeaderCellDef>Sellado Por</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element.sealedBy || '-' }}
+                  </td>
+                </ng-container>
+
+                <!-- Sealed At Column -->
+                <ng-container matColumnDef="sealedAt">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Fecha de Sellado</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element.sealedAt | date:'short' || '-' }}
+                  </td>
+                </ng-container>
+
+                <!-- Compliance Status Column -->
+                <ng-container matColumnDef="complianceStatus">
+                  <th mat-header-cell *matHeaderCellDef>Estado de Cumplimiento</th>
+                  <td mat-cell *matCellDef="let element">
+                    <mat-chip-list>
+                      <mat-chip [color]="getComplianceColor(element.complianceStatus)" selected>
+                        {{ element.complianceStatus }}
+                      </mat-chip>
+                    </mat-chip-list>
+                  </td>
+                </ng-container>
+
+                <!-- Configuration Changes Column -->
+                <ng-container matColumnDef="configurationChanges">
+                  <th mat-header-cell *matHeaderCellDef>Cambios Config</th>
+                  <td mat-cell *matCellDef="let element">
+                    <span [class.warning]="element.configurationChanges > 0">
+                      {{ element.configurationChanges }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <!-- Data Modifications Column -->
+                <ng-container matColumnDef="dataModifications">
+                  <th mat-header-cell *matHeaderCellDef>Modificaciones Datos</th>
+                  <td mat-cell *matCellDef="let element">
+                    <span [class.warning]="element.dataModifications > 0">
+                      {{ element.dataModifications }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                  <td mat-cell *matCellDef="let element">
+                    <div class="action-buttons">
+                      <button mat-icon-button (click)="verifySeal(element)" matTooltip="Verificar Integridad">
+                        <mat-icon>verified_user</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="viewHistory(element)" matTooltip="Ver Historial">
+                        <mat-icon>history</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="openUnsealDialog(element)" matTooltip="Dessellar">
+                        <mat-icon>lock_open</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+              </table>
+            </div>
+
+            <!-- Paginator -->
+            <mat-paginator
+              [pageSizeOptions]="[10, 25, 50, 100]"
+              showFirstLastButtons>
+            </mat-paginator>
+          </div>
+        </mat-card-content>
+      </mat-tab>
+
+      <!-- Unsealed Devices Tab -->
+      <mat-tab label="Dispositivos Sin Sellar">
+        <ng-template mat-tab-label>
+          <mat-icon>lock_open</mat-icon>
+          <span>Sin Sellar ({{ unsealedDevices.length }})</span>
+        </ng-template>
+
+        <mat-card-content>
+          <div class="tab-content">
+            <p class="info-text">Dispositivos que no están sellados electrónicamente</p>
+
+            <div class="table-container" *ngIf="selectedTab === 1">
+              <table mat-table [dataSource]="dataSource" matSort class="seal-table">
+                <!-- Device Name Column -->
+                <ng-container matColumnDef="deviceName">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Dispositivo</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element.deviceName }}
+                  </td>
+                </ng-container>
+
+                <!-- State Column -->
+                <ng-container matColumnDef="state">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
+                  <td mat-cell *matCellDef="let element">
+                    <mat-chip-list>
+                      <mat-chip [color]="getStateColor(element.state)" selected>
+                        <mat-icon>{{ getStateIcon(element.state) }}</mat-icon>
+                        {{ element.state }}
+                      </mat-chip>
+                    </mat-chip-list>
+                  </td>
+                </ng-container>
+
+                <!-- Compliance Status Column -->
+                <ng-container matColumnDef="complianceStatus">
+                  <th mat-header-cell *matHeaderCellDef>Estado de Cumplimiento</th>
+                  <td mat-cell *matCellDef="let element">
+                    <mat-chip-list>
+                      <mat-chip [color]="getComplianceColor(element.complianceStatus)" selected>
+                        {{ element.complianceStatus }}
+                      </mat-chip>
+                    </mat-chip-list>
+                  </td>
+                </ng-container>
+
+                <!-- Configuration Changes Column -->
+                <ng-container matColumnDef="configurationChanges">
+                  <th mat-header-cell *matHeaderCellDef>Cambios Config</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element.configurationChanges }}
+                  </td>
+                </ng-container>
+
+                <!-- Data Modifications Column -->
+                <ng-container matColumnDef="dataModifications">
+                  <th mat-header-cell *matHeaderCellDef>Modificaciones Datos</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element.dataModifications }}
+                  </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                  <td mat-cell *matCellDef="let element">
+                    <button mat-icon-button (click)="openSealDialog(element)" matTooltip="Sellar">
+                      <mat-icon>lock</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+              </table>
+            </div>
+
+            <!-- Paginator -->
+            <mat-paginator
+              [pageSizeOptions]="[10, 25, 50, 100]"
+              showFirstLastButtons>
+            </mat-paginator>
+          </div>
+        </mat-card-content>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
+
+  <!-- Seal Dialog -->
+  <div *ngIf="showSealDialog" class="dialog-overlay">
+    <mat-card class="dialog-card">
+      <mat-card-header>
+        <mat-card-title>Sellar Dispositivo</mat-card-title>
+        <button mat-icon-button (click)="closeSealDialog()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="sealForm">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Dispositivo</mat-label>
+            <mat-select formControlName="deviceId">
+              <mat-option *ngFor="let device of availableDevices" [value]="device.id">
+                {{ device.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Razón del Sellado</mat-label>
+            <textarea matInput formControlName="reason" rows="4" placeholder="Ingrese la razón del sellado..."></textarea>
+          </mat-form-field>
+        </form>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button (click)="closeSealDialog()">Cancelar</button>
+        <button mat-raised-button color="primary" (click)="sealDevice()" [disabled]="sealForm.invalid || loading">
+          <mat-icon>lock</mat-icon>
+          Sellar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Unseal Dialog -->
+  <div *ngIf="showUnsealDialog" class="dialog-overlay">
+    <mat-card class="dialog-card">
+      <mat-card-header>
+        <mat-card-title>Dessellar Dispositivo</mat-card-title>
+        <button mat-icon-button (click)="closeUnsealDialog()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <p *ngIf="selectedDevice" class="device-info">
+          <strong>Dispositivo:</strong> {{ selectedDevice.deviceName }}
+        </p>
+
+        <form [formGroup]="unsealForm">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Razón del Desellado</mat-label>
+            <textarea matInput formControlName="reason" rows="4" placeholder="Ingrese la razón del desellado..."></textarea>
+          </mat-form-field>
+        </form>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button (click)="closeUnsealDialog()">Cancelar</button>
+        <button mat-raised-button color="warn" (click)="unsealDevice()" [disabled]="unsealForm.invalid || loading">
+          <mat-icon>lock_open</mat-icon>
+          Dessellar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- History Dialog -->
+  <div *ngIf="showHistoryDialog" class="dialog-overlay">
+    <mat-card class="dialog-card">
+      <mat-card-header>
+        <mat-card-title>Historial de Sellado - {{ selectedDevice?.deviceName }}</mat-card-title>
+        <button mat-icon-button (click)="closeHistoryDialog()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="sealHistory.length > 0; else noHistory">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Razón</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of sealHistory">
+                <td>{{ record.sealedAt | date:'short' || record.timestamp | date:'short' }}</td>
+                <td>
+                  <mat-chip [color]="record.state === 'SEALED' ? 'primary' : 'warn'" selected>
+                    {{ record.state || 'UNKNOWN' }}
+                  </mat-chip>
+                </td>
+                <td>{{ record.sealedBy || record.userId || '-' }}</td>
+                <td>{{ record.sealReason || record.reason || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noHistory>
+          <p class="info-text">No hay registros de historial para este dispositivo</p>
+        </ng-template>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button (click)="closeHistoryDialog()">Cerrar</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Verification Result Modal -->
+  <div *ngIf="showVerificationModal" class="dialog-overlay">
+    <mat-card class="dialog-card verification-modal">
+      <mat-card-header>
+        <mat-card-title>Resultado de Verificación</mat-card-title>
+        <button mat-icon-button (click)="closeVerificationModal()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="verification-result" [ngClass]="verificationResult?.isValid ? 'valid' : 'invalid'">
+          <mat-icon class="result-icon">{{ verificationResult?.isValid ? 'check_circle' : 'error' }}</mat-icon>
+          <h2 class="result-message">
+            {{ verificationResult?.isValid ? '✓ Sello Válido' : '✗ Sello Inválido' }}
+          </h2>
+          <p class="result-description">
+            {{ verificationResult?.isValid 
+              ? 'El sello electrónico es válido e íntegro. No ha sido comprometido.' 
+              : 'El sello electrónico ha sido comprometido o modificado. Requiere investigación inmediata.' }}
+          </p>
+          
+          <div class="result-details">
+            <div class="detail-item">
+              <span class="detail-label">Dispositivo:</span>
+              <span class="detail-value">{{ selectedDevice?.deviceName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Fecha de Verificación:</span>
+              <span class="detail-value">{{ verificationResult?.timestamp | date:'medium' }}</span>
+            </div>
+            <div class="detail-item" *ngIf="verificationResult?.deviceId">
+              <span class="detail-label">ID del Dispositivo:</span>
+              <span class="detail-value">{{ verificationResult?.deviceId }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="closeVerificationModal()">Cerrar</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

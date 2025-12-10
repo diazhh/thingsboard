@@ -1,0 +1,138 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="tb-absolute-fill">
+  <!-- Toolbar -->
+  <mat-toolbar color="primary">
+    <h2>
+      <mat-icon class="tb-mat-20">assessment</mat-icon>
+      <span>Reportes e Informes</span>
+    </h2>
+    <span fxFlex></span>
+    <button mat-raised-button
+            color="accent"
+            [routerLink]="['/gdt/reports/history']">
+      <mat-icon>history</mat-icon>
+      Historial de Reportes
+    </button>
+    <button mat-icon-button
+            matTooltip="Ayuda"
+            matTooltipPosition="below">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <!-- Content -->
+  <div class="mat-content tb-form-panel no-border no-padding" fxLayout="column">
+    
+    <!-- Filters Panel -->
+    <div class="filters-panel">
+      <div class="filters-header">
+        <h3>Filtros</h3>
+        <button mat-icon-button
+                matTooltip="Limpiar filtros"
+                (click)="clearFilters()">
+          <mat-icon>clear_all</mat-icon>
+        </button>
+      </div>
+
+      <div class="filters-row">
+        <!-- Category Filter -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Categoría</mat-label>
+          <mat-select [(value)]="selectedCategory" (selectionChange)="onCategoryChange()">
+            <mat-option [value]="null">Todas</mat-option>
+            <mat-option *ngFor="let category of reportCategories" [value]="category">
+              {{ getCategoryLabel(category) }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>category</mat-icon>
+        </mat-form-field>
+
+        <!-- Search -->
+        <mat-form-field appearance="outline" class="filter-field filter-search">
+          <mat-label>Buscar</mat-label>
+          <input matInput
+                 [(ngModel)]="searchText"
+                 (input)="onSearchChange()"
+                 placeholder="Por nombre o descripción">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Reports Grid -->
+    <div class="reports-grid" fxFlex *ngIf="!loading">
+      <mat-card *ngFor="let report of filteredReports" class="report-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="report-icon">{{ report.icon }}</mat-icon>
+          <mat-card-title>{{ report.name }}</mat-card-title>
+          <mat-card-subtitle>{{ report.description }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="report-info">
+            <div class="info-item">
+              <mat-icon class="info-icon">schedule</mat-icon>
+              <span>~{{ report.estimatedGenerationTime }}s</span>
+            </div>
+            <div class="info-item">
+              <mat-icon class="info-icon">description</mat-icon>
+              <span>{{ report.supportedFormats.length }} formatos</span>
+            </div>
+            <div class="info-item" *ngIf="report.ready === false">
+              <mat-icon class="info-icon warning">info</mat-icon>
+              <span class="status-text">Próximamente</span>
+            </div>
+          </div>
+
+          <div class="format-badges">
+            <mat-chip *ngFor="let format of report.supportedFormats" 
+                      [ngClass]="'format-chip-' + format">
+              {{ format.toUpperCase() }}
+            </mat-chip>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="generateReport(report)">
+            <mat-icon>play_arrow</mat-icon>
+            Generar Reporte
+          </button>
+          <button mat-button>
+            <mat-icon>info</mat-icon>
+            Detalles
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredReports.length === 0" class="empty-state">
+        <mat-icon>search_off</mat-icon>
+        <h3>No hay reportes</h3>
+        <p>Intenta ajustar tu búsqueda o selecciona una categoría diferente</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Cargando reportes...</p>
+    </div>
+
+  </div>
+</div>

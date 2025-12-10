@@ -115,9 +115,14 @@ export enum MenuId {
   gdt_aforo_manual = 'gdt_aforo_manual',
   gdt_laboratorio = 'gdt_laboratorio',
   gdt_batch_management = 'gdt_batch_management',
+  gdt_reports = 'gdt_reports',
   gdt_tank_configuration = 'gdt_tank_configuration',
   gdt_user_management = 'gdt_user_management',
-  gdt_gateway_configuration = 'gdt_gateway_configuration'
+  gdt_gateway_configuration = 'gdt_gateway_configuration',
+  gdt_scheduled_reports = 'gdt_scheduled_reports',
+  gdt_historical_trends = 'gdt_historical_trends',
+  gdt_event_log_viewer = 'gdt_event_log_viewer',
+  gdt_seal_management = 'gdt_seal_management'
 }
 
 declare type MenuFilter = (authState: AuthState) => boolean;
@@ -348,6 +353,14 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
           type: 'link',
           path: '/gdt/users',
           icon: 'group',
+          customTranslate: true
+        },
+        {
+          id: MenuId.gdt_historical_trends,
+          name: 'Tendencias Históricas',
+          type: 'link',
+          path: '/gdt/historical-trends',
+          icon: 'trending_up',
           customTranslate: true
         }
       ]
@@ -868,6 +881,60 @@ export const menuSectionMap = new Map<MenuId, MenuSection>([
       path: '/gdt/batches',
       icon: 'inventory_2'
     }
+  ],
+  [
+    MenuId.gdt_reports,
+    {
+      id: MenuId.gdt_reports,
+      name: 'gdt.reports',
+      type: 'link',
+      path: '/gdt/reports',
+      icon: 'assessment'
+    }
+  ],
+  // Scheduled Reports hidden for now
+  // [
+  //   MenuId.gdt_scheduled_reports,
+  //   {
+  //     id: MenuId.gdt_scheduled_reports,
+  //     name: 'gdt.scheduled-reports',
+  //     type: 'link',
+  //     path: '/gdt/scheduled-reports',
+  //     icon: 'schedule'
+  //   }
+  // ],
+  [
+    MenuId.gdt_historical_trends,
+    {
+      id: MenuId.gdt_historical_trends,
+      name: 'Tendencias Históricas',
+      type: 'link',
+      path: '/gdt/historical-trends',
+      icon: 'trending_up',
+      customTranslate: true
+    }
+  ],
+  [
+    MenuId.gdt_event_log_viewer,
+    {
+      id: MenuId.gdt_event_log_viewer,
+      name: 'Visor de Eventos',
+      type: 'link',
+      path: '/gdt/audit/event-log-viewer',
+      icon: 'history',
+      customTranslate: true
+    }
+  ],
+  [
+    MenuId.gdt_seal_management,
+    {
+      id: MenuId.gdt_seal_management,
+      name: 'Gestión de Sellado',
+      type: 'link',
+      path: '/gdt/audit/seal-management',
+      icon: 'lock',
+      customTranslate: true
+    }
   ]
 ]);
 
@@ -969,6 +1036,11 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_aforo_manual},
           {id: MenuId.gdt_laboratorio},
           {id: MenuId.gdt_batch_management},
+          {id: MenuId.gdt_reports},
+          // {id: MenuId.gdt_scheduled_reports},
+          {id: MenuId.gdt_historical_trends},
+          {id: MenuId.gdt_event_log_viewer},
+          {id: MenuId.gdt_seal_management},
           {id: MenuId.gdt_tank_configuration},
           {id: MenuId.gdt_user_management},
           {id: MenuId.gdt_gateway_configuration}
@@ -1125,6 +1197,11 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
           {id: MenuId.gdt_aforo_manual},
           {id: MenuId.gdt_laboratorio},
           {id: MenuId.gdt_batch_management},
+          {id: MenuId.gdt_reports},
+          // {id: MenuId.gdt_scheduled_reports},
+          {id: MenuId.gdt_historical_trends},
+          {id: MenuId.gdt_event_log_viewer},
+          {id: MenuId.gdt_seal_management},
           {id: MenuId.gdt_tank_configuration},
           {id: MenuId.gdt_user_management},
           {id: MenuId.gdt_gateway_configuration}
@@ -1148,6 +1225,9 @@ const defaultUserMenuMap = new Map<Authority, MenuReference[]>([
       {id: MenuId.dashboards},
       {id: MenuId.gdt_dashboard},
       {id: MenuId.gdt_tank_monitoring},
+      {id: MenuId.gdt_reports},
+      // {id: MenuId.gdt_scheduled_reports},
+      {id: MenuId.gdt_historical_trends},
       {id: MenuId.audit_log}
     ]
   ],

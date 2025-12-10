@@ -1,0 +1,224 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<div class="dialog-container">
+  
+  <!-- Dialog Header -->
+  <h2 mat-dialog-title>
+    <mat-icon>{{ isEdit ? 'edit' : 'add' }}</mat-icon>
+    {{ isEdit ? 'Editar Puerto' : 'Agregar Puerto' }}
+  </h2>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content>
+    
+    <!-- Available Ports Section (Only in Create Mode) -->
+    <div class="available-ports-section" *ngIf="!isEdit && availablePorts.length > 0">
+      <h3>Puertos Disponibles</h3>
+      <p class="section-description">Seleccione un puerto del sistema para auto-completar la configuración</p>
+      
+      <div class="available-ports-grid">
+        <button 
+          *ngFor="let port of availablePorts"
+          class="available-port-button"
+          type="button"
+          (click)="selectAvailablePort(port)">
+          <div class="port-device">
+            <mat-icon>usb</mat-icon>
+            <code>{{ port.device }}</code>
+          </div>
+          <div class="port-description">
+            {{ port.description }}
+          </div>
+          <div class="port-manufacturer" *ngIf="port.manufacturer">
+            {{ port.manufacturer }}
+            <span *ngIf="port.product"> - {{ port.product }}</span>
+          </div>
+        </button>
+      </div>
+      
+      <mat-divider class="section-divider"></mat-divider>
+    </div>
+
+    <!-- Configuration Form -->
+    <form [formGroup]="portForm" class="port-form">
+      
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <h3>Información Básica</h3>
+        
+        <div class="form-row two-columns">
+          <!-- Port Name -->
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre del Puerto</mat-label>
+            <input matInput 
+                   formControlName="name" 
+                   placeholder="ej: port-ttyUSB0"
+                   [readonly]="isEdit">
+            <mat-icon matPrefix>label</mat-icon>
+            <mat-hint *ngIf="!isEdit">Solo letras, números, guiones y guiones bajos</mat-hint>
+            <mat-error *ngIf="hasError('name')">
+              {{ getErrorMessage('name') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Device Path -->
+          <mat-form-field appearance="outline">
+            <mat-label>Dispositivo Serial</mat-label>
+            <input matInput 
+                   formControlName="device" 
+                   placeholder="/dev/ttyUSB0">
+            <mat-icon matPrefix>settings_input_component</mat-icon>
+            <mat-error *ngIf="hasError('device')">
+              {{ getErrorMessage('device') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Description -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descripción</mat-label>
+          <input matInput 
+                 formControlName="description" 
+                 placeholder="Descripción del puerto (opcional)"
+                 maxlength="200">
+          <mat-icon matPrefix>description</mat-icon>
+          <mat-hint align="end">{{ portForm.get('description')?.value?.length || 0 }} / 200</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <!-- Serial Parameters Section -->
+      <div class="form-section">
+        <h3>Parámetros Seriales</h3>
+        
+        <div class="form-row two-columns">
+          <!-- Baudrate -->
+          <mat-form-field appearance="outline">
+            <mat-label>Baudrate</mat-label>
+            <mat-select formControlName="baudrate">
+              <mat-option *ngFor="let rate of baudrateOptions" [value]="rate">
+                {{ rate }} bps
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>speed</mat-icon>
+          </mat-form-field>
+
+          <!-- Bytesize -->
+          <mat-form-field appearance="outline">
+            <mat-label>Bytesize</mat-label>
+            <mat-select formControlName="bytesize">
+              <mat-option *ngFor="let size of bytesizeOptions" [value]="size">
+                {{ size }} bits
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>data_usage</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row three-columns">
+          <!-- Parity -->
+          <mat-form-field appearance="outline">
+            <mat-label>Paridad</mat-label>
+            <mat-select formControlName="parity">
+              <mat-option *ngFor="let option of parityOptions" [value]="option.value">
+                {{ option.label }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>check_circle</mat-icon>
+          </mat-form-field>
+
+          <!-- Stop Bits -->
+          <mat-form-field appearance="outline">
+            <mat-label>Stop Bits</mat-label>
+            <mat-select formControlName="stopbits">
+              <mat-option *ngFor="let bits of stopbitsOptions" [value]="bits">
+                {{ bits }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>stop</mat-icon>
+          </mat-form-field>
+
+          <!-- Timeout -->
+          <mat-form-field appearance="outline">
+            <mat-label>Timeout</mat-label>
+            <input matInput 
+                   type="number" 
+                   formControlName="timeout" 
+                   step="0.1"
+                   min="0.1"
+                   max="10">
+            <span matSuffix>seg</span>
+            <mat-icon matPrefix>timer</mat-icon>
+            <mat-error *ngIf="hasError('timeout')">
+              {{ getErrorMessage('timeout') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Protocol -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Protocolo</mat-label>
+          <mat-select formControlName="protocol">
+            <mat-option *ngFor="let option of protocolOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>settings_ethernet</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Advanced Options Section -->
+      <div class="form-section">
+        <h3>Opciones Avanzadas</h3>
+        
+        <div class="checkbox-group">
+          <mat-checkbox formControlName="enabled">
+            <div class="checkbox-content">
+              <strong>Habilitar puerto</strong>
+              <span class="checkbox-description">Conectar automáticamente al iniciar</span>
+            </div>
+          </mat-checkbox>
+
+          <mat-checkbox formControlName="auto_reconnect">
+            <div class="checkbox-content">
+              <strong>Auto-reconexión</strong>
+              <span class="checkbox-description">Reconectar automáticamente si se pierde la conexión</span>
+            </div>
+          </mat-checkbox>
+        </div>
+      </div>
+
+    </form>
+
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">
+      Cancelar
+    </button>
+    <button mat-raised-button 
+            color="primary" 
+            (click)="onSubmit()"
+            [disabled]="portForm.invalid">
+      <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon>
+      {{ isEdit ? 'Actualizar' : 'Crear' }}
+    </button>
+  </mat-dialog-actions>
+
+</div>

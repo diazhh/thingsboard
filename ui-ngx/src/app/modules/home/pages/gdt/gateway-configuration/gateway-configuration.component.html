@@ -169,7 +169,17 @@
       </div>
     </div>
 
-    <!-- Gateway Details -->
+    <!-- Tabs for Gateway Configuration -->
+    <mat-tab-group class="gateway-tabs" animationDuration="300ms">
+      
+      <!-- Tab 1: Credenciales MQTT -->
+      <mat-tab>
+        <ng-template matTabLabel>
+          <mat-icon class="tab-icon">vpn_key</mat-icon>
+          Credenciales MQTT
+        </ng-template>
+        <div class="tab-content">
+          <!-- Gateway Details -->
     <div class="gateway-details">
       <div class="detail-row">
         <span class="detail-label">ID del Dispositivo</span>
@@ -293,5 +303,31 @@ MQTT_CLIENT_ID={{ gateway.mqttCredentials.clientId }}</pre>
 MQTT_PORT=1883
 MQTT_ACCESS_TOKEN={{ showCredentials ? gateway.credentials.credentialsId : '********' }}</pre>
     </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 2: Puertos Seriales -->
+      <mat-tab>
+        <ng-template matTabLabel>
+          <mat-icon class="tab-icon">settings_input_component</mat-icon>
+          Puertos Seriales
+        </ng-template>
+        <div class="tab-content">
+          <tb-port-list></tb-port-list>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 3: Descubrimiento de Dispositivos -->
+      <mat-tab>
+        <ng-template matTabLabel>
+          <mat-icon class="tab-icon">search</mat-icon>
+          Discovery
+        </ng-template>
+        <div class="tab-content">
+          <tb-device-discovery></tb-device-discovery>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
   </div>
 </div>

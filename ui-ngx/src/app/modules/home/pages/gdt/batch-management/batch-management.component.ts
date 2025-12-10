@@ -60,15 +60,15 @@ export class BatchManagementComponent extends PageComponent implements OnInit, O
 
   // Filter options
   statusOptions: { label: string; value: BatchStatus }[] = [
-    { label: 'Open', value: 'open' },
-    { label: 'Closed', value: 'closed' },
-    { label: 'Recalculated', value: 'recalculated' },
-    { label: 'Voided', value: 'voided' }
+    { label: 'Abierto', value: 'open' },
+    { label: 'Cerrado', value: 'closed' },
+    { label: 'Recalculado', value: 'recalculated' },
+    { label: 'Anulado', value: 'voided' }
   ];
 
   typeOptions: { label: string; value: BatchType }[] = [
-    { label: 'Receiving', value: 'receiving' },
-    { label: 'Dispensing', value: 'dispensing' }
+    { label: 'Recepción', value: 'receiving' },
+    { label: 'Despacho', value: 'dispensing' }
   ];
 
   constructor(
@@ -323,6 +323,21 @@ export class BatchManagementComponent extends PageComponent implements OnInit, O
         return 'cancel';
       default:
         return '';
+    }
+  }
+
+  getStatusLabel(status: BatchStatus): string {
+    switch (status) {
+      case 'open':
+        return 'Abierto';
+      case 'closed':
+        return 'Cerrado';
+      case 'recalculated':
+        return 'Recalculado';
+      case 'voided':
+        return 'Anulado';
+      default:
+        return status;
     }
   }
 

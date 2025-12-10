@@ -1,15 +1,32 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
 <div class="tb-absolute-fill">
   <mat-toolbar color="primary">
     <h2>
       <mat-icon class="tb-mat-20">inventory_2</mat-icon>
-      <span>Gestión de Batches</span>
+      <span>Gestión de Lotes</span>
     </h2>
     <span fxFlex></span>
     <button mat-raised-button
             color="accent"
             (click)="createBatch()">
       <mat-icon>add</mat-icon>
-      Crear Batch
+      Crear Lote
     </button>
     <button mat-icon-button
             matTooltip="Exportar a CSV"
@@ -27,7 +44,7 @@
   <div class="mat-content tb-form-panel no-border no-padding" fxLayout="column">
     
     <!-- Filters Panel -->
-    <div class="filters-panel" fxLayout="column" fxLayoutGap="16px">
+    <div class="filters-panel">
       <div class="filters-header">
         <h3>Filtros</h3>
         <button mat-icon-button
@@ -37,10 +54,10 @@
         </button>
       </div>
 
-      <div fxLayout="row wrap" fxLayoutGap="16px" fxLayoutAlign="start center">
+      <div class="filters-row">
         
         <!-- Tank Filter -->
-        <mat-form-field appearance="outline" fxFlex="1 1 200px">
+        <mat-form-field appearance="outline" class="filter-field filter-tank">
           <mat-label>Tanque</mat-label>
           <mat-select [(value)]="selectedTankId" (selectionChange)="onFilterChange()">
             <mat-option [value]="null">Todos</mat-option>
@@ -52,7 +69,7 @@
         </mat-form-field>
 
         <!-- Type Filter -->
-        <mat-form-field appearance="outline" fxFlex="1 1 150px">
+        <mat-form-field appearance="outline" class="filter-field filter-type">
           <mat-label>Tipo</mat-label>
           <mat-select [(value)]="selectedType" (selectionChange)="onFilterChange()">
             <mat-option [value]="null">Todos</mat-option>
@@ -64,7 +81,7 @@
         </mat-form-field>
 
         <!-- Status Filter -->
-        <mat-form-field appearance="outline" fxFlex="1 1 150px">
+        <mat-form-field appearance="outline" class="filter-field filter-status">
           <mat-label>Estado</mat-label>
           <mat-select [(value)]="selectedStatus" (selectionChange)="onFilterChange()">
             <mat-option [value]="null">Todos</mat-option>
@@ -76,12 +93,12 @@
         </mat-form-field>
 
         <!-- Search -->
-        <mat-form-field appearance="outline" fxFlex="1 1 200px">
+        <mat-form-field appearance="outline" class="filter-field filter-search">
           <mat-label>Buscar</mat-label>
           <input matInput
                  [(ngModel)]="searchText"
                  (input)="onSearchChange()"
-                 placeholder="Batch # o Tanque">
+                 placeholder="Lote # o Tanque">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
@@ -95,7 +112,7 @@
 
       <div *ngIf="!loading && filteredBatches.length === 0" class="no-data-message">
         <mat-icon>inbox</mat-icon>
-        <p>No hay batches que coincidan con los filtros</p>
+        <p>No hay lotes que coincidan con los filtros</p>
       </div>
 
       <table mat-table
@@ -105,7 +122,7 @@
 
         <!-- Batch Number Column -->
         <ng-container matColumnDef="batchNumber">
-          <th mat-header-cell *matHeaderCellDef>Batch #</th>
+          <th mat-header-cell *matHeaderCellDef>Lote #</th>
           <td mat-cell *matCellDef="let batch">
             <strong>{{ batch.batchNumber }}</strong>
           </td>
@@ -136,7 +153,7 @@
             <mat-chip-set>
               <mat-chip [color]="getStatusColor(batch.status)" selected>
                 <mat-icon>{{ getStatusIcon(batch.status) }}</mat-icon>
-                {{ batch.status | uppercase }}
+                {{ getStatusLabel(batch.status) }}
               </mat-chip>
             </mat-chip-set>
           </td>
@@ -182,7 +199,7 @@
               <mat-icon>download</mat-icon>
             </button>
             <button mat-icon-button
-                    matTooltip="Cerrar batch"
+                    matTooltip="Cerrar lote"
                     (click)="closeBatch(batch)"
                     *ngIf="batch.status === 'open'">
               <mat-icon>lock</mat-icon>
