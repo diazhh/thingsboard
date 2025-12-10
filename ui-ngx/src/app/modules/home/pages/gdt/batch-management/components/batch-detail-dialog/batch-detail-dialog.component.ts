@@ -52,4 +52,19 @@ export class BatchDetailDialogComponent {
     if (value === undefined || value === null) return '-';
     return value.toFixed(decimals);
   }
+
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'open':
+        return 'Abierto';
+      case 'closed':
+        return 'Cerrado';
+      case 'recalculated':
+        return 'Recalculado';
+      case 'voided':
+        return 'Anulado';
+      default:
+        return status;
+    }
+  }
 }

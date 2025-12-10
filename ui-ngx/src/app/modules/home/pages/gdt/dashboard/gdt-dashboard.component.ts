@@ -95,7 +95,7 @@ export class GdtDashboardComponent implements OnInit, OnDestroy {
       title: 'Reportes',
       subtitle: 'Análisis y datos',
       icon: 'assessment',
-      route: '/dashboards',
+      route: '/gdt/reports',
       color: '#ff9800'
     }
   ];

@@ -55,6 +55,7 @@ import org.thingsboard.server.common.msg.notification.NotificationRuleProcessor;
 import org.thingsboard.server.common.msg.queue.TbCallback;
 import org.thingsboard.server.common.stats.TbApiUsageReportClient;
 import org.thingsboard.server.dao.alarm.AlarmService;
+import org.thingsboard.server.dao.gdt.audit.listener.AlarmEventPublisher;
 import org.thingsboard.server.service.apiusage.TbApiUsageStateService;
 import org.thingsboard.server.service.entitiy.alarm.TbAlarmCommentService;
 import org.thingsboard.server.service.subscription.TbSubscriptionUtils;
@@ -76,6 +77,7 @@ public class DefaultAlarmSubscriptionService extends AbstractSubscriptionService
     private final TbApiUsageReportClient apiUsageClient;
     private final TbApiUsageStateService apiUsageStateService;
     private final NotificationRuleProcessor notificationRuleProcessor;
+    private final AlarmEventPublisher alarmEventPublisher;
 
     @Override
     protected String getExecutorPrefix() {
@@ -88,6 +90,14 @@ public class DefaultAlarmSubscriptionService extends AbstractSubscriptionService
         var result = alarmService.createAlarm(request, creationEnabled);
         if (result.isCreated()) {
             apiUsageClient.report(request.getTenantId(), null, ApiUsageRecordKey.CREATED_ALARMS_COUNT);
+            // Publish audit event for alarm creation
+            if (alarmEventPublisher != null && result.getAlarm() != null) {
+                try {
+                    alarmEventPublisher.publishAlarmCreated(new Alarm(result.getAlarm()));
+                } catch (Exception e) {
+                    log.warn("[{}] Error publishing alarm created event", request.getTenantId(), e);
+                }
+            }
         }
         return withWsCallback(request, result);
     }
@@ -99,7 +109,15 @@ public class DefaultAlarmSubscriptionService extends AbstractSubscriptionService
 
     @Override
     public AlarmApiCallResult acknowledgeAlarm(TenantId tenantId, AlarmId alarmId, long ackTs) {
-        return withWsCallback(alarmService.acknowledgeAlarm(tenantId, alarmId, ackTs));
+        AlarmApiCallResult result = alarmService.acknowledgeAlarm(tenantId, alarmId, ackTs);
+        if (result.isSuccessful() && alarmEventPublisher != null && result.getAlarm() != null) {
+            try {
+                alarmEventPublisher.publishAlarmAcknowledged(new Alarm(result.getAlarm()));
+            } catch (Exception e) {
+                log.warn("[{}] Error publishing alarm acknowledged event", tenantId, e);
+            }
+        }
+        return withWsCallback(result);
     }
 
     @Override
@@ -109,7 +127,15 @@ public class DefaultAlarmSubscriptionService extends AbstractSubscriptionService
 
     @Override
     public AlarmApiCallResult clearAlarm(TenantId tenantId, AlarmId alarmId, long clearTs, JsonNode details, boolean pushEvent) {
-        return withWsCallback(alarmService.clearAlarm(tenantId, alarmId, clearTs, details, pushEvent));
+        AlarmApiCallResult result = alarmService.clearAlarm(tenantId, alarmId, clearTs, details, pushEvent);
+        if (result.isSuccessful() && alarmEventPublisher != null && result.getAlarm() != null) {
+            try {
+                alarmEventPublisher.publishAlarmCleared(new Alarm(result.getAlarm()));
+            } catch (Exception e) {
+                log.warn("[{}] Error publishing alarm cleared event", tenantId, e);
+            }
+        }
+        return withWsCallback(result);
     }
 
     @Override

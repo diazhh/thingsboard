@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -28,7 +28,15 @@ import { ManualTelemetryEntry } from '../../../tank-monitoring/services/manual-t
 })
 export class LabHistoryComponent implements OnInit {
 
-  @Input() selectedTank: { asset: TankAsset, attributes: any } | null = null;
+  @Input() set selectedTank(value: { asset: TankAsset, attributes: any } | null) {
+    console.log('[LabHistory] selectedTank changed:', value);
+    this._selectedTank = value;
+    this.updateDisplayedColumns();
+  }
+  get selectedTank() {
+    return this._selectedTank;
+  }
+  private _selectedTank: { asset: TankAsset, attributes: any } | null = null;
   @Input() loading = false;
   
   @Input() set analysisHistory(value: ManualTelemetryEntry[]) {
@@ -38,17 +46,32 @@ export class LabHistoryComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  displayedColumns: string[] = ['timestamp', 'apiGravity', 'bsw', 'temperature', 'operatorName', 'notes'];
+  displayedColumns: string[] = [];
   dataSource = new MatTableDataSource<ManualTelemetryEntry>([]);
   
   // Expose Math for template
   Math = Math;
 
-  constructor() {}
+  constructor(private cd: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.updateDisplayedColumns();
+  }
+
+  updateDisplayedColumns() {
+    if (this.selectedTank) {
+      // Single tank: no need for tankTag column
+      this.displayedColumns = ['timestamp', 'apiGravity', 'bsw', 'temperature', 'operatorName', 'notes'];
+      console.log('[LabHistory] Showing columns for single tank:', this.displayedColumns);
+    } else {
+      // All tanks: include tankTag column
+      this.displayedColumns = ['timestamp', 'tankTag', 'apiGravity', 'bsw', 'temperature', 'operatorName', 'notes'];
+      console.log('[LabHistory] Showing columns for all tanks:', this.displayedColumns);
+    }
+    // Force change detection
+    this.cd.detectChanges();
   }
 
   formatDate(timestamp: number): string {
@@ -66,15 +89,22 @@ export class LabHistoryComponent implements OnInit {
       return;
     }
 
-    const headers = ['Fecha/Hora', 'API Gravity (°API)', 'BS&W (%)', 'Temperatura (°C)', 'Analista', 'Notas'];
-    const csvData = this.dataSource.data.map(entry => [
-      this.formatDate(entry.timestamp),
-      entry.apiGravity?.toFixed(2) || '',
-      entry.bsw?.toFixed(2) || '',
-      entry.manualTemperature?.toFixed(2) || '',
-      entry.operatorName,
-      entry.notes || ''
-    ]);
+    const headers = this.selectedTank 
+      ? ['Fecha/Hora', 'API Gravity (°API)', 'BS&W (%)', 'Temperatura (°C)', 'Analista', 'Notas']
+      : ['Fecha/Hora', 'Tanque', 'API Gravity (°API)', 'BS&W (%)', 'Temperatura (°C)', 'Analista', 'Notas'];
+    
+    const csvData = this.dataSource.data.map(entry => {
+      const row = [
+        this.formatDate(entry.timestamp),
+        ...(this.selectedTank ? [] : [entry.tankTag || '']),
+        entry.apiGravity?.toFixed(2) || '',
+        entry.bsw?.toFixed(2) || '',
+        entry.manualTemperature?.toFixed(2) || '',
+        entry.operatorName,
+        entry.notes || ''
+      ];
+      return row;
+    });
 
     const csvContent = [
       headers.join(','),
@@ -86,7 +116,7 @@ export class LabHistoryComponent implements OnInit {
     const url = URL.createObjectURL(blob);
     
     link.setAttribute('href', url);
-    link.setAttribute('download', `analisis_laboratorio_${this.selectedTank?.attributes.tankTag || 'tanque'}_${Date.now()}.csv`);
+    link.setAttribute('download', `analisis_laboratorio_${this.selectedTank?.attributes.tankTag || 'todos'}_${Date.now()}.csv`);
     link.style.visibility = 'hidden';
     
     document.body.appendChild(link);

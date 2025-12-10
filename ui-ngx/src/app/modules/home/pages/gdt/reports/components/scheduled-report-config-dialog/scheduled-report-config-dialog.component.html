@@ -1,0 +1,183 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<h2 mat-dialog-title>
+  {{ mode === 'create' ? 'Nuevo Reporte Programado' : 'Editar Reporte Programado' }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="config-form">
+    <!-- Información Básica -->
+    <mat-card class="section">
+      <mat-card-header>
+        <mat-card-title>Información Básica</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="name" placeholder="Ej: Reporte Diario de Inventario" required>
+          <mat-error *ngIf="form.get('name')?.hasError('required')">
+            El nombre es requerido
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput formControlName="description" rows="2" 
+                    placeholder="Descripción opcional del reporte"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tipo de Reporte</mat-label>
+          <mat-select formControlName="reportType" required>
+            <mat-option *ngFor="let type of reportTypes" [value]="type.value">
+              {{ type.label }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.get('reportType')?.hasError('required')">
+            Selecciona un tipo de reporte
+          </mat-error>
+        </mat-form-field>
+
+        <mat-slide-toggle formControlName="enabled" color="primary">
+          Habilitar reporte programado
+        </mat-slide-toggle>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Programación -->
+    <mat-card class="section">
+      <mat-card-header>
+        <mat-card-title>Programación</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Frecuencia</mat-label>
+          <mat-select formControlName="cronPreset" (selectionChange)="onPresetChange($event.value)">
+            <mat-option *ngFor="let preset of cronPresets" [value]="preset.value">
+              {{ preset.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="cron-description" *ngIf="!showCustomCron && selectedPreset !== 'custom'">
+          <mat-icon>info</mat-icon>
+          <span>{{ getCronDescription(form.get('cronExpression')?.value) }}</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width" *ngIf="showCustomCron || selectedPreset === 'custom'">
+          <mat-label>Expresión Cron</mat-label>
+          <input matInput formControlName="cronExpression" 
+                 placeholder="Ej: 0 0 8 * * ? (Diario a las 8:00 AM)" required>
+          <mat-hint>Formato: segundo minuto hora día mes día-semana</mat-hint>
+          <mat-error *ngIf="form.get('cronExpression')?.hasError('required')">
+            La expresión cron es requerida
+          </mat-error>
+          <mat-error *ngIf="!validateCronExpression()">
+            Expresión cron inválida
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Zona Horaria</mat-label>
+          <mat-select formControlName="timezone" required>
+            <mat-option *ngFor="let tz of timezones" [value]="tz.value">
+              {{ tz.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Exportación -->
+    <mat-card class="section">
+      <mat-card-header>
+        <mat-card-title>Exportación</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Formatos de Exportación</mat-label>
+          <mat-select formControlName="exportFormats" multiple required>
+            <mat-option *ngFor="let format of exportFormats" [value]="format.value">
+              {{ format.label }}
+            </mat-option>
+          </mat-select>
+          <mat-hint>Selecciona uno o más formatos</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Ruta de Exportación (Opcional)</mat-label>
+          <input matInput formControlName="exportPath" placeholder="/reports/scheduled">
+          <mat-hint>Ruta donde se guardarán los archivos exportados</mat-hint>
+        </mat-form-field>
+
+        <mat-slide-toggle formControlName="autoExport" color="primary">
+          Exportar automáticamente
+        </mat-slide-toggle>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Retención (días)</mat-label>
+          <input matInput type="number" formControlName="retentionDays" min="1" max="365">
+          <mat-hint>Días que se mantendrán los reportes generados</mat-hint>
+        </mat-form-field>
+
+        <mat-slide-toggle formControlName="autoCleanup" color="primary">
+          Limpieza automática de reportes antiguos
+        </mat-slide-toggle>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Notificaciones -->
+    <mat-card class="section">
+      <mat-card-header>
+        <mat-card-title>Notificaciones</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-slide-toggle formControlName="notifyOnCompletion" color="primary" class="toggle-field">
+          Notificar al completar
+        </mat-slide-toggle>
+
+        <mat-slide-toggle formControlName="notifyOnError" color="primary" class="toggle-field">
+          Notificar en caso de error
+        </mat-slide-toggle>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Método de Notificación</mat-label>
+          <mat-select formControlName="notificationMethod">
+            <mat-option *ngFor="let method of notificationMethods" [value]="method.value">
+              {{ method.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Emails de Notificación</mat-label>
+          <input matInput formControlName="notificationEmails" 
+                 placeholder="admin@example.com, user@example.com">
+          <mat-hint>Separar múltiples emails con comas</mat-hint>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="!form.valid">
+    {{ mode === 'create' ? 'Crear' : 'Guardar' }}
+  </button>
+</mat-dialog-actions>

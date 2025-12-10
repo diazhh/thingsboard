@@ -18,6 +18,24 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '@shared/shared.module';
 import { GdtRoutingModule } from './gdt-routing.module';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 // Main Components
 import { GdtDashboardComponent } from './dashboard/gdt-dashboard.component';
@@ -33,6 +51,14 @@ import { CreateBatchDialogComponent } from './batch-management/components/create
 import { BatchDetailDialogComponent } from './batch-management/components/batch-detail-dialog/batch-detail-dialog.component';
 import { CloseBatchDialogComponent } from './batch-management/components/close-batch-dialog/close-batch-dialog.component';
 import { RecalculateBatchDialogComponent } from './batch-management/components/recalculate-batch-dialog/recalculate-batch-dialog.component';
+import { ReportsComponent } from './reports/reports.component';
+import { GenerateReportDialogComponent } from './reports/components/generate-report-dialog/generate-report-dialog.component';
+import { ScheduledReportsComponent } from './reports/components/scheduled-reports/scheduled-reports.component';
+import { ScheduledReportConfigDialogComponent } from './reports/components/scheduled-report-config-dialog/scheduled-report-config-dialog.component';
+import { HistoricalTrendsComponent } from './historical-trends/historical-trends.component';
+import { HistoricalDataTableComponent } from './historical-trends/components/historical-data-table/historical-data-table.component';
+import { EventLogViewerComponent } from './audit/event-log-viewer/event-log-viewer.component';
+import { SealManagementComponent } from './audit/seal-management/seal-management.component';
 
 // Tank Monitoring Subcomponents
 import { LiquidGaugeDisplayComponent } from './tank-monitoring/components/liquid-gauge-display/liquid-gauge-display.component';
@@ -43,10 +69,19 @@ import { TankShapeVisualComponent } from './tank-monitoring/components/tank-shap
 // Aforo Manual Subcomponents
 import { AforoFormComponent } from './aforo-manual/components/aforo-form/aforo-form.component';
 import { AforoHistoryComponent } from './aforo-manual/components/aforo-history/aforo-history.component';
+import { AforoFormDialogComponent } from './aforo-manual/dialogs/aforo-form-dialog.component';
 
 // Laboratorio Subcomponents
 import { LabFormComponent } from './laboratorio/components/lab-form/lab-form.component';
 import { LabHistoryComponent } from './laboratorio/components/lab-history/lab-history.component';
+import { LabFormDialogComponent } from './laboratorio/dialogs/lab-form-dialog.component';
+
+// Gateway Configuration Subcomponents
+import { PortListComponent } from './gateway-configuration/components/port-list/port-list.component';
+import { AddPortDialogComponent } from './gateway-configuration/components/add-port-dialog/add-port-dialog.component';
+import { DeviceDiscoveryComponent } from './gateway-configuration/components/device-discovery/device-discovery.component';
+import { DiscoveryResultsTableComponent } from './gateway-configuration/components/discovery-results-table/discovery-results-table.component';
+import { ProvisionDeviceDialogComponent } from './gateway-configuration/components/provision-device-dialog/provision-device-dialog.component';
 
 // Tank Configuration Subcomponents
 import { FeetInchesFractionInputComponent } from './tank-configuration/components/feet-inches-fraction-input/feet-inches-fraction-input.component';
@@ -74,6 +109,15 @@ import { BatchService } from './shared/services/batch.service';
 import { BatchMockService } from './shared/services/batch-mock.service';
 import { BatchCalculationService } from './shared/services/batch-calculation.service';
 import { ManualTelemetryService } from './tank-monitoring/services/manual-telemetry.service';
+import { GatewayApiService } from './shared/services/gateway-api.service';
+import { ReportService } from './shared/services/report.service';
+import { InventoryReportGeneratorService } from './shared/services/report-generators/inventory-report-generator.service';
+import { ReportExportService } from './shared/services/report-export.service';
+import { ScheduledReportService } from './reports/services/scheduled-report.service';
+import { HistoricalDataService } from './shared/services/historical-data.service';
+import { ChartConfigService } from './shared/services/chart-config.service';
+import { AuditEventService } from './shared/services/audit-event.service';
+import { SealManagementService } from './shared/services/seal-management.service';
 
 @NgModule({
   declarations: [
@@ -91,6 +135,15 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     BatchDetailDialogComponent,
     CloseBatchDialogComponent,
     RecalculateBatchDialogComponent,
+    ReportsComponent,
+    GenerateReportDialogComponent,
+    ScheduledReportsComponent,
+    ScheduledReportConfigDialogComponent,
+    HistoricalTrendsComponent,
+    HistoricalDataTableComponent,
+    // Audit & Compliance Components
+    EventLogViewerComponent,
+    SealManagementComponent,
     // Tank Monitoring Subcomponents
     LiquidGaugeDisplayComponent,
     CylinderGaugeComponent,
@@ -99,9 +152,17 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     // Aforo Manual Subcomponents
     AforoFormComponent,
     AforoHistoryComponent,
+    AforoFormDialogComponent,
     // Laboratorio Subcomponents
     LabFormComponent,
     LabHistoryComponent,
+    LabFormDialogComponent,
+    // Gateway Configuration Subcomponents
+    PortListComponent,
+    AddPortDialogComponent,
+    DeviceDiscoveryComponent,
+    DiscoveryResultsTableComponent,
+    ProvisionDeviceDialogComponent,
     // Tank Configuration Subcomponents
     FeetInchesFractionInputComponent,
     FeetInchesInputComponent,
@@ -115,7 +176,30 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
   imports: [
     CommonModule,
     SharedModule,
-    GdtRoutingModule
+    GdtRoutingModule,
+    ReactiveFormsModule,
+    FormsModule,
+    // Material Modules
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatChipsModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatDialogModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+    // Charts
+    NgxEchartsModule.forRoot({
+      echarts: () => import('echarts')
+    })
   ],
   providers: [
     // GDT Services
@@ -133,7 +217,20 @@ import { ManualTelemetryService } from './tank-monitoring/services/manual-teleme
     // Batch Management Services
     BatchService,
     BatchMockService,
-    BatchCalculationService
+    BatchCalculationService,
+    // Gateway Services
+    GatewayApiService,
+    // Report Services
+    ReportService,
+    InventoryReportGeneratorService,
+    ReportExportService,
+    ScheduledReportService,
+    // Historical Data Services
+    HistoricalDataService,
+    ChartConfigService,
+    // Audit & Compliance Services
+    AuditEventService,
+    SealManagementService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

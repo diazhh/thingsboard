@@ -1,0 +1,195 @@
+<div class="historical-trends-container">
+  <!-- Header -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>trending_up</mat-icon>
+        Tendencias Históricas
+      </mat-card-title>
+      <mat-card-subtitle>
+        Visualización de datos históricos de tanques
+      </mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <form [formGroup]="filterForm">
+        <div class="filters-grid">
+          <!-- Tank Selection -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Tanque</mat-label>
+            <mat-select formControlName="tanks" multiple>
+              <mat-option *ngFor="let tank of tanks" [value]="tank.id.id">
+                {{ tank.name }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>storage</mat-icon>
+          </mat-form-field>
+
+          <!-- Keys Selection -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Variables</mat-label>
+            <mat-select formControlName="keys" multiple>
+              <mat-option *ngFor="let key of availableKeys" [value]="key">
+                {{ getKeyLabel(key) }} ({{ getKeyUnit(key) }})
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>show_chart</mat-icon>
+          </mat-form-field>
+
+          <!-- Time Range -->
+          <mat-form-field appearance="outline">
+            <mat-label>Rango de Tiempo</mat-label>
+            <mat-select formControlName="timeRange">
+              <mat-option *ngFor="let range of timeRanges" [value]="range.value">
+                {{ range.label }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>schedule</mat-icon>
+          </mat-form-field>
+
+          <!-- Interval -->
+          <mat-form-field appearance="outline">
+            <mat-label>Intervalo</mat-label>
+            <mat-select formControlName="interval">
+              <mat-option *ngFor="let interval of intervals" [value]="interval">
+                {{ interval }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>timer</mat-icon>
+          </mat-form-field>
+
+          <!-- Aggregation -->
+          <mat-form-field appearance="outline">
+            <mat-label>Agregación</mat-label>
+            <mat-select formControlName="aggregation">
+              <mat-option *ngFor="let agg of aggregations" [value]="agg">
+                {{ agg }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>functions</mat-icon>
+          </mat-form-field>
+
+          <!-- Chart Type -->
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de Gráfico</mat-label>
+            <mat-select formControlName="chartType">
+              <mat-option *ngFor="let type of chartTypes" [value]="type">
+                {{ type | titlecase }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>insert_chart</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Custom Date Range -->
+        <div *ngIf="showCustomDateRange" class="custom-date-range">
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha Inicio</mat-label>
+            <input matInput [matDatepicker]="startPicker" [(ngModel)]="customStartDate" [ngModelOptions]="{standalone: true}">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha Fin</mat-label>
+            <input matInput [matDatepicker]="endPicker" [(ngModel)]="customEndDate" [ngModelOptions]="{standalone: true}">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" (click)="applyCustomDateRange()" 
+                  [disabled]="!customStartDate || !customEndDate">
+            <mat-icon>check</mat-icon>
+            Aplicar
+          </button>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          <button mat-raised-button color="primary" (click)="refresh()" [disabled]="loading">
+            <mat-icon>refresh</mat-icon>
+            Actualizar
+          </button>
+          <button mat-raised-button (click)="exportData()" [disabled]="loading || timeSeriesData.length === 0">
+            <mat-icon>download</mat-icon>
+            Exportar CSV
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Chart -->
+  <mat-card class="chart-card">
+    <mat-card-content>
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Cargando datos...</p>
+      </div>
+
+      <div *ngIf="!loading && timeSeriesData.length > 0" class="chart-container">
+        <div echarts [options]="chartOption" class="echarts-chart"></div>
+      </div>
+
+      <div *ngIf="!loading && timeSeriesData.length === 0" class="no-data">
+        <mat-icon>info</mat-icon>
+        <p>No hay datos disponibles para el rango seleccionado</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Statistics -->
+  <mat-card *ngIf="!loading && timeSeriesData.length > 0" class="statistics-card">
+    <mat-card-header>
+      <mat-card-title>Estadísticas</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="statistics-grid">
+        <div *ngFor="let series of timeSeriesData" class="stat-item" [class.loading]="isSeriesLoading(series.key)">
+          <div class="stat-header">
+            <h4>{{ series.label }}</h4>
+            <mat-spinner *ngIf="isSeriesLoading(series.key)" diameter="20" strokeWidth="2"></mat-spinner>
+          </div>
+          <div class="stat-values" *ngIf="getStatistics(series.key) as stats">
+            <div class="stat-row">
+              <span class="stat-label">Mínimo:</span>
+              <span class="stat-value">{{ formatValue(stats.min) }} {{ series.unit }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Máximo:</span>
+              <span class="stat-value">{{ formatValue(stats.max) }} {{ series.unit }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Promedio:</span>
+              <span class="stat-value">{{ formatValue(stats.avg) }} {{ series.unit }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Desv. Estándar:</span>
+              <span class="stat-value">{{ formatValue(stats.stdDev) }} {{ series.unit }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Puntos:</span>
+              <span class="stat-value">{{ stats.count }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Data Table -->
+  <mat-card *ngIf="!loading && timeSeriesData.length > 0" class="data-table-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>table_chart</mat-icon>
+        Tabla de Datos
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <tb-historical-data-table [data]="timeSeriesData" [pageSize]="25"></tb-historical-data-table>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,482 @@
+/**
+ * Copyright © 2016-2025 The Thingsboard Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.port-list-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+// ============================================================================
+// LOADING OVERLAY
+// ============================================================================
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: 8px;
+}
+
+// ============================================================================
+// STATUS CARD
+// ============================================================================
+
+.status-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  .status-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+
+      &.running {
+        color: #4caf50;
+      }
+
+      &.stopped {
+        color: #f44336;
+      }
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    button {
+      color: white;
+    }
+  }
+
+  .status-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 16px;
+
+    .metric {
+      text-align: center;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+
+      .metric-value {
+        display: block;
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .metric-label {
+        display: block;
+        font-size: 12px;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      &.connected .metric-value {
+        color: #4caf50;
+      }
+
+      &.enabled .metric-value {
+        color: #2196f3;
+      }
+
+      &.disabled .metric-value {
+        color: #ff9800;
+      }
+
+      &.error .metric-value {
+        color: #f44336;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// WARNING CARD
+// ============================================================================
+
+.warning-card {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  mat-icon {
+    color: #ff9800;
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .warning-content {
+    flex: 1;
+
+    h3 {
+      margin: 0 0 8px 0;
+      color: #856404;
+    }
+
+    p {
+      margin: 0 0 16px 0;
+      color: #856404;
+    }
+
+    button {
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// HEADER ACTIONS
+// ============================================================================
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  button {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// ============================================================================
+// TABLE
+// ============================================================================
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.ports-table {
+  width: 100%;
+
+  th {
+    background: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+    padding: 16px;
+  }
+
+  td {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  tr:hover {
+    background: #f9f9f9;
+  }
+
+  .device-path {
+    background: #f5f5f5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #333;
+  }
+
+  .protocol-badge {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .error-message {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #f44336;
+
+    .error-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .description-text {
+    color: #666;
+    font-size: 14px;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 4px;
+
+    button {
+      &.enabled mat-icon {
+        color: #4caf50;
+      }
+    }
+  }
+
+  .no-data-cell {
+    text-align: center;
+    padding: 48px 24px !important;
+  }
+
+  .no-data-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #bdbdbd;
+    }
+
+    p {
+      margin: 0;
+      color: #666;
+      font-size: 16px;
+    }
+
+    button mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+    }
+  }
+}
+
+// ============================================================================
+// AVAILABLE PORTS
+// ============================================================================
+
+.available-ports-info {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+  details {
+    summary {
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f5f5f5;
+      user-select: none;
+      transition: background 0.2s;
+
+      &:hover {
+        background: #e0e0e0;
+      }
+
+      mat-icon {
+        color: #666;
+      }
+
+      span {
+        font-weight: 500;
+        color: #333;
+      }
+    }
+
+    &[open] summary {
+      border-bottom: 1px solid #e0e0e0;
+    }
+  }
+
+  .available-ports-list {
+    padding: 16px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .available-port-item {
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .port-device {
+      code {
+        background: #f5f5f5;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        color: #333;
+      }
+    }
+
+    .port-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .port-description {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .port-details {
+        font-size: 12px;
+        color: #666;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+
+@media (max-width: 960px) {
+  .status-card .status-metrics {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .ports-table {
+    font-size: 14px;
+
+    th, td {
+      padding: 12px 8px;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .port-list-container {
+    padding: 16px;
+  }
+
+  .status-card .status-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .ports-table {
+    .action-buttons {
+      flex-direction: column;
+    }
+  }
+}
+
+// ============================================================================
+// DARK MODE SUPPORT
+// ============================================================================
+
+@media (prefers-color-scheme: dark) {
+  .table-container {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .device-path {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+  }
+
+  .available-ports-info {
+    background: rgba(255, 255, 255, 0.05);
+
+    details summary {
+      background: rgba(255, 255, 255, 0.1);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+    }
+  }
+}

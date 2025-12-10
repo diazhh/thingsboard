@@ -1,0 +1,56 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="protocol-selector-container">
+  <form [formGroup]="form">
+    <mat-form-field class="full-width">
+      <mat-label>Protocol</mat-label>
+      <mat-select formControlName="protocol" (selectionChange)="onProtocolChange($event.value)">
+        <mat-option *ngFor="let protocol of protocols" [value]="protocol.type">
+          <mat-icon class="protocol-icon">{{ getProtocolIcon(protocol) }}</mat-icon>
+          {{ protocol.name }}
+        </mat-option>
+      </mat-select>
+      <mat-hint>Select the communication protocol for your device</mat-hint>
+    </mat-form-field>
+  </form>
+
+  <!-- Protocol Information Card -->
+  <mat-card *ngIf="selectedProtocolInfo" class="protocol-info-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="protocol-icon-large">{{ getProtocolIcon(selectedProtocolInfo) }}</mat-icon>
+        {{ selectedProtocolInfo.name }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p class="protocol-description">{{ getProtocolDescription(selectedProtocolInfo) }}</p>
+
+      <div class="protocol-features">
+        <div class="feature" *ngIf="isSerialProtocol(selectedProtocolInfo)">
+          <mat-icon>usb</mat-icon>
+          <span>Serial Communication</span>
+        </div>
+        <div class="feature" *ngIf="isNetworkProtocol(selectedProtocolInfo)">
+          <mat-icon>cloud_queue</mat-icon>
+          <span>Network Communication</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

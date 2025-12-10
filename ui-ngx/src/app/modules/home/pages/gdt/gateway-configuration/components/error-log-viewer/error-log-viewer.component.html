@@ -1,0 +1,150 @@
+<!--
+
+    Copyright © 2016-2025 The Thingsboard Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="error-log-viewer">
+  <!-- Header with Controls -->
+  <mat-toolbar class="viewer-toolbar">
+    <h2>Error Log Viewer</h2>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="loadErrorLogs()" [disabled]="isLoading">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <button mat-icon-button (click)="exportLogs()" [disabled]="filteredLogs.length === 0">
+      <mat-icon>download</mat-icon>
+    </button>
+    <button mat-icon-button (click)="clearLogs()" [disabled]="errorLogs.length === 0" color="warn">
+      <mat-icon>delete_sweep</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-row">
+        <mat-form-field>
+          <mat-label>Severity</mat-label>
+          <mat-select [(ngModel)]="severityFilter" (selectionChange)="onSeverityFilterChange()">
+            <mat-option value="">All</mat-option>
+            <mat-option *ngFor="let severity of severityOptions" [value]="severity">
+              {{ severity | titlecase }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="search-field">
+          <mat-label>Search</mat-label>
+          <input matInput [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" placeholder="Search by message or category">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <div class="log-count">
+          {{ filteredLogs.length }} of {{ errorLogs.length }} logs
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Logs Table -->
+  <mat-card class="logs-card">
+    <mat-card-content>
+      <div class="table-container" *ngIf="!isLoading">
+        <table mat-table [dataSource]="paginatedLogs" class="logs-table">
+          <!-- Timestamp Column -->
+          <ng-container matColumnDef="timestamp">
+            <th mat-header-cell *matHeaderCellDef>Timestamp</th>
+            <td mat-cell *matCellDef="let log">{{ formatDate(log.timestamp) }}</td>
+          </ng-container>
+
+          <!-- Severity Column -->
+          <ng-container matColumnDef="severity">
+            <th mat-header-cell *matHeaderCellDef>Severity</th>
+            <td mat-cell *matCellDef="let log" [ngClass]="getSeverityClass(log.severity)">
+              <mat-icon>{{ getSeverityIcon(log.severity) }}</mat-icon>
+              {{ log.severity | titlecase }}
+            </td>
+          </ng-container>
+
+          <!-- Category Column -->
+          <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef>Category</th>
+            <td mat-cell *matCellDef="let log">{{ log.category }}</td>
+          </ng-container>
+
+          <!-- Message Column -->
+          <ng-container matColumnDef="message">
+            <th mat-header-cell *matHeaderCellDef>Message</th>
+            <td mat-cell *matCellDef="let log">{{ log.message }}</td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let log">
+              <button mat-icon-button (click)="toggleExpanded(log)">
+                <mat-icon>{{ expandedElement === log ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+              [ngClass]="{'expanded': expandedElement === row}"></tr>
+
+          <!-- Expanded Detail Row -->
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row" 
+              [@detailExpand]="row === expandedElement ? 'expanded' : 'collapsed'">
+            <td mat-cell [attr.colspan]="displayedColumns.length" class="detail-cell">
+              <div class="detail-content">
+                <div class="detail-section">
+                  <strong>Source:</strong> {{ row.source }}
+                </div>
+                <div class="detail-section" *ngIf="row.stackTrace">
+                  <strong>Stack Trace:</strong>
+                  <pre>{{ row.stackTrace }}</pre>
+                </div>
+                <div class="detail-section" *ngIf="row.details">
+                  <strong>Details:</strong>
+                  <pre>{{ row.details | json }}</pre>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- No Data Message -->
+        <div class="no-data" *ngIf="filteredLogs.length === 0">
+          <mat-icon>info</mat-icon>
+          <p>No error logs found</p>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="isLoading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Loading error logs...</p>
+      </div>
+    </mat-card-content>
+
+    <!-- Paginator -->
+    <mat-paginator *ngIf="filteredLogs.length > 0"
+                   [length]="filteredLogs.length"
+                   [pageSize]="pageSize"
+                   [pageSizeOptions]="pageSizeOptions"
+                   (page)="onPageChange($event)">
+    </mat-paginator>
+  </mat-card>
+</div>

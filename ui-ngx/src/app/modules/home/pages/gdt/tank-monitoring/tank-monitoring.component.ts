@@ -15,6 +15,7 @@
 ///
 
 import { Component, Input, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { WidgetContext } from '@home/models/widget-component.models';
 import { TankData } from '../shared/models/tank-data.model';
 import { TankCalculationService } from '../shared/services/tank-calculation.service';
@@ -75,6 +76,7 @@ export class TankMonitoringComponent implements OnInit, OnDestroy {
 
   constructor(
     private cd: ChangeDetectorRef,
+    private activatedRoute: ActivatedRoute,
     private gdtContextService: GdtWidgetContextService,
     private tankCalculationService: TankCalculationService,
     private alarmEvaluatorService: AlarmEvaluatorService,
@@ -112,6 +114,17 @@ export class TankMonitoringComponent implements OnInit, OnDestroy {
 
     // Initialize data
     this.initializeData();
+
+    // Check for tank parameter in URL and select it when tanks are loaded
+    this.activatedRoute.queryParams.subscribe(params => {
+      const tankId = params['tank'];
+      if (tankId) {
+        // Wait a bit for tanks to load, then select the tank
+        setTimeout(() => {
+          this.selectTankById(tankId);
+        }, 500);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -801,6 +814,19 @@ export class TankMonitoringComponent implements OnInit, OnDestroy {
     console.log('Tanque seleccionado:', tank.tankTag);
     this.selectedTank = tank;
     this.ctx.detectChanges();
+  }
+
+  /**
+   * Seleccionar tanque por ID (desde queryParams)
+   */
+  selectTankById(tankId: string): void {
+    const tank = this.tanks.find(t => t.tankId === tankId);
+    if (tank) {
+      console.log('Tanque seleccionado desde URL:', tank.tankTag);
+      this.onTankClick(tank);
+    } else {
+      console.warn(`Tank with ID ${tankId} not found`);
+    }
   }
 
   /**

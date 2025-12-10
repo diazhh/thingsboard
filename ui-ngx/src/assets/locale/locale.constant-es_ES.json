@@ -9529,6 +9529,8 @@
   "gdt": {
     "aforo-manual": "Aforo Manual",
     "laboratorio": "Laboratorio",
-    "batch-management": "Gestión de Batches"
+    "batch-management": "Gestión de Lotes",
+    "reports": "Reportes e Informes",
+    "scheduled-reports": "Reportes Programados"
   }
 }

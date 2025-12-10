@@ -26,6 +26,11 @@ import { GatewayConfigurationComponent } from './gateway-configuration/gateway-c
 import { AforoManualComponent } from './aforo-manual/aforo-manual.component';
 import { LaboratorioComponent } from './laboratorio/laboratorio.component';
 import { BatchManagementComponent } from './batch-management/batch-management.component';
+import { ReportsComponent } from './reports/reports.component';
+import { ScheduledReportsComponent } from './reports/components/scheduled-reports/scheduled-reports.component';
+import { HistoricalTrendsComponent } from './historical-trends/historical-trends.component';
+import { EventLogViewerComponent } from './audit/event-log-viewer/event-log-viewer.component';
+import { SealManagementComponent } from './audit/seal-management/seal-management.component';
 
 const routes: Routes = [
   {
@@ -179,6 +184,88 @@ const routes: Routes = [
             menuId: 'gdt_batch_management' as any,
             label: 'Gestión de Batches',
             icon: 'inventory_2'
+          }
+        }
+      },
+      {
+        path: 'reports',
+        component: ReportsComponent,
+        data: {
+          auth: [
+            Authority.SYS_ADMIN,
+            Authority.TENANT_ADMIN,
+            Authority.INGENIERO,
+            Authority.REPORTES
+          ],
+          title: 'gdt.reports',
+          breadcrumb: {
+            menuId: 'gdt_reports' as any,
+            label: 'Reports & Analytics',
+            icon: 'assessment'
+          }
+        }
+      },
+      {
+        path: 'scheduled-reports',
+        component: ScheduledReportsComponent,
+        data: {
+          auth: [
+            Authority.SYS_ADMIN,
+            Authority.TENANT_ADMIN,
+            Authority.INGENIERO,
+            Authority.REPORTES
+          ],
+          title: 'gdt.scheduled-reports',
+          breadcrumb: {
+            menuId: 'gdt_scheduled_reports' as any,
+            label: 'Reportes Programados',
+            icon: 'schedule'
+          }
+        }
+      },
+      {
+        path: 'historical-trends',
+        component: HistoricalTrendsComponent,
+        data: {
+          auth: [
+            Authority.SYS_ADMIN,
+            Authority.TENANT_ADMIN,
+            Authority.CUSTOMER_USER,
+            Authority.INGENIERO,
+            Authority.OPERADOR,
+            Authority.REPORTES
+          ],
+          title: 'gdt.historical-trends',
+          breadcrumb: {
+            menuId: 'gdt_historical_trends' as any,
+            label: 'Tendencias Históricas',
+            icon: 'trending_up'
+          }
+        }
+      },
+      {
+        path: 'audit/event-log-viewer',
+        component: EventLogViewerComponent,
+        data: {
+          auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.INGENIERO],
+          title: 'gdt.event-log-viewer',
+          breadcrumb: {
+            menuId: 'gdt_event_log_viewer' as any,
+            label: 'Visor de Eventos',
+            icon: 'history'
+          }
+        }
+      },
+      {
+        path: 'audit/seal-management',
+        component: SealManagementComponent,
+        data: {
+          auth: [Authority.SYS_ADMIN, Authority.TENANT_ADMIN, Authority.INGENIERO],
+          title: 'gdt.seal-management',
+          breadcrumb: {
+            menuId: 'gdt_seal_management' as any,
+            label: 'Gestión de Sellado',
+            icon: 'lock'
           }
         }
       },
