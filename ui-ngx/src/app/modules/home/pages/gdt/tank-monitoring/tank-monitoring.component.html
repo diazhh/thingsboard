@@ -15,13 +15,28 @@
     limitations under the License.
 
 -->
+<div class="tb-absolute-fill">
+  <!-- Toolbar -->
+  <mat-toolbar color="primary">
+    <h2>
+      <mat-icon class="tb-mat-20">storage</mat-icon>
+      <span>Monitoreo de Tanques</span>
+    </h2>
+    <span fxFlex></span>
+    <span class="tank-count-toolbar">{{ filteredTanks.length }} tanque(s)</span>
+    <button mat-icon-button
+            matTooltip="Ayuda"
+            matTooltipPosition="below">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <!-- Content -->
+  <div class="mat-content tb-form-panel no-border no-padding" fxLayout="column" style="overflow: auto;">
+
 <div class="tank-fleet-container" *ngIf="!selectedTank">
   <!-- Header con controles -->
   <div class="fleet-header">
-    <div class="fleet-title">
-      <h3>Monitoreo de Flota de Tanques</h3>
-      <span class="tank-count">{{ filteredTanks.length }} tanque(s)</span>
-    </div>
 
     <div class="fleet-controls">
       <!-- Toggle de Modo de Vista -->
@@ -256,3 +271,6 @@
   [tank]="selectedTank"
   (back)="closeTankDetail()">
 </tb-tank-detail>
+
+  </div>
+</div>

@@ -280,8 +280,8 @@ export interface ReportStatistics {
 export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   [ReportType.DAILY_INVENTORY]: {
     type: ReportType.DAILY_INVENTORY,
-    name: 'Daily Inventory Report',
-    description: 'Daily snapshot of all tank inventories',
+    name: 'Reporte de Inventario Diario',
+    description: 'Snapshot diario de todos los inventarios de tanques',
     category: ReportCategory.INVENTORY,
     icon: 'inventory',
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF, ReportFormat.EXCEL],
@@ -292,8 +292,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.TANK_INVENTORY_SUMMARY]: {
     type: ReportType.TANK_INVENTORY_SUMMARY,
-    name: 'Tank Inventory Summary',
-    description: 'Real-time inventory summary with charts',
+    name: 'Resumen de Inventario de Tanques',
+    description: 'Resumen de inventario en tiempo real con gráficos',
     category: ReportCategory.INVENTORY,
     icon: 'summarize',
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF, ReportFormat.EXCEL],
@@ -304,8 +304,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.PRODUCT_INVENTORY_BY_GROUP]: {
     type: ReportType.PRODUCT_INVENTORY_BY_GROUP,
-    name: 'Product Inventory by Group',
-    description: 'Inventory grouped by product type',
+    name: 'Inventario de Productos por Grupo',
+    description: 'Inventario agrupado por tipo de producto',
     category: ReportCategory.INVENTORY,
     icon: 'category',
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF, ReportFormat.EXCEL],
@@ -316,8 +316,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.TANK_STATUS]: {
     type: ReportType.TANK_STATUS,
-    name: 'Tank Status Report',
-    description: 'Operational status of all tanks',
+    name: 'Reporte de Estado de Tanques',
+    description: 'Estado operacional de todos los tanques',
     category: ReportCategory.INVENTORY,
     icon: 'info',
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF, ReportFormat.EXCEL],
@@ -328,8 +328,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.CAPACITY_UTILIZATION]: {
     type: ReportType.CAPACITY_UTILIZATION,
-    name: 'Capacity Utilization Report',
-    description: 'Analysis of tank capacity utilization',
+    name: 'Reporte de Utilización de Capacidad',
+    description: 'Análisis de la utilización de capacidad de tanques',
     category: ReportCategory.INVENTORY,
     icon: 'analytics',
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF],
@@ -340,8 +340,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.LOW_STOCK_ALERT]: {
     type: ReportType.LOW_STOCK_ALERT,
-    name: 'Low Stock Alert Report',
-    description: 'Tanks with low inventory levels',
+    name: 'Reporte de Alerta de Bajo Stock',
+    description: 'Tanques con niveles de inventario bajo',
     category: ReportCategory.INVENTORY,
     icon: 'warning',
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF, ReportFormat.EXCEL],
@@ -352,8 +352,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.OVERFILL_RISK]: {
     type: ReportType.OVERFILL_RISK,
-    name: 'Overfill Risk Report',
-    description: 'Tanks at risk of overfilling',
+    name: 'Reporte de Riesgo de Desbordamiento',
+    description: 'Tanques en riesgo de desbordamiento',
     category: ReportCategory.INVENTORY,
     icon: 'error',
     supportedFormats: [ReportFormat.CSV, ReportFormat.PDF],
@@ -388,8 +388,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.MASS_BALANCE]: {
     type: ReportType.MASS_BALANCE,
-    name: 'Mass Balance Report',
-    description: 'Mass balance analysis with discrepancy detection',
+    name: 'Reporte de Balance de Masa',
+    description: 'Análisis de balance de masa con detección de discrepancias',
     category: ReportCategory.CUSTODY_TRANSFER,
     icon: 'balance',
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
@@ -472,8 +472,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.HISTORICAL_LEVEL_TRENDS]: {
     type: ReportType.HISTORICAL_LEVEL_TRENDS,
-    name: 'Historical Level Trends',
-    description: 'Historical level trends with charts',
+    name: 'Tendencias Históricas de Nivel',
+    description: 'Tendencias históricas de nivel con gráficos',
     category: ReportCategory.HISTORICAL,
     icon: 'show_chart',
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
@@ -484,8 +484,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.HISTORICAL_VOLUME_TRENDS]: {
     type: ReportType.HISTORICAL_VOLUME_TRENDS,
-    name: 'Historical Volume Trends',
-    description: 'Historical volume trends (TOV, GOV, GSV, NSV)',
+    name: 'Tendencias Históricas de Volumen',
+    description: 'Tendencias históricas de volumen (TOV, GOV, GSV, NSV)',
     category: ReportCategory.HISTORICAL,
     icon: 'waterfall_chart',
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
@@ -496,8 +496,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.ALARM_HISTORY]: {
     type: ReportType.ALARM_HISTORY,
-    name: 'Alarm History Report',
-    description: 'Historical alarm records and statistics',
+    name: 'Reporte de Historial de Alarmas',
+    description: 'Registros históricos de alarmas y estadísticas',
     category: ReportCategory.HISTORICAL,
     icon: 'notifications',
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
@@ -544,8 +544,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.OIML_R85_COMPLIANCE]: {
     type: ReportType.OIML_R85_COMPLIANCE,
-    name: 'OIML R85 Compliance Report',
-    description: 'Compliance report for OIML R85 certification',
+    name: 'Reporte de Cumplimiento OIML R85',
+    description: 'Reporte de cumplimiento para certificación OIML R85',
     category: ReportCategory.COMPLIANCE,
     icon: 'verified',
     supportedFormats: [ReportFormat.PDF],
@@ -556,8 +556,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.AUDIT_TRAIL_SUMMARY]: {
     type: ReportType.AUDIT_TRAIL_SUMMARY,
-    name: 'Audit Trail Summary',
-    description: 'Executive summary of audit trail',
+    name: 'Resumen de Pista de Auditoría',
+    description: 'Resumen ejecutivo de la pista de auditoría',
     category: ReportCategory.COMPLIANCE,
     icon: 'fact_check',
     supportedFormats: [ReportFormat.PDF],
@@ -568,8 +568,8 @@ export const REPORT_INFO_MAP: { [key in ReportType]: ReportInfo } = {
   },
   [ReportType.CALIBRATION_STATUS]: {
     type: ReportType.CALIBRATION_STATUS,
-    name: 'Calibration Status Report',
-    description: 'Calibration status of all devices',
+    name: 'Reporte de Estado de Calibración',
+    description: 'Estado de calibración de todos los dispositivos',
     category: ReportCategory.COMPLIANCE,
     icon: 'tune',
     supportedFormats: [ReportFormat.PDF, ReportFormat.EXCEL],
@@ -597,11 +597,11 @@ export function getAllReportTypes(): ReportType[] {
 
 export function getReportCategoryLabel(category: ReportCategory): string {
   const labels = {
-    [ReportCategory.INVENTORY]: 'Inventory Reports',
-    [ReportCategory.CUSTODY_TRANSFER]: 'Custody Transfer Reports',
-    [ReportCategory.ANALYSIS]: 'Analysis Reports',
-    [ReportCategory.HISTORICAL]: 'Historical Reports',
-    [ReportCategory.COMPLIANCE]: 'Compliance Reports'
+    [ReportCategory.INVENTORY]: 'Reportes de Inventario',
+    [ReportCategory.CUSTODY_TRANSFER]: 'Reportes de Transferencia de Custodia',
+    [ReportCategory.ANALYSIS]: 'Reportes de Análisis',
+    [ReportCategory.HISTORICAL]: 'Reportes Históricos',
+    [ReportCategory.COMPLIANCE]: 'Reportes de Cumplimiento'
   };
   return labels[category];
 }

@@ -73,13 +73,13 @@
     </div>
 
     <div fxLayout="row" fxLayoutGap="16px">
-      <!-- API Gravity -->
+      <!-- Gravedad API -->
       <mat-form-field appearance="outline" fxFlex>
-        <mat-label>API Gravity (°API)</mat-label>
+        <mat-label>Gravedad API (°API)</mat-label>
         <input matInput type="number" formControlName="openingApiGravity" required>
         <mat-icon matSuffix>opacity</mat-icon>
         <mat-error *ngIf="batchForm.get('openingApiGravity')?.hasError('required')">
-          API Gravity es requerido
+          Gravedad API es requerido
         </mat-error>
       </mat-form-field>
 

@@ -441,6 +441,20 @@ export class HistoricalTrendsComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Clear filters
+   */
+  clearFilters(): void {
+    this.filterForm.reset({
+      tanks: [],
+      keys: ['level', 'temperature'],
+      timeRange: this.timeRanges[3].value,
+      interval: TimeInterval.HOUR,
+      aggregation: TimeAggregation.AVG,
+      chartType: ChartType.LINE
+    });
+  }
+
+  /**
    * Get statistics for a key
    */
   getStatistics(key: string): any {

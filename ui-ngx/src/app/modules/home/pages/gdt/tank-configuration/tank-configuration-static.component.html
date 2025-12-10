@@ -15,72 +15,88 @@
     limitations under the License.
 
 -->
-<div class="tank-configuration-widget">
+<div class="tb-absolute-fill">
+  <!-- Toolbar -->
+  <mat-toolbar color="primary">
+    <h2>
+      <mat-icon class="tb-mat-20">settings</mat-icon>
+      <span>Configuración de Tanques</span>
+    </h2>
+    <span fxFlex></span>
+    <button mat-icon-button
+            matTooltip="Ayuda"
+            matTooltipPosition="below">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </mat-toolbar>
 
-  <!-- MAIN MENU - Only shown when no section is selected -->
-  <div *ngIf="activeSection === null" class="main-menu">
-    <div class="menu-header">
-      <h1>Configuración del Sistema</h1>
-      <p class="subtitle">Selecciona el módulo que deseas configurar</p>
+  <!-- Content -->
+  <div class="mat-content tb-form-panel no-border no-padding" fxLayout="column" style="overflow: auto;">
+
+    <!-- MAIN MENU - Only shown when no section is selected -->
+    <div *ngIf="activeSection === null" class="main-menu">
+      <div class="menu-header">
+        <h1>Configuración del Sistema</h1>
+        <p class="subtitle">Selecciona el módulo que deseas configurar</p>
+      </div>
+
+      <div class="menu-cards">
+        <mat-card class="menu-card tanks" (click)="setActiveSection('tanks')">
+          <mat-card-content>
+            <div class="card-icon">
+              <mat-icon>storage</mat-icon>
+            </div>
+            <h2>Configuración de Tanques</h2>
+            <p>Gestiona tanques, asigna radares y configura tablas de calibración</p>
+            <div class="card-stats">
+              <span><strong>{{ tanks.length }}</strong> Tanques</span>
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">
+              Abrir
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="menu-card radars" (click)="setActiveSection('radars')">
+          <mat-card-content>
+            <div class="card-icon">
+              <mat-icon>sensors</mat-icon>
+            </div>
+            <h2>Configuración de Radares</h2>
+            <p>Configura parámetros Modbus y valida comunicación con radares</p>
+            <div class="card-stats">
+              <span><strong>{{ radars.length }}</strong> Radares</span>
+              <span><strong>{{ unassignedRadars.length }}</strong> Disponibles</span>
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">
+              Abrir
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="menu-card general" (click)="setActiveSection('general')">
+          <mat-card-content>
+            <div class="card-icon">
+              <mat-icon>settings</mat-icon>
+            </div>
+            <h2>Configuración General</h2>
+            <p>Ajustes globales del sistema, formatos de visualización y escaneo Modbus</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">
+              Abrir
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
     </div>
-
-    <div class="menu-cards">
-      <mat-card class="menu-card tanks" (click)="setActiveSection('tanks')">
-        <mat-card-content>
-          <div class="card-icon">
-            <mat-icon>storage</mat-icon>
-          </div>
-          <h2>Configuración de Tanques</h2>
-          <p>Gestiona tanques, asigna radares y configura tablas de calibración</p>
-          <div class="card-stats">
-            <span><strong>{{ tanks.length }}</strong> Tanques</span>
-          </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-button color="primary">
-            Abrir
-            <mat-icon>arrow_forward</mat-icon>
-          </button>
-        </mat-card-actions>
-      </mat-card>
-
-      <mat-card class="menu-card radars" (click)="setActiveSection('radars')">
-        <mat-card-content>
-          <div class="card-icon">
-            <mat-icon>sensors</mat-icon>
-          </div>
-          <h2>Configuración de Radares</h2>
-          <p>Configura parámetros Modbus y valida comunicación con radares</p>
-          <div class="card-stats">
-            <span><strong>{{ radars.length }}</strong> Radares</span>
-            <span><strong>{{ unassignedRadars.length }}</strong> Disponibles</span>
-          </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-button color="primary">
-            Abrir
-            <mat-icon>arrow_forward</mat-icon>
-          </button>
-        </mat-card-actions>
-      </mat-card>
-
-      <mat-card class="menu-card general" (click)="setActiveSection('general')">
-        <mat-card-content>
-          <div class="card-icon">
-            <mat-icon>settings</mat-icon>
-          </div>
-          <h2>Configuración General</h2>
-          <p>Ajustes globales del sistema, formatos de visualización y escaneo Modbus</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-button color="primary">
-            Abrir
-            <mat-icon>arrow_forward</mat-icon>
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    </div>
-  </div>
 
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">

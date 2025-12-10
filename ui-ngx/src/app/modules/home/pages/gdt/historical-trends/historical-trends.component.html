@@ -1,20 +1,32 @@
-<div class="historical-trends-container">
-  <!-- Header -->
-  <mat-card class="header-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>trending_up</mat-icon>
-        Tendencias Históricas
-      </mat-card-title>
-      <mat-card-subtitle>
-        Visualización de datos históricos de tanques
-      </mat-card-subtitle>
-    </mat-card-header>
-  </mat-card>
+<div class="tb-absolute-fill">
+  <!-- Toolbar -->
+  <mat-toolbar color="primary">
+    <h2>
+      <mat-icon class="tb-mat-20">trending_up</mat-icon>
+      <span>Tendencias Históricas</span>
+    </h2>
+    <span fxFlex></span>
+    <button mat-icon-button
+            matTooltip="Ayuda"
+            matTooltipPosition="below">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </mat-toolbar>
 
-  <!-- Filters -->
-  <mat-card class="filters-card">
-    <mat-card-content>
+  <!-- Content -->
+  <div class="mat-content tb-form-panel no-border no-padding" fxLayout="column" style="overflow: auto;">
+    
+    <!-- Filters Panel -->
+    <div class="filters-panel">
+      <div class="filters-header">
+        <h3>Filtros</h3>
+        <button mat-icon-button
+                matTooltip="Limpiar filtros"
+                (click)="clearFilters()">
+          <mat-icon>clear_all</mat-icon>
+        </button>
+      </div>
+
       <form [formGroup]="filterForm">
         <div class="filters-grid">
           <!-- Tank Selection -->
@@ -48,28 +60,6 @@
               </mat-option>
             </mat-select>
             <mat-icon matSuffix>schedule</mat-icon>
-          </mat-form-field>
-
-          <!-- Interval -->
-          <mat-form-field appearance="outline">
-            <mat-label>Intervalo</mat-label>
-            <mat-select formControlName="interval">
-              <mat-option *ngFor="let interval of intervals" [value]="interval">
-                {{ interval }}
-              </mat-option>
-            </mat-select>
-            <mat-icon matSuffix>timer</mat-icon>
-          </mat-form-field>
-
-          <!-- Aggregation -->
-          <mat-form-field appearance="outline">
-            <mat-label>Agregación</mat-label>
-            <mat-select formControlName="aggregation">
-              <mat-option *ngFor="let agg of aggregations" [value]="agg">
-                {{ agg }}
-              </mat-option>
-            </mat-select>
-            <mat-icon matSuffix>functions</mat-icon>
           </mat-form-field>
 
           <!-- Chart Type -->
@@ -119,18 +109,16 @@
           </button>
         </div>
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
 
-  <!-- Chart -->
-  <mat-card class="chart-card">
-    <mat-card-content>
+    <!-- Chart -->
+    <div class="chart-container" fxFlex>
       <div *ngIf="loading" class="loading-container">
         <mat-spinner diameter="50"></mat-spinner>
         <p>Cargando datos...</p>
       </div>
 
-      <div *ngIf="!loading && timeSeriesData.length > 0" class="chart-container">
+      <div *ngIf="!loading && timeSeriesData.length > 0" class="chart-wrapper">
         <div echarts [options]="chartOption" class="echarts-chart"></div>
       </div>
 
@@ -138,15 +126,11 @@
         <mat-icon>info</mat-icon>
         <p>No hay datos disponibles para el rango seleccionado</p>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
 
-  <!-- Statistics -->
-  <mat-card *ngIf="!loading && timeSeriesData.length > 0" class="statistics-card">
-    <mat-card-header>
-      <mat-card-title>Estadísticas</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
+    <!-- Statistics -->
+    <div class="statistics-section" *ngIf="!loading && timeSeriesData.length > 0">
+      <h3>Estadísticas</h3>
       <div class="statistics-grid">
         <div *ngFor="let series of timeSeriesData" class="stat-item" [class.loading]="isSeriesLoading(series.key)">
           <div class="stat-header">
@@ -177,19 +161,16 @@
           </div>
         </div>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
 
-  <!-- Data Table -->
-  <mat-card *ngIf="!loading && timeSeriesData.length > 0" class="data-table-card">
-    <mat-card-header>
-      <mat-card-title>
+    <!-- Data Table -->
+    <div class="data-table-section" *ngIf="!loading && timeSeriesData.length > 0">
+      <h3>
         <mat-icon>table_chart</mat-icon>
         Tabla de Datos
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
+      </h3>
       <tb-historical-data-table [data]="timeSeriesData" [pageSize]="25"></tb-historical-data-table>
-    </mat-card-content>
-  </mat-card>
+    </div>
+
+  </div>
 </div>

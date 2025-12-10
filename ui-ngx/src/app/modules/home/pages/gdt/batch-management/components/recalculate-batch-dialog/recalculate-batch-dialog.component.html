@@ -15,21 +15,21 @@
     limitations under the License.
 
 -->
-<h2 mat-dialog-title>Recalcular Batch {{ batch.batchNumber }}</h2>
+<h2 mat-dialog-title>Recalcular Lote {{ batch.batchNumber }}</h2>
 
 <div mat-dialog-content>
   <form [formGroup]="recalculateForm" fxLayout="column" fxLayoutGap="16px">
     
     <div class="info-message">
       <span class="info-icon">ℹ️</span>
-      <span>Ingrese los nuevos valores para recalcular el batch. Solo modifique los campos que necesitan corrección.</span>
+      <span>Ingrese los nuevos valores para recalcular el lote. Solo modifique los campos que necesitan corrección.</span>
     </div>
 
     <h3>Valores de Apertura</h3>
     
-    <!-- Opening API Gravity -->
+    <!-- Opening Gravedad API -->
     <mat-form-field appearance="outline">
-      <mat-label>API Gravity Apertura (°API)</mat-label>
+      <mat-label>Gravedad API Apertura (°API)</mat-label>
       <input matInput type="number" step="0.01" formControlName="openingApiGravity">
       <mat-hint>Valor actual: {{ batch.opening.apiGravity }} °API</mat-hint>
     </mat-form-field>
@@ -43,9 +43,9 @@
 
     <h3 *ngIf="batch.closing">Valores de Cierre</h3>
 
-    <!-- Closing API Gravity -->
+    <!-- Closing Gravedad API -->
     <mat-form-field appearance="outline" *ngIf="batch.closing">
-      <mat-label>API Gravity Cierre (°API)</mat-label>
+      <mat-label>Gravedad API Cierre (°API)</mat-label>
       <input matInput type="number" step="0.01" formControlName="closingApiGravity">
       <mat-hint>Valor actual: {{ batch.closing.apiGravity }} °API</mat-hint>
     </mat-form-field>
@@ -83,6 +83,6 @@
           color="warn" 
           (click)="onSubmit()"
           [disabled]="!recalculateForm.valid || loading">
-    🔄 Recalcular Batch
+    🔄 Recalcular Lote
   </button>
 </div>

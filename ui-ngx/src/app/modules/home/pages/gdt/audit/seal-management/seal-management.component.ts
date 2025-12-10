@@ -442,4 +442,38 @@ export class SealManagementComponent implements OnInit, OnDestroy {
         return 'info';
     }
   }
+
+  /**
+   * Get state label (translated)
+   */
+  getStateLabel(state: string): string {
+    switch (state) {
+      case 'SEALED':
+        return 'Sellado';
+      case 'UNSEALED':
+        return 'Sin Sellar';
+      case 'BROKEN':
+        return 'Roto';
+      default:
+        return state;
+    }
+  }
+
+  /**
+   * Get compliance status label (translated)
+   */
+  getComplianceLabel(status: string): string {
+    switch (status) {
+      case 'COMPLIANT':
+        return 'Conforme';
+      case 'NON_COMPLIANT':
+        return 'No Conforme';
+      case 'WARNING':
+        return 'Advertencia';
+      case 'EXPIRED':
+        return 'Expirado';
+      default:
+        return status;
+    }
+  }
 }

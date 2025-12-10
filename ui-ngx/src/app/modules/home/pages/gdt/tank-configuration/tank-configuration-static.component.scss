@@ -13,126 +13,157 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-.tank-configuration-widget {
-  padding: 20px;
+
+:host {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.tb-absolute-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+mat-toolbar {
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+  }
+}
+
+.mat-content {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+// Main Menu
+.main-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+  padding: 40px 20px;
   background-color: #f5f5f5;
 
-  // Main Menu
-  .main-menu {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 500px;
-    padding: 40px 20px;
+  .menu-header {
+    text-align: center;
+    margin-bottom: 40px;
 
-    .menu-header {
-      text-align: center;
-      margin-bottom: 40px;
-
-      h1 {
-        margin: 0 0 10px 0;
-        font-size: 32px;
-        font-weight: 500;
-        color: #333;
-      }
-
-      .subtitle {
-        margin: 0;
-        font-size: 16px;
-        color: #666;
-      }
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 32px;
+      font-weight: 500;
+      color: #333;
     }
 
-    .menu-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 30px;
-      max-width: 1200px;
-      width: 100%;
+    .subtitle {
+      margin: 0;
+      font-size: 16px;
+      color: #666;
+    }
+  }
 
-      .menu-card {
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
+  .menu-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    width: 100%;
 
-        &:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-          border-color: #2196F3;
+    .menu-card {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+
+      &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        border-color: #2196F3;
+      }
+
+      mat-card-content {
+        padding: 30px 20px;
+        text-align: center;
+
+        .card-icon {
+          margin: 0 auto 20px;
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          mat-icon {
+            font-size: 48px;
+            width: 48px;
+            height: 48px;
+            color: white;
+          }
         }
 
-        mat-card-content {
-          padding: 30px 20px;
-          text-align: center;
+        h2 {
+          margin: 0 0 10px 0;
+          font-size: 20px;
+          font-weight: 500;
+          color: #333;
+        }
 
-          .card-icon {
-            margin: 0 auto 20px;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        p {
+          margin: 0 0 20px 0;
+          font-size: 14px;
+          color: #666;
+          line-height: 1.5;
+        }
 
-            mat-icon {
-              font-size: 48px;
-              width: 48px;
-              height: 48px;
-              color: white;
-            }
-          }
+        .card-stats {
+          display: flex;
+          gap: 20px;
+          justify-content: center;
+          padding-top: 15px;
+          border-top: 1px solid #e0e0e0;
 
-          h2 {
-            margin: 0 0 10px 0;
-            font-size: 20px;
-            font-weight: 500;
-            color: #333;
-          }
-
-          p {
-            margin: 0 0 20px 0;
+          span {
             font-size: 14px;
             color: #666;
-            line-height: 1.5;
-          }
 
-          .card-stats {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            padding-top: 15px;
-            border-top: 1px solid #e0e0e0;
-
-            span {
-              font-size: 14px;
-              color: #666;
-
-              strong {
-                color: #2196F3;
-                font-size: 18px;
-              }
+            strong {
+              color: #2196F3;
+              font-size: 18px;
             }
           }
         }
+      }
 
-        &.tanks .card-icon {
-          background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-        }
+      &.tanks .card-icon {
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+      }
 
-        &.radars .card-icon {
-          background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
-        }
+      &.radars .card-icon {
+        background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+      }
 
-        &.general .card-icon {
-          background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
-        }
+      &.general .card-icon {
+        background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
       }
     }
   }
+}
+
+.tank-configuration-widget {
+  padding: 20px;
 
   // Back to Menu Button
   .back-to-menu {

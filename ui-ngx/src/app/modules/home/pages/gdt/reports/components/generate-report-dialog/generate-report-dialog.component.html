@@ -18,7 +18,7 @@
 <div class="generate-report-dialog">
   <h2 mat-dialog-title>
     <mat-icon>{{ reportInfo.icon }}</mat-icon>
-    Generate {{ reportInfo.name }}
+    Generar {{ reportInfo.name }}
   </h2>
 
   <mat-dialog-content>
@@ -27,7 +27,7 @@
     <form [formGroup]="reportForm" class="report-form">
       <!-- Format Selection -->
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Output Format</mat-label>
+        <mat-label>Formato de Salida</mat-label>
         <mat-select formControlName="format" required>
           <mat-option *ngFor="let format of availableFormats" [value]="format">
             {{ format.toUpperCase() }}
@@ -38,7 +38,7 @@
 
       <!-- Dynamic Parameters -->
       <div class="parameters-section">
-        <h3>Report Parameters</h3>
+        <h3>Parámetros del Reporte</h3>
 
         <!-- Iterate through required and optional parameters -->
         <ng-container *ngFor="let param of reportInfo.requiredParameters.concat(reportInfo.optionalParameters)">
@@ -97,12 +97,12 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon>settings</mat-icon>
-            Advanced Options
+            Opciones Avanzadas
           </mat-panel-title>
         </mat-expansion-panel-header>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Locale</mat-label>
+          <mat-label>Idioma</mat-label>
           <mat-select formControlName="locale">
             <mat-option value="en">English</mat-option>
             <mat-option value="es">Español</mat-option>
@@ -110,7 +110,7 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Timezone</mat-label>
+          <mat-label>Zona Horaria</mat-label>
           <mat-select formControlName="timezone">
             <mat-option value="UTC">UTC</mat-option>
             <mat-option value="America/New_York">America/New_York</mat-option>
@@ -123,16 +123,16 @@
       <!-- Estimated Generation Time -->
       <div class="info-box">
         <mat-icon>info</mat-icon>
-        <span>Estimated generation time: ~{{ reportInfo.estimatedGenerationTime }} seconds</span>
+        <span>Tiempo estimado de generación: ~{{ reportInfo.estimatedGenerationTime }} segundos</span>
       </div>
     </form>
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
-    <button mat-button (click)="cancel()">Cancel</button>
+    <button mat-button (click)="cancel()">Cancelar</button>
     <button mat-raised-button color="primary" (click)="generate()" [disabled]="!reportForm.valid">
       <mat-icon>play_arrow</mat-icon>
-      Generate Report
+      Generar Reporte
     </button>
   </mat-dialog-actions>
 </div>

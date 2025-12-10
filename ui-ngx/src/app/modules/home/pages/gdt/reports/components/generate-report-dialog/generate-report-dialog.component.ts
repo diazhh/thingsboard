@@ -120,26 +120,26 @@ export class GenerateReportDialogComponent implements OnInit {
    */
   getParameterLabel(param: string): string {
     const labels: { [key: string]: string } = {
-      tankIds: 'Select Tanks',
-      startDate: 'Start Date',
-      endDate: 'End Date',
-      date: 'Date',
-      productFilter: 'Product Filter',
-      groupFilter: 'Group Filter',
-      batchId: 'Batch ID',
-      batchType: 'Batch Type',
-      aggregation: 'Aggregation',
-      includeCharts: 'Include Charts',
-      threshold: 'Threshold',
-      alarmType: 'Alarm Type',
-      severity: 'Severity',
-      eventType: 'Event Type',
-      userId: 'User ID',
-      changeType: 'Change Type',
-      deviceType: 'Device Type',
-      sourceBatchId: 'Source Batch ID',
-      destinationBatchId: 'Destination Batch ID',
-      tankId: 'Tank ID'
+      tankIds: 'Seleccionar Tanques',
+      startDate: 'Fecha de Inicio',
+      endDate: 'Fecha de Fin',
+      date: 'Fecha',
+      productFilter: 'Filtro por Producto',
+      groupFilter: 'Filtro por Grupo',
+      batchId: 'ID de Lote',
+      batchType: 'Tipo de Lote',
+      aggregation: 'Agregación',
+      includeCharts: 'Incluir Gráficos',
+      threshold: 'Umbral',
+      alarmType: 'Tipo de Alarma',
+      severity: 'Severidad',
+      eventType: 'Tipo de Evento',
+      userId: 'ID de Usuario',
+      changeType: 'Tipo de Cambio',
+      deviceType: 'Tipo de Dispositivo',
+      sourceBatchId: 'ID de Lote Origen',
+      destinationBatchId: 'ID de Lote Destino',
+      tankId: 'ID de Tanque'
     };
     return labels[param] || param;
   }

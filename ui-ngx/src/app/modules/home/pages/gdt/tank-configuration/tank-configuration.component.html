@@ -15,12 +15,26 @@
     limitations under the License.
 
 -->
-<div class="tank-configuration-widget">
+<div class="tb-absolute-fill">
+  <!-- Toolbar -->
+  <mat-toolbar color="primary">
+    <h2>
+      <mat-icon class="tb-mat-20">settings</mat-icon>
+      <span>Configuración de Tanques</span>
+    </h2>
+    <span fxFlex></span>
+    <button mat-icon-button
+            matTooltip="Ayuda"
+            matTooltipPosition="below">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </mat-toolbar>
 
-  <!-- Header with Section Icons -->
-  <div class="config-header">
-    <h2>Configuración del Sistema de Tanques</h2>
-    <div class="section-selector">
+  <!-- Content -->
+  <div class="mat-content tb-form-panel no-border no-padding" fxLayout="column" style="overflow: auto;">
+
+    <!-- Section Selector -->
+    <div class="section-selector-bar">
       <button 
         class="section-btn" 
         [class.active]="activeSection === 'tanks'"

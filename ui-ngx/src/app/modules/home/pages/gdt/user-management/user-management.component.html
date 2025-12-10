@@ -15,23 +15,28 @@
     limitations under the License.
 
 -->
-<div class="gdt-user-management">
-  <!-- Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-title">
-        <mat-icon class="header-icon">group</mat-icon>
-        <div>
-          <h1>Gestión de Usuarios</h1>
-          <p class="subtitle">Administre los usuarios del sistema y sus roles</p>
-        </div>
-      </div>
-      <button mat-raised-button color="primary" (click)="addUser()">
-        <mat-icon>person_add</mat-icon>
-        Agregar Usuario
-      </button>
-    </div>
-  </div>
+<div class="tb-absolute-fill">
+  <!-- Toolbar -->
+  <mat-toolbar color="primary">
+    <h2>
+      <mat-icon class="tb-mat-20">group</mat-icon>
+      <span>Gestión de Usuarios</span>
+    </h2>
+    <span fxFlex></span>
+    <button mat-raised-button (click)="addUser()" class="toolbar-button">
+      <mat-icon>person_add</mat-icon>
+      Agregar Usuario
+    </button>
+    <button mat-icon-button
+            matTooltip="Ayuda"
+            matTooltipPosition="below">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <!-- Content -->
+  <div class="mat-content tb-form-panel no-border no-padding" fxLayout="column" style="overflow: auto;">
+    <div class="gdt-user-management">
 
   <!-- Stats Cards -->
   <div class="stats-row">
@@ -164,5 +169,8 @@
                    (page)="onPageChange($event)"
                    showFirstLastButtons>
     </mat-paginator>
+  </div>
+
+    </div>
   </div>
 </div>
