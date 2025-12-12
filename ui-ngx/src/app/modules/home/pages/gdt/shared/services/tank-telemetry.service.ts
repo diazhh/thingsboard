@@ -53,7 +53,9 @@ export interface TelemetrySubscriptionConfig {
  * Service for managing telemetry subscriptions in ThingsBoard
  * Provides real-time data streaming and historical data queries
  */
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class TankTelemetryService {
 
   private subscriptions: Map<string, Subject<TelemetryData>> = new Map();

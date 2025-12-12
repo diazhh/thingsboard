@@ -175,7 +175,8 @@ export class BatchMockService {
       gov: request.openingLevel * 0.1,
       gsv: request.openingLevel * 0.099,
       nsv: request.openingLevel * 0.098,
-      mass: request.openingLevel * 82,
+      // Mass = NSV × density (kg/bbl). Density calculated from API gravity
+      mass: (request.openingLevel * 0.098) * (141.5 / (request.openingApiGravity + 131.5)) * 159,
       wia: 0.3
     };
 
@@ -216,7 +217,8 @@ export class BatchMockService {
       gov: request.closingLevel * 0.1,
       gsv: request.closingLevel * 0.099,
       nsv: request.closingLevel * 0.098,
-      mass: request.closingLevel * 82,
+      // Mass = NSV × density (kg/bbl). Density calculated from API gravity
+      mass: (request.closingLevel * 0.098) * (141.5 / (request.closingApiGravity + 131.5)) * 159,
       wia: 0.3
     };
 

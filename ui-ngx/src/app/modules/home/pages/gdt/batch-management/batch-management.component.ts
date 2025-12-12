@@ -27,10 +27,13 @@ import { Batch, BatchFilterCriteria, BatchStatus, BatchType, CreateBatchRequest,
 import { BatchService } from '../shared/services/batch.service';
 import { TankAssetService } from '../shared/services/tank-asset.service';
 import { GdtWidgetContextService } from '../shared/services/gdt-widget-context.service';
+import { MovementDetectionService, BatchSuggestion, MovementEvent } from '../shared/services/movement-detection.service';
 import { CreateBatchDialogComponent } from './components/create-batch-dialog/create-batch-dialog.component';
+import { CreateBatchHistoricalDialogComponent } from './components/create-batch-historical-dialog/create-batch-historical-dialog.component';
 import { BatchDetailDialogComponent } from './components/batch-detail-dialog/batch-detail-dialog.component';
 import { CloseBatchDialogComponent } from './components/close-batch-dialog/close-batch-dialog.component';
 import { RecalculateBatchDialogComponent } from './components/recalculate-batch-dialog/recalculate-batch-dialog.component';
+import { BatchSuggestionNotificationComponent } from './components/batch-suggestion-notification/batch-suggestion-notification.component';
 
 @Component({
   selector: 'tb-batch-management',
@@ -58,6 +61,10 @@ export class BatchManagementComponent extends PageComponent implements OnInit, O
   loading = false;
   displayedColumns: string[] = ['batchNumber', 'tankName', 'type', 'status', 'opening', 'closing', 'createdAt', 'actions'];
 
+  // Movement Detection
+  private activeMovementMonitoring = new Map<string, boolean>();
+  private dismissedSuggestions = new Map<string, number>(); // tankId -> timestamp of dismissal
+
   // Filter options
   statusOptions: { label: string; value: BatchStatus }[] = [
     { label: 'Abierto', value: 'open' },
@@ -76,6 +83,7 @@ export class BatchManagementComponent extends PageComponent implements OnInit, O
     private batchService: BatchService,
     private tankAssetService: TankAssetService,
     private gdtContextService: GdtWidgetContextService,
+    private movementDetectionService: MovementDetectionService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private cd: ChangeDetectorRef
@@ -86,11 +94,102 @@ export class BatchManagementComponent extends PageComponent implements OnInit, O
   ngOnInit() {
     this.loadTanks();
     this.loadBatches();
+    this.initializeMovementDetection();
   }
 
   ngOnDestroy() {
+    // Stop all movement monitoring
+    this.activeMovementMonitoring.forEach((_, tankId) => {
+      this.movementDetectionService.stopMonitoring(tankId);
+    });
+    this.activeMovementMonitoring.clear();
+
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Initialize movement detection for all tanks
+   */
+  private initializeMovementDetection(): void {
+    console.log('[BatchManagement] Initializing movement detection');
+    
+    // Start monitoring for each tank
+    this.tanks.forEach(tank => {
+      const tankId = tank.asset?.id?.id || tank.id;
+      if (tankId && !this.activeMovementMonitoring.has(tankId)) {
+        this.startMovementMonitoring(tankId);
+      }
+    });
+  }
+
+  /**
+   * Start monitoring a specific tank for movement
+   */
+  private startMovementMonitoring(tankId: string): void {
+    console.log('[BatchManagement] Starting movement monitoring for tank:', tankId);
+    
+    this.movementDetectionService.startMonitoring(tankId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (movementEvent: MovementEvent) => {
+          console.log('[BatchManagement] Movement detected:', movementEvent);
+          this.handleMovementDetected(movementEvent);
+        },
+        error: (err) => {
+          console.error('[BatchManagement] Error monitoring movement:', err);
+        }
+      });
+
+    this.activeMovementMonitoring.set(tankId, true);
+  }
+
+  /**
+   * Handle detected movement - show suggestion dialog
+   */
+  private handleMovementDetected(movementEvent: MovementEvent): void {
+    const tankId = movementEvent.tankId;
+
+    // Check if suggestion was recently dismissed (within 5 minutes)
+    const dismissedTime = this.dismissedSuggestions.get(tankId);
+    if (dismissedTime && (Date.now() - dismissedTime) < 5 * 60 * 1000) {
+      console.log('[BatchManagement] Suggestion recently dismissed for tank:', tankId);
+      return;
+    }
+
+    // Generate suggestion
+    const suggestion = this.movementDetectionService.suggestBatchCreation(movementEvent);
+
+    if (suggestion.suggested) {
+      console.log('[BatchManagement] Showing batch suggestion for tank:', tankId);
+      
+      const dialogRef = this.dialog.open(BatchSuggestionNotificationComponent, {
+        width: '500px',
+        disableClose: false,
+        data: { suggestion, movementEvent }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          switch (result.action) {
+            case 'created':
+              console.log('[BatchManagement] Batch created from suggestion:', result.batch);
+              this.loadBatches();
+              break;
+
+            case 'dismissed':
+              console.log('[BatchManagement] Suggestion dismissed by user');
+              this.dismissedSuggestions.set(tankId, Date.now());
+              break;
+
+            case 'remind_later':
+              console.log('[BatchManagement] User chose to remind later');
+              this.dismissedSuggestions.set(tankId, Date.now());
+              break;
+          }
+        }
+      });
+    }
   }
 
   loadTanks() {
@@ -99,6 +198,8 @@ export class BatchManagementComponent extends PageComponent implements OnInit, O
       .subscribe({
         next: (tanks) => {
           this.tanks = tanks;
+          // Reinitialize movement detection for new tanks
+          this.initializeMovementDetection();
         },
         error: (err) => {
           console.error('Error loading tanks:', err);
@@ -188,6 +289,20 @@ export class BatchManagementComponent extends PageComponent implements OnInit, O
               this.snackBar.open('Error al crear batch', 'Cerrar', { duration: 5000 });
             }
           });
+      }
+    });
+  }
+
+  createHistoricalBatch() {
+    const dialogRef = this.dialog.open(CreateBatchHistoricalDialogComponent, {
+      width: '600px',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe((batch: Batch) => {
+      if (batch) {
+        this.snackBar.open(`Batch histórico ${batch.batchNumber} creado exitosamente`, 'Cerrar', { duration: 3000 });
+        this.loadBatches();
       }
     });
   }

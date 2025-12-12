@@ -34,8 +34,9 @@
 }
 
 [mat-dialog-content] {
-  min-width: 500px;
-  max-height: 70vh;
+  min-width: 600px;
+  max-width: 800px;
+  max-height: 75vh;
   overflow-y: auto;
   padding: 20px 24px;
 
@@ -55,4 +56,141 @@ mat-form-field {
 
 [mat-dialog-actions] {
   padding: 8px 24px 20px;
+}
+
+// Validation card styles
+.validation-card {
+  margin: 12px 0;
+  
+  &.validation-loading {
+    background-color: #f5f5f5;
+  }
+  
+  &.validation-success {
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+  }
+  
+  &.validation-error {
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
+  }
+  
+  mat-card-content {
+    padding: 12px;
+  }
+  
+  .validation-details {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.7);
+    margin-top: 8px;
+    
+    div {
+      margin: 4px 0;
+    }
+  }
+  
+  .validation-error-message {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  
+  .validation-warnings {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #f57c00;
+    
+    div {
+      margin: 4px 0;
+    }
+  }
+}
+
+// Gauge card styles
+.gauge-card {
+  margin: 12px 0;
+  background-color: #fafafa;
+  
+  mat-card-content {
+    padding: 16px;
+  }
+  
+  .gauge-value {
+    text-align: center;
+    padding: 8px;
+    
+    .gauge-label {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .gauge-number {
+      font-size: 20px;
+      font-weight: 500;
+      color: #0d7377;
+    }
+    
+    .gauge-timestamp {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+  
+  .data-quality {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+    font-size: 13px;
+    
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+  
+  .no-gauge-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 14px;
+    
+    mat-icon {
+      color: rgba(0, 0, 0, 0.4);
+    }
+  }
+  
+  .capture-error-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
+    border-radius: 4px;
+    color: #c62828;
+    font-size: 13px;
+    margin-bottom: 12px;
+    
+    mat-icon {
+      color: #f44336;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    
+    button {
+      margin-top: 8px;
+      color: #f44336;
+    }
+  }
 }

@@ -17,7 +17,9 @@
 import { Injectable } from '@angular/core';
 import { TankData } from '../models/tank-data.model';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class TankCalculationService {
 
   /**

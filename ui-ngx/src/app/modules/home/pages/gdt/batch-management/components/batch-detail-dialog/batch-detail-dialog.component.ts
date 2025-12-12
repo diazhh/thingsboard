@@ -48,9 +48,11 @@ export class BatchDetailDialogComponent {
     });
   }
 
-  formatNumber(value: number | undefined, decimals: number = 2): string {
+  formatNumber(value: number | undefined | null | any, decimals: number = 2): string {
     if (value === undefined || value === null) return '-';
-    return value.toFixed(decimals);
+    const numValue = Number(value);
+    if (isNaN(numValue)) return '-';
+    return numValue.toFixed(decimals);
   }
 
   getStatusLabel(status: string): string {

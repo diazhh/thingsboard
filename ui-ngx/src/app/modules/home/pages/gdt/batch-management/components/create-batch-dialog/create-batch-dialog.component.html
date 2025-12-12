@@ -43,52 +43,211 @@
         </mat-option>
       </mat-select>
       <mat-icon matSuffix>category</mat-icon>
+      <mat-hint *ngIf="validationResult?.tankState?.suggestedBatchType">
+        Sugerido: {{ validationResult.tankState.suggestedBatchType === 'receiving' ? 'Recepción' : 'Despacho' }}
+      </mat-hint>
     </mat-form-field>
+
+    <!-- Capture Mode Toggle -->
+    <div fxLayout="row" fxLayoutAlign="space-between center" style="margin: 8px 0;">
+      <span style="font-size: 14px; color: rgba(0,0,0,0.6);">
+        Método de captura:
+      </span>
+      <mat-slide-toggle 
+        [checked]="useAutomaticCapture"
+        (change)="toggleCaptureMode()"
+        color="primary">
+        {{ useAutomaticCapture ? '⚡ Automático (API MPMS 18.2)' : '✋ Manual (API MPMS 18.1)' }}
+      </mat-slide-toggle>
+    </div>
+
+    <!-- Tank Validation Status -->
+    <mat-card *ngIf="useAutomaticCapture && batchForm.get('tankId')?.value" 
+              class="validation-card"
+              [ngClass]="{
+                'validation-success': validationResult?.valid,
+                'validation-error': validationResult && !validationResult.valid,
+                'validation-loading': validatingTank
+              }">
+      <mat-card-content>
+        <div *ngIf="validatingTank" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+          <mat-spinner diameter="24"></mat-spinner>
+          <span>Validando estado del tanque...</span>
+        </div>
+
+        <div *ngIf="!validatingTank && validationResult">
+          <!-- Success -->
+          <div *ngIf="validationResult.valid" fxLayout="column" fxLayoutGap="8px">
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+              <mat-icon color="primary">check_circle</mat-icon>
+              <strong>Tanque listo para batch</strong>
+            </div>
+            <div class="validation-details">
+              <div>✓ Comunicación con radar: OK</div>
+              <div>✓ Telemetría: Actualizada ({{ (validationResult.tankState?.telemetryAge || 0) / 1000 | number:'1.0-0' }}s)</div>
+              <div *ngIf="!validationResult.tankState?.hasActiveAlarms">✓ Sin alarmas críticas</div>
+              <div *ngIf="validationResult.tankState?.movement?.type !== 'idle'">
+                ⚡ Movimiento detectado: {{ validationResult.tankState.movement.type === 'receiving' ? 'Recepción' : 'Despacho' }}
+                ({{ validationResult.tankState.movement.rate | number:'1.0-1' }} mm/h)
+              </div>
+            </div>
+          </div>
+
+          <!-- Error -->
+          <div *ngIf="!validationResult.valid" fxLayout="column" fxLayoutGap="8px">
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+              <mat-icon color="warn">error</mat-icon>
+              <strong>No se puede crear batch</strong>
+            </div>
+            <div class="validation-error-message">
+              {{ validationResult.error }}
+            </div>
+          </div>
+
+          <!-- Warnings -->
+          <div *ngIf="validationResult.warnings && validationResult.warnings.length > 0" 
+               class="validation-warnings">
+            <div *ngFor="let warning of validationResult.warnings">
+              ⚠ {{ warning }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
     <h3>Medición de Apertura</h3>
 
-    <div fxLayout="row" fxLayoutGap="16px">
-      <!-- Opening Level -->
-      <mat-form-field appearance="outline" fxFlex>
-        <mat-label>Nivel (mm)</mat-label>
-        <input matInput type="number" formControlName="openingLevel" required>
-        <mat-icon matSuffix>straighten</mat-icon>
-        <mat-error *ngIf="batchForm.get('openingLevel')?.hasError('required')">
-          Nivel es requerido
-        </mat-error>
-        <mat-error *ngIf="batchForm.get('openingLevel')?.hasError('min')">
-          Nivel debe ser mayor a 0
-        </mat-error>
-      </mat-form-field>
+    <!-- Automatic Gauge Display -->
+    <mat-card *ngIf="useAutomaticCapture" class="gauge-card">
+      <mat-card-content>
+        <div *ngIf="capturingGauge" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+          <mat-spinner diameter="24"></mat-spinner>
+          <span>Capturando datos desde telemetría...</span>
+        </div>
 
-      <!-- Opening Temperature -->
-      <mat-form-field appearance="outline" fxFlex>
-        <mat-label>Temperatura (°C)</mat-label>
-        <input matInput type="number" formControlName="openingTemperature" required>
-        <mat-icon matSuffix>thermostat</mat-icon>
-        <mat-error *ngIf="batchForm.get('openingTemperature')?.hasError('required')">
-          Temperatura es requerida
-        </mat-error>
-      </mat-form-field>
-    </div>
+        <div *ngIf="!capturingGauge && gaugeSnapshot" fxLayout="column" fxLayoutGap="12px">
+          <div fxLayout="row" fxLayoutAlign="space-between center">
+            <strong>⚡ Datos Capturados Automáticamente</strong>
+            <mat-chip-list>
+              <mat-chip color="primary" selected>{{ gaugeSnapshot.captureMethod }}</mat-chip>
+            </mat-chip-list>
+          </div>
 
-    <div fxLayout="row" fxLayoutGap="16px">
-      <!-- Gravedad API -->
-      <mat-form-field appearance="outline" fxFlex>
-        <mat-label>Gravedad API (°API)</mat-label>
-        <input matInput type="number" formControlName="openingApiGravity" required>
-        <mat-icon matSuffix>opacity</mat-icon>
-        <mat-error *ngIf="batchForm.get('openingApiGravity')?.hasError('required')">
-          Gravedad API es requerido
-        </mat-error>
-      </mat-form-field>
+          <div fxLayout="row wrap" fxLayoutGap="16px">
+            <div fxFlex="45" class="gauge-value">
+              <div class="gauge-label">Nivel</div>
+              <div class="gauge-number">{{ gaugeSnapshot.level | number:'1.1-1' }} mm</div>
+            </div>
+            <div fxFlex="45" class="gauge-value">
+              <div class="gauge-label">Temperatura</div>
+              <div class="gauge-number">{{ gaugeSnapshot.temperature | number:'1.1-1' }} °C</div>
+            </div>
+            <div fxFlex="45" class="gauge-value">
+              <div class="gauge-label">API Gravity</div>
+              <div class="gauge-number">{{ gaugeSnapshot.apiGravity | number:'1.1-1' }} °API</div>
+            </div>
+            <div fxFlex="45" class="gauge-value">
+              <div class="gauge-label">BS&W</div>
+              <div class="gauge-number">{{ gaugeSnapshot.bsw | number:'1.2-2' }} %</div>
+            </div>
+          </div>
 
-      <!-- BS&W -->
-      <mat-form-field appearance="outline" fxFlex>
-        <mat-label>BS&W (%)</mat-label>
-        <input matInput type="number" formControlName="openingBsw">
-        <mat-icon matSuffix>water_drop</mat-icon>
-      </mat-form-field>
+          <mat-divider></mat-divider>
+
+          <div fxLayout="row wrap" fxLayoutGap="16px">
+            <div fxFlex="45" class="gauge-value">
+              <div class="gauge-label">TOV</div>
+              <div class="gauge-number">{{ gaugeSnapshot.tov | number:'1.0-0' }} bbl</div>
+            </div>
+            <div fxFlex="45" class="gauge-value">
+              <div class="gauge-label">NSV</div>
+              <div class="gauge-number">{{ gaugeSnapshot.nsv | number:'1.0-0' }} bbl</div>
+            </div>
+            <div fxFlex="45" class="gauge-value">
+              <div class="gauge-label">Masa</div>
+              <div class="gauge-number">{{ gaugeSnapshot.mass | number:'1.0-0' }} kg</div>
+            </div>
+            <div fxFlex="45" class="gauge-value">
+              <div class="gauge-label">Timestamp</div>
+              <div class="gauge-timestamp">{{ gaugeSnapshot.timestamp | date:'medium' }}</div>
+            </div>
+          </div>
+
+          <div *ngIf="gaugeSnapshot.dataQuality" class="data-quality">
+            <mat-icon [color]="gaugeSnapshot.dataQuality.sourceReliable ? 'primary' : 'warn'">
+              {{ gaugeSnapshot.dataQuality.sourceReliable ? 'verified' : 'warning' }}
+            </mat-icon>
+            <span>
+              {{ gaugeSnapshot.dataQuality.sourceReliable ? 'Datos confiables' : 'Advertencia: datos pueden no ser confiables' }}
+            </span>
+          </div>
+        </div>
+
+        <div *ngIf="captureError && !capturingGauge" class="capture-error-message">
+          <mat-icon>error</mat-icon>
+          <div fxLayout="column" fxFlex>
+            <span>{{ captureError }}</span>
+            <button mat-button (click)="validateAndCaptureGauge(batchForm.get('tankId')?.value)" 
+                    *ngIf="batchForm.get('tankId')?.value">
+              <mat-icon>refresh</mat-icon>
+              Reintentar
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="!capturingGauge && !gaugeSnapshot && !captureError && batchForm.get('tankId')?.value" 
+             class="no-gauge-message">
+          <mat-icon>info</mat-icon>
+          <span>Seleccione un tanque para capturar datos automáticamente</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Manual Gauge Input -->
+    <div *ngIf="!useAutomaticCapture">
+      <div fxLayout="row" fxLayoutGap="16px">
+        <!-- Opening Level -->
+        <mat-form-field appearance="outline" fxFlex>
+          <mat-label>Nivel (mm)</mat-label>
+          <input matInput type="number" formControlName="openingLevel" required>
+          <mat-icon matSuffix>straighten</mat-icon>
+          <mat-error *ngIf="batchForm.get('openingLevel')?.hasError('required')">
+            Nivel es requerido
+          </mat-error>
+          <mat-error *ngIf="batchForm.get('openingLevel')?.hasError('min')">
+            Nivel debe ser mayor a 0
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Opening Temperature -->
+        <mat-form-field appearance="outline" fxFlex>
+          <mat-label>Temperatura (°C)</mat-label>
+          <input matInput type="number" formControlName="openingTemperature" required>
+          <mat-icon matSuffix>thermostat</mat-icon>
+          <mat-error *ngIf="batchForm.get('openingTemperature')?.hasError('required')">
+            Temperatura es requerida
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div fxLayout="row" fxLayoutGap="16px">
+        <!-- Gravedad API -->
+        <mat-form-field appearance="outline" fxFlex>
+          <mat-label>Gravedad API (°API)</mat-label>
+          <input matInput type="number" formControlName="openingApiGravity" required>
+          <mat-icon matSuffix>opacity</mat-icon>
+          <mat-error *ngIf="batchForm.get('openingApiGravity')?.hasError('required')">
+            Gravedad API es requerido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- BS&W -->
+        <mat-form-field appearance="outline" fxFlex>
+          <mat-label>BS&W (%)</mat-label>
+          <input matInput type="number" formControlName="openingBsw">
+          <mat-icon matSuffix>water_drop</mat-icon>
+        </mat-form-field>
+      </div>
     </div>
 
     <h3>Información Adicional</h3>
@@ -137,7 +296,7 @@
   <button mat-raised-button 
           color="primary" 
           (click)="onSubmit()"
-          [disabled]="!batchForm.valid || loading">
+          [disabled]="!canSubmit() || loading || capturingGauge || validatingTank">
     <mat-icon>add</mat-icon>
     Crear Batch
   </button>

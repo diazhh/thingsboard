@@ -22,14 +22,17 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { WidgetContext } from '@home/models/widget-component.models';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 // GDT Services
 import { TankAssetService, TankAsset } from '../shared/services/tank-asset.service';
 import { ManualTelemetryService, ManualTelemetryEntry } from '../tank-monitoring/services/manual-telemetry.service';
 import { GdtWidgetContextService } from '../shared/services/gdt-widget-context.service';
+import { LabBatchIntegrationService, LabResult } from '../shared/services/lab-batch-integration.service';
 
 // Dialog Component
 import { LabFormDialogComponent } from './dialogs/lab-form-dialog.component';
+import { LabVarianceNotificationComponent } from '../batch-management/components/lab-variance-notification/lab-variance-notification.component';
 
 @Component({
   selector: 'tb-laboratorio',
@@ -53,8 +56,10 @@ export class LaboratorioComponent extends PageComponent implements OnInit, OnDes
     private tankAssetService: TankAssetService,
     private manualTelemetryService: ManualTelemetryService,
     private gdtContextService: GdtWidgetContextService,
+    private labBatchIntegrationService: LabBatchIntegrationService,
     private cd: ChangeDetectorRef,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     super(store);
   }
@@ -63,6 +68,7 @@ export class LaboratorioComponent extends PageComponent implements OnInit, OnDes
     // Create widget context for manual telemetry service
     this.widgetContext = this.gdtContextService.createContext({}, this.cd);
     this.loadTanks();
+    this.initializeLabBatchIntegration();
   }
 
   ngOnDestroy() {
@@ -182,6 +188,107 @@ export class LaboratorioComponent extends PageComponent implements OnInit, OnDes
       if (result) {
         // Reload history after saving new entry
         this.onAnalysisSaved(result);
+        // Check for batch associations
+        this.checkLabResultAssociation(result);
+      }
+    });
+  }
+
+  /**
+   * Initialize lab-batch integration monitoring
+   */
+  private initializeLabBatchIntegration(): void {
+    console.log('[Laboratorio] Initializing lab-batch integration');
+
+    // Subscribe to new associations
+    this.labBatchIntegrationService.getAssociationsObservable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (association) => {
+          console.log('[Laboratorio] New lab-batch association detected:', association);
+          
+          // Only show notification if variance is significant AND status is pending
+          // This prevents showing notifications for already rejected associations
+          if (association.varianceAnalysis.isSignificant && association.status === 'pending') {
+            this.showVarianceNotification(association);
+          }
+        },
+        error: (err) => {
+          console.error('[Laboratorio] Error in lab-batch integration:', err);
+        }
+      });
+  }
+
+  /**
+   * Check if lab result should be associated with a batch
+   */
+  private checkLabResultAssociation(entry: ManualTelemetryEntry): void {
+    // Convert ManualTelemetryEntry to LabResult
+    const entryData = entry as any;
+    const labResult: LabResult = {
+      id: entry.id || `lab-${Date.now()}`,
+      tankId: entry.tankId,
+      timestamp: entry.timestamp,
+      apiGravity: entryData.apiGravity || 0,
+      temperature: entryData.temperature || 0,
+      bsw: entryData.bsw || 0,
+      density: entryData.density,
+      viscosity: entryData.viscosity,
+      notes: entryData.notes,
+      operator: entryData.operator || entryData.operatorId
+    };
+
+    console.log('[Laboratorio] Checking lab result association:', labResult);
+
+    // Try to associate with batch
+    this.labBatchIntegrationService.associateLabResultWithBatch(labResult)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (association) => {
+          console.log('[Laboratorio] Lab result associated with batch:', association);
+          
+          // Show notification if variance is significant
+          if (association.varianceAnalysis.isSignificant) {
+            this.showVarianceNotification(association);
+          } else {
+            this.snackBar.open('✅ Lab result associated with batch', 'Close', { duration: 3000 });
+          }
+        },
+        error: (err) => {
+          console.error('[Laboratorio] Error associating lab result:', err);
+          
+          // Only show snackbar if it's not a "already rejected" error
+          if (!err.message?.includes('already rejected')) {
+            this.snackBar.open('ℹ️ No closed batch found for this lab result', 'Close', { duration: 3000 });
+          }
+        }
+      });
+  }
+
+  /**
+   * Show variance notification dialog
+   */
+  private showVarianceNotification(association: any): void {
+    const dialogRef = this.dialog.open(LabVarianceNotificationComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      disableClose: false,
+      data: { association }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        switch (result.action) {
+          case 'recalculated':
+            console.log('[Laboratorio] Batch recalculated from lab variance:', result.batch);
+            this.labBatchIntegrationService.updateAssociationStatus(association.id, 'recalculated');
+            break;
+
+          case 'ignored':
+            console.log('[Laboratorio] Lab variance ignored by user');
+            this.labBatchIntegrationService.updateAssociationStatus(association.id, 'rejected');
+            break;
+        }
       }
     });
   }

@@ -1,0 +1,91 @@
+<div class="batch-suggestion-container">
+  <mat-card class="suggestion-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon [color]="getColor()" class="movement-icon">{{ getIcon() }}</mat-icon>
+        🔔 MOVIMIENTO DETECTADO
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="movement-details">
+        <!-- Tank Information -->
+        <div class="detail-row">
+          <span class="label">Tanque:</span>
+          <span class="value">{{ tankName }}</span>
+        </div>
+
+        <!-- Movement Type -->
+        <div class="detail-row">
+          <span class="label">Tipo:</span>
+          <span class="value badge" [ngClass]="suggestion.batchType">
+            {{ suggestion.batchType === 'receiving' ? '⬇️ RECEPCIÓN' : '⬆️ DESPACHO' }}
+          </span>
+        </div>
+
+        <!-- Rate of Change -->
+        <div class="detail-row">
+          <span class="label">Velocidad:</span>
+          <span class="value">{{ movementEvent.rate.toFixed(2) }} mm/h</span>
+        </div>
+
+        <!-- Confidence Level -->
+        <div class="detail-row">
+          <span class="label">Confianza:</span>
+          <div class="confidence-bar">
+            <mat-progress-bar 
+              mode="determinate" 
+              [value]="getConfidencePercentage()"
+              [color]="getConfidencePercentage() >= 80 ? 'accent' : 'warn'">
+            </mat-progress-bar>
+            <span class="confidence-text">{{ getConfidencePercentage() }}%</span>
+          </div>
+        </div>
+
+        <!-- Estimated Duration -->
+        <div class="detail-row">
+          <span class="label">Duración estimada:</span>
+          <span class="value">~{{ estimatedDurationMinutes }} minutos</span>
+        </div>
+
+        <!-- Rate in Barrels -->
+        <div class="detail-row">
+          <span class="label">Caudal:</span>
+          <span class="value">{{ suggestion.rate.toFixed(1) }} bbl/h</span>
+        </div>
+
+        <!-- Suggestion Message -->
+        <div class="suggestion-message">
+          <mat-icon class="info-icon">info</mat-icon>
+          <span>{{ suggestion.message }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="createBatch()"
+        [disabled]="isCreatingBatch">
+        <mat-icon *ngIf="!isCreatingBatch">check_circle</mat-icon>
+        <mat-spinner *ngIf="isCreatingBatch" diameter="20"></mat-spinner>
+        {{ isCreatingBatch ? 'Creando...' : 'Sí, Crear Batch' }}
+      </button>
+
+      <button 
+        mat-stroked-button 
+        (click)="dismiss()"
+        [disabled]="isCreatingBatch">
+        Ignorar
+      </button>
+
+      <button 
+        mat-stroked-button 
+        (click)="remindLater()"
+        [disabled]="isCreatingBatch">
+        Recordar después
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

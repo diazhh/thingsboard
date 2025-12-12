@@ -34,6 +34,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgxEchartsModule } from 'ngx-echarts';
 
@@ -48,9 +49,17 @@ import { AforoManualComponent } from './aforo-manual/aforo-manual.component';
 import { LaboratorioComponent } from './laboratorio/laboratorio.component';
 import { BatchManagementComponent } from './batch-management/batch-management.component';
 import { CreateBatchDialogComponent } from './batch-management/components/create-batch-dialog/create-batch-dialog.component';
+import { CreateBatchHistoricalDialogComponent } from './batch-management/components/create-batch-historical-dialog/create-batch-historical-dialog.component';
 import { BatchDetailDialogComponent } from './batch-management/components/batch-detail-dialog/batch-detail-dialog.component';
 import { CloseBatchDialogComponent } from './batch-management/components/close-batch-dialog/close-batch-dialog.component';
 import { RecalculateBatchDialogComponent } from './batch-management/components/recalculate-batch-dialog/recalculate-batch-dialog.component';
+import { BatchSuggestionNotificationModule } from './batch-management/components/batch-suggestion-notification/batch-suggestion-notification.component';
+import { LabVarianceNotificationModule } from './batch-management/components/lab-variance-notification/lab-variance-notification.component';
+import { BatchRecalculationService } from './shared/services/batch-recalculation.service';
+import { BatchPdfWatermarkService } from './shared/services/batch-pdf-watermark.service';
+import { BatchAuditTrailService } from './shared/services/batch-audit-trail.service';
+import { MovementDetectionService } from './shared/services/movement-detection.service';
+import { LabBatchIntegrationService } from './shared/services/lab-batch-integration.service';
 import { ReportsComponent } from './reports/reports.component';
 import { GenerateReportDialogComponent } from './reports/components/generate-report-dialog/generate-report-dialog.component';
 import { ScheduledReportsComponent } from './reports/components/scheduled-reports/scheduled-reports.component';
@@ -96,11 +105,11 @@ import { LevelFormatPipe } from './shared/pipes/level-format.pipe';
 
 // Services
 import { GdtWidgetContextService } from './shared/services/gdt-widget-context.service';
-import { TankAssetService } from './shared/services/tank-asset.service';
+// import { TankAssetService } from './shared/services/tank-asset.service'; // Now uses providedIn: 'root'
 import { RadarDeviceService } from './shared/services/radar-device.service';
-import { TankTelemetryService } from './shared/services/tank-telemetry.service';
+// import { TankTelemetryService } from './shared/services/tank-telemetry.service'; // Now uses providedIn: 'root'
 import { SystemConfigService } from './shared/services/system-config.service';
-import { TankCalculationService } from './shared/services/tank-calculation.service';
+// import { TankCalculationService } from './shared/services/tank-calculation.service'; // Now uses providedIn: 'root'
 import { AlarmEvaluatorService } from './shared/services/alarm-evaluator.service';
 import { VolumeApiMpmsService } from './shared/services/volume-api-mpms.service';
 import { LevelFormatterService } from './shared/services/level-formatter.service';
@@ -108,6 +117,7 @@ import { LevelInputParserService } from './shared/services/level-input-parser.se
 import { BatchService } from './shared/services/batch.service';
 import { BatchMockService } from './shared/services/batch-mock.service';
 import { BatchCalculationService } from './shared/services/batch-calculation.service';
+import { HistoricalTelemetryService } from './shared/services/historical-telemetry.service';
 import { ManualTelemetryService } from './tank-monitoring/services/manual-telemetry.service';
 import { GatewayApiService } from './shared/services/gateway-api.service';
 import { ReportService } from './shared/services/report.service';
@@ -118,6 +128,7 @@ import { HistoricalDataService } from './shared/services/historical-data.service
 import { ChartConfigService } from './shared/services/chart-config.service';
 import { AuditEventService } from './shared/services/audit-event.service';
 import { SealManagementService } from './shared/services/seal-management.service';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
   declarations: [
@@ -132,6 +143,7 @@ import { SealManagementService } from './shared/services/seal-management.service
     LaboratorioComponent,
     BatchManagementComponent,
     CreateBatchDialogComponent,
+    CreateBatchHistoricalDialogComponent,
     BatchDetailDialogComponent,
     CloseBatchDialogComponent,
     RecalculateBatchDialogComponent,
@@ -196,6 +208,11 @@ import { SealManagementService } from './shared/services/seal-management.service
     MatDialogModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
+    MatExpansionModule,
+    // Feature Modules
+    BatchSuggestionNotificationModule,
+    LabVarianceNotificationModule,
     // Charts
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts')
@@ -204,11 +221,11 @@ import { SealManagementService } from './shared/services/seal-management.service
   providers: [
     // GDT Services
     GdtWidgetContextService,
-    TankAssetService,
+    // TankAssetService, // Now uses providedIn: 'root'
     RadarDeviceService,
-    TankTelemetryService,
+    // TankTelemetryService, // Now uses providedIn: 'root'
     SystemConfigService,
-    TankCalculationService,
+    // TankCalculationService, // Now uses providedIn: 'root'
     AlarmEvaluatorService,
     VolumeApiMpmsService,
     LevelFormatterService,
@@ -218,6 +235,12 @@ import { SealManagementService } from './shared/services/seal-management.service
     BatchService,
     BatchMockService,
     BatchCalculationService,
+    HistoricalTelemetryService,
+    BatchRecalculationService,
+    BatchPdfWatermarkService,
+    BatchAuditTrailService,
+    MovementDetectionService,
+    LabBatchIntegrationService,
     // Gateway Services
     GatewayApiService,
     // Report Services

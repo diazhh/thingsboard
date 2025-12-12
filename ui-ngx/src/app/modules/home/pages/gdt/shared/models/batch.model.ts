@@ -42,6 +42,20 @@ export interface GaugeReading {
   nsv?: number;  // Net Standard Volume
   mass?: number; // Mass
   wia?: number;  // Water in Air
+  
+  // ⭐ NEW: Capture method tracking (API MPMS 18.1 vs 18.2)
+  captureMethod?: 'automatic' | 'manual' | 'historical';
+  captureMethodReason?: string; // Reason if manual override
+  manualInstrument?: string; // e.g., "Cinta métrica 15m" for manual
+  dataSource?: 'telemetry' | 'manual_entry' | 'telemetry_history';
+  radarDeviceId?: string;
+  
+  // ⭐ NEW: Data quality indicators
+  dataQuality?: {
+    sourceReliable: boolean; // true if automatic and telemetry OK
+    telemetryAge?: number; // milliseconds since last telemetry
+    deviationFromAutomatic?: number; // % if manual with automatic available
+  };
 }
 
 /**

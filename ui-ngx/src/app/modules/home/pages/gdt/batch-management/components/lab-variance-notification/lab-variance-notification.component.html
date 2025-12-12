@@ -1,0 +1,163 @@
+<div class="lab-variance-container">
+  <mat-card class="variance-card" [ngClass]="'severity-' + getSeverityColor()">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon [color]="getSeverityColor()" class="warning-icon">warning</mat-icon>
+        ⚠️ VARIACIÓN DETECTADA
+      </mat-card-title>
+      <div class="severity-badge" [ngClass]="'severity-' + getSeverityColor()">
+        {{ getSeverityLabel() }}
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="variance-details">
+        <!-- Tank Information -->
+        <div class="detail-row">
+          <span class="label">Tanque:</span>
+          <span class="value">{{ tankName }}</span>
+        </div>
+
+        <!-- Batch Information -->
+        <div class="detail-row">
+          <span class="label">Batch:</span>
+          <span class="value">{{ association.batchId }}</span>
+        </div>
+
+        <!-- Variance Summary -->
+        <div class="variance-summary">
+          <h3>Resultado de Laboratorio vs Batch</h3>
+          
+          <!-- API Gravity -->
+          <div class="variance-item" *ngIf="variance.apiGravityDiff !== 0">
+            <span class="parameter">API Gravity:</span>
+            <span class="difference" [ngClass]="variance.apiGravityDiff > 0 ? 'positive' : 'negative'">
+              {{ variance.apiGravityDiff > 0 ? '+' : '' }}{{ formatNumber(variance.apiGravityDiff, 2) }}°
+            </span>
+          </div>
+
+          <!-- Temperature -->
+          <div class="variance-item" *ngIf="variance.temperatureDiff !== 0">
+            <span class="parameter">Temperatura:</span>
+            <span class="difference" [ngClass]="variance.temperatureDiff > 0 ? 'positive' : 'negative'">
+              {{ variance.temperatureDiff > 0 ? '+' : '' }}{{ formatNumber(variance.temperatureDiff, 1) }}°C
+            </span>
+          </div>
+
+          <!-- BS&W -->
+          <div class="variance-item" *ngIf="variance.bswDiff !== 0">
+            <span class="parameter">BS&W:</span>
+            <span class="difference" [ngClass]="variance.bswDiff > 0 ? 'positive' : 'negative'">
+              {{ variance.bswDiff > 0 ? '+' : '' }}{{ formatNumber(variance.bswDiff, 2) }}%
+            </span>
+          </div>
+
+          <!-- Overall Percentage -->
+          <div class="variance-item overall">
+            <span class="parameter">Cambio General:</span>
+            <span class="difference" [ngClass]="variance.percentageDiff > 0 ? 'positive' : 'negative'">
+              {{ formatNumber(variance.percentageDiff, 2) }}%
+            </span>
+          </div>
+        </div>
+
+        <!-- Reason -->
+        <div class="reason-box">
+          <mat-icon class="info-icon">info</mat-icon>
+          <span>{{ variance.reason }}</span>
+        </div>
+
+        <!-- Estimated Impact -->
+        <div class="detail-row">
+          <span class="label">Impacto estimado:</span>
+          <span class="value impact" [ngClass]="association.recalculationSuggestion.estimatedImpact > 0 ? 'negative' : 'positive'">
+            {{ association.recalculationSuggestion.estimatedImpact > 0 ? '-' : '+' }}
+            {{ formatNumber(Math.abs(association.recalculationSuggestion.estimatedImpact), 1) }} bbl
+          </span>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="recommendation-box" [ngClass]="variance.isSignificant ? 'significant' : 'minor'">
+          <mat-icon>{{ variance.isSignificant ? 'check_circle' : 'info' }}</mat-icon>
+          <span>{{ variance.recommendation }}</span>
+        </div>
+
+        <!-- Details Toggle -->
+        <button 
+          mat-button 
+          (click)="toggleDetails()"
+          class="details-toggle">
+          <mat-icon>{{ showDetails ? 'expand_less' : 'expand_more' }}</mat-icon>
+          {{ showDetails ? 'Ocultar detalles' : 'Ver detalles' }}
+        </button>
+
+        <!-- Detailed Comparison -->
+        <div class="detailed-comparison" *ngIf="showDetails">
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Comparación Detallada
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Parámetro</th>
+                  <th>Batch</th>
+                  <th>Laboratorio</th>
+                  <th>Diferencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>API Gravity</td>
+                  <td>{{ formatNumber(0, 2) }}°</td>
+                  <td>{{ formatNumber(variance.apiGravityDiff, 2) }}°</td>
+                  <td [ngClass]="variance.apiGravityDiff > 0 ? 'positive' : 'negative'">
+                    {{ variance.apiGravityDiff > 0 ? '+' : '' }}{{ formatNumber(variance.apiGravityDiff, 2) }}°
+                  </td>
+                </tr>
+                <tr>
+                  <td>Temperatura</td>
+                  <td>{{ formatNumber(0, 1) }}°C</td>
+                  <td>{{ formatNumber(variance.temperatureDiff, 1) }}°C</td>
+                  <td [ngClass]="variance.temperatureDiff > 0 ? 'positive' : 'negative'">
+                    {{ variance.temperatureDiff > 0 ? '+' : '' }}{{ formatNumber(variance.temperatureDiff, 1) }}°C
+                  </td>
+                </tr>
+                <tr>
+                  <td>BS&W</td>
+                  <td>{{ formatNumber(0, 2) }}%</td>
+                  <td>{{ formatNumber(variance.bswDiff, 2) }}%</td>
+                  <td [ngClass]="variance.bswDiff > 0 ? 'positive' : 'negative'">
+                    {{ variance.bswDiff > 0 ? '+' : '' }}{{ formatNumber(variance.bswDiff, 2) }}%
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </mat-expansion-panel>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="recalculateBatch()"
+        [disabled]="isRecalculating">
+        <mat-icon *ngIf="!isRecalculating">refresh</mat-icon>
+        <mat-spinner *ngIf="isRecalculating" diameter="20"></mat-spinner>
+        {{ isRecalculating ? 'Recalculando...' : 'Recalcular Batch' }}
+      </button>
+
+      <button 
+        mat-stroked-button 
+        (click)="ignore()"
+        [disabled]="isRecalculating">
+        Ignorar
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

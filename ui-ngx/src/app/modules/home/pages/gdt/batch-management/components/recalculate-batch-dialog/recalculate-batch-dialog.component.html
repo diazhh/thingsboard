@@ -17,72 +17,231 @@
 -->
 <h2 mat-dialog-title>Recalcular Lote {{ batch.batchNumber }}</h2>
 
-<div mat-dialog-content>
+<div mat-dialog-content class="recalculate-dialog-content">
   <form [formGroup]="recalculateForm" fxLayout="column" fxLayoutGap="16px">
-    
+
+    <!-- Info Message -->
     <div class="info-message">
-      <span class="info-icon">ℹ️</span>
+      <mat-icon>info</mat-icon>
       <span>Ingrese los nuevos valores para recalcular el lote. Solo modifique los campos que necesitan corrección.</span>
     </div>
 
-    <h3>Valores de Apertura</h3>
-    
-    <!-- Opening Gravedad API -->
-    <mat-form-field appearance="outline">
-      <mat-label>Gravedad API Apertura (°API)</mat-label>
-      <input matInput type="number" step="0.01" formControlName="openingApiGravity">
-      <mat-hint>Valor actual: {{ batch.opening.apiGravity }} °API</mat-hint>
-    </mat-form-field>
-
-    <!-- Opening Temperature -->
-    <mat-form-field appearance="outline">
-      <mat-label>Temperatura Apertura (°C)</mat-label>
-      <input matInput type="number" step="0.1" formControlName="openingTemperature">
-      <mat-hint>Valor actual: {{ batch.opening.temperature }} °C</mat-hint>
-    </mat-form-field>
-
-    <h3 *ngIf="batch.closing">Valores de Cierre</h3>
-
-    <!-- Closing Gravedad API -->
-    <mat-form-field appearance="outline" *ngIf="batch.closing">
-      <mat-label>Gravedad API Cierre (°API)</mat-label>
-      <input matInput type="number" step="0.01" formControlName="closingApiGravity">
-      <mat-hint>Valor actual: {{ batch.closing.apiGravity }} °API</mat-hint>
-    </mat-form-field>
-
-    <!-- Closing Temperature -->
-    <mat-form-field appearance="outline" *ngIf="batch.closing">
-      <mat-label>Temperatura Cierre (°C)</mat-label>
-      <input matInput type="number" step="0.1" formControlName="closingTemperature">
-      <mat-hint>Valor actual: {{ batch.closing.temperature }} °C</mat-hint>
-    </mat-form-field>
-
-    <h3>Información del Recálculo</h3>
-
-    <!-- Reason -->
-    <mat-form-field appearance="outline">
+    <!-- Reason Selection -->
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>Razón del Recálculo</mat-label>
-      <textarea matInput formControlName="reason" rows="3" required></textarea>
-      <mat-error *ngIf="recalculateForm.get('reason').hasError('required')">
-        La razón es requerida
-      </mat-error>
+      <mat-select formControlName="reason">
+        <mat-option *ngFor="let reason of recalculationReasons" [value]="reason.value">
+          {{ reason.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Other Reason (if selected) -->
+    <mat-form-field appearance="outline" class="full-width" *ngIf="recalculateForm.get('reason')?.value === 'other'">
+      <mat-label>Especifique la razón</mat-label>
+      <input matInput formControlName="otherReason" required>
     </mat-form-field>
 
     <!-- Operator -->
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>Operador</mat-label>
-      <input matInput formControlName="operator">
+      <input matInput formControlName="operator" required>
+      <mat-error *ngIf="recalculateForm.get('operator')?.hasError('required')">
+        El operador es requerido
+      </mat-error>
     </mat-form-field>
+
+    <!-- Opening Values Section -->
+    <mat-expansion-panel [expanded]="true" class="section-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>open_in_new</mat-icon>
+          Valores de Apertura
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div fxLayout="column" fxLayoutGap="12px">
+        <!-- Opening Temperature -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Temperatura Apertura (°C)</mat-label>
+          <input matInput type="number" step="0.1" formControlName="openingTemperature">
+          <mat-hint>Valor actual: {{ batch.opening?.temperature || 'N/A' }} °C</mat-hint>
+          <mat-error *ngIf="recalculateForm.get('openingTemperature')?.hasError('required')">
+            Requerido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Opening API Gravity -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Gravedad API Apertura (°API)</mat-label>
+          <input matInput type="number" step="0.01" formControlName="openingApiGravity">
+          <mat-hint>Valor actual: {{ batch.opening?.apiGravity || 'N/A' }} °API</mat-hint>
+          <mat-error *ngIf="recalculateForm.get('openingApiGravity')?.hasError('required')">
+            Requerido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Opening BS&W -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>BS&W Apertura (%)</mat-label>
+          <input matInput type="number" step="0.01" formControlName="openingBsw">
+          <mat-hint>Valor actual: {{ batch.opening?.bsw || 'N/A' }} %</mat-hint>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Closing Values Section -->
+    <mat-expansion-panel [expanded]="true" class="section-panel" *ngIf="batch.closing">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>close</mat-icon>
+          Valores de Cierre
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div fxLayout="column" fxLayoutGap="12px">
+        <!-- Closing Temperature -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Temperatura Cierre (°C)</mat-label>
+          <input matInput type="number" step="0.1" formControlName="closingTemperature">
+          <mat-hint>Valor actual: {{ batch.closing?.temperature || 'N/A' }} °C</mat-hint>
+          <mat-error *ngIf="recalculateForm.get('closingTemperature')?.hasError('required')">
+            Requerido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Closing API Gravity -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Gravedad API Cierre (°API)</mat-label>
+          <input matInput type="number" step="0.01" formControlName="closingApiGravity">
+          <mat-hint>Valor actual: {{ batch.closing?.apiGravity || 'N/A' }} °API</mat-hint>
+          <mat-error *ngIf="recalculateForm.get('closingApiGravity')?.hasError('required')">
+            Requerido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Closing BS&W -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>BS&W Cierre (%)</mat-label>
+          <input matInput type="number" step="0.01" formControlName="closingBsw">
+          <mat-hint>Valor actual: {{ batch.closing?.bsw || 'N/A' }} %</mat-hint>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Comparison Section (shown after calculation) -->
+    <mat-expansion-panel [expanded]="showComparison" class="comparison-panel" *ngIf="showComparison && recalculationResult">
+      <mat-expansion-panel-header [ngClass]="{'approval-required': requiresApproval}">
+        <mat-panel-title>
+          <mat-icon [ngClass]="{'warning-icon': requiresApproval, 'success-icon': !requiresApproval}">
+            {{ requiresApproval ? 'warning' : 'check_circle' }}
+          </mat-icon>
+          Comparación de Resultados
+          <span class="approval-badge" *ngIf="requiresApproval">Requiere Aprobación</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="comparison-content">
+        <!-- Approval Warning -->
+        <mat-card class="approval-warning" *ngIf="requiresApproval">
+          <mat-card-content>
+            <mat-icon class="warning-icon">warning</mat-icon>
+            <div class="warning-text">
+              <strong>⚠️ Requiere Aprobación</strong>
+              <p>{{ approvalReason }}</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Comparison Table -->
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Parámetro</th>
+              <th>Original</th>
+              <th>Nuevo</th>
+              <th>Diferencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- NSV Comparison -->
+            <tr *ngIf="recalculationResult.differences.transferredNsv !== undefined">
+              <td>Volumen Transferido (NSV)</td>
+              <td>{{ recalculationResult.originalBatch.transferredNSV | number:'1.2-2' }} bbl</td>
+              <td>{{ recalculationResult.recalculatedBatch.transferredNSV | number:'1.2-2' }} bbl</td>
+              <td [ngClass]="{'change-positive': recalculationResult.differences.transferredNsv > 0, 'change-negative': recalculationResult.differences.transferredNsv < 0}">
+                {{ recalculationResult.differences.transferredNsv | number:'1.2-2' }} bbl
+              </td>
+            </tr>
+
+            <!-- Mass Comparison -->
+            <tr *ngIf="recalculationResult.differences.transferredMass !== undefined">
+              <td>Masa Transferida</td>
+              <td>{{ recalculationResult.originalBatch.transferredMass | number:'1.0-0' }} kg</td>
+              <td>{{ recalculationResult.recalculatedBatch.transferredMass | number:'1.0-0' }} kg</td>
+              <td [ngClass]="{'change-positive': recalculationResult.differences.transferredMass > 0, 'change-negative': recalculationResult.differences.transferredMass < 0}">
+                {{ recalculationResult.differences.transferredMass | number:'1.0-0' }} kg
+              </td>
+            </tr>
+
+            <!-- Percentage Change -->
+            <tr *ngIf="recalculationResult.differences.percentageChange !== undefined">
+              <td>Cambio Porcentual</td>
+              <td colspan="2">-</td>
+              <td [ngClass]="{'change-positive': recalculationResult.differences.percentageChange > 0, 'change-negative': recalculationResult.differences.percentageChange < 0}">
+                {{ formatPercentageChange(recalculationResult.differences.percentageChange) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- PDF Note -->
+        <mat-card class="pdf-note">
+          <mat-card-content>
+            <mat-icon>description</mat-icon>
+            <span>Se generará nuevo PDF con marca "RECALCULATED". El PDF original se mantendrá disponible.</span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-expansion-panel>
 
   </form>
 </div>
 
-<div mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">Cancelar</button>
-  <button mat-raised-button 
-          color="warn" 
-          (click)="onSubmit()"
-          [disabled]="!recalculateForm.valid || loading">
-    🔄 Recalcular Lote
+<!-- Dialog Actions -->
+<div mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button (click)="onCancel()" [disabled]="loading">
+    Cancelar
+  </button>
+
+  <!-- Calculate Button (before comparison) -->
+  <button mat-raised-button
+          color="primary"
+          (click)="calculateRecalculation()"
+          [disabled]="!recalculateForm.valid || loading || showComparison"
+          *ngIf="!showComparison">
+    <mat-icon *ngIf="!loading">calculate</mat-icon>
+    <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
+    {{ loading ? 'Calculando...' : 'Calcular Recálculo' }}
+  </button>
+
+  <!-- Reject Button (after comparison) -->
+  <button mat-button
+          color="warn"
+          (click)="rejectRecalculation()"
+          [disabled]="loading"
+          *ngIf="showComparison">
+    Rechazar
+  </button>
+
+  <!-- Approve Button (after comparison) -->
+  <button mat-raised-button
+          color="accent"
+          (click)="approveRecalculation()"
+          [disabled]="loading"
+          *ngIf="showComparison">
+    <mat-icon *ngIf="!loading">check_circle</mat-icon>
+    <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
+    {{ loading ? 'Aplicando...' : '✓ Aplicar Recálculo' }}
   </button>
 </div>

@@ -28,6 +28,14 @@
       <mat-icon>add</mat-icon>
       Crear Lote
     </button>
+    <button mat-raised-button
+            color="primary"
+            (click)="createHistoricalBatch()"
+            matTooltip="Crear lote desde datos históricos"
+            matTooltipPosition="below">
+      <mat-icon>history</mat-icon>
+      Lote Histórico
+    </button>
     <button mat-icon-button
             matTooltip="Exportar a CSV"
             (click)="exportToCsv()"

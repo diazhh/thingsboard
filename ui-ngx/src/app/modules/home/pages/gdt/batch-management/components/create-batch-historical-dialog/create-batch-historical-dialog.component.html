@@ -1,0 +1,239 @@
+<h2 mat-dialog-title>
+  <mat-icon class="title-icon">history</mat-icon>
+  Crear Batch desde Histórico
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="historical-batch-form">
+    
+    <!-- Selector de Tanque -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Tanque</mat-label>
+      <mat-select formControlName="tankId" [disabled]="isLoadingTanks">
+        <mat-option *ngFor="let tank of tanks" [value]="tank.asset.id.id">
+          {{ tank.attributes?.tankTag || tank.asset.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('tankId')?.hasError('required')">
+        Selecciona un tanque
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Período de la Operación -->
+    <div class="section-title">
+      <mat-icon>schedule</mat-icon>
+      <span>Período de la Operación</span>
+    </div>
+
+    <div class="date-time-row">
+      <!-- Fecha de Inicio -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Fecha Inicio</mat-label>
+        <input matInput type="date" formControlName="startDate" [max]="form.get('endDate')?.value">
+        <mat-error *ngIf="form.get('startDate')?.hasError('required')">
+          Requerido
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Hora de Inicio -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Hora Inicio</mat-label>
+        <input matInput type="time" formControlName="startTime">
+        <mat-error *ngIf="form.get('startTime')?.hasError('required')">
+          Requerido
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="date-time-row">
+      <!-- Fecha de Fin -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Fecha Fin</mat-label>
+        <input matInput type="date" formControlName="endDate" [min]="form.get('startDate')?.value">
+        <mat-error *ngIf="form.get('endDate')?.hasError('required')">
+          Requerido
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Hora de Fin -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Hora Fin</mat-label>
+        <input matInput type="time" formControlName="endTime">
+        <mat-error *ngIf="form.get('endTime')?.hasError('required')">
+          Requerido
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Botón de Verificación -->
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="checkAvailability()"
+      [disabled]="!form.valid || isCheckingAvailability"
+      class="full-width check-button">
+      <mat-icon *ngIf="!isCheckingAvailability">check_circle</mat-icon>
+      <mat-spinner *ngIf="isCheckingAvailability" diameter="20" class="inline-spinner"></mat-spinner>
+      {{ isCheckingAvailability ? 'Verificando...' : 'Verificar Disponibilidad de Datos' }}
+    </button>
+
+    <!-- Resultado de Disponibilidad -->
+    <div *ngIf="availabilityResult" class="availability-card" [ngClass]="availabilityResult.available ? 'available' : 'unavailable'">
+      <div class="availability-header">
+        <mat-icon [class.success]="availabilityResult.available" [class.error]="!availabilityResult.available">
+          {{ availabilityResult.available ? 'check_circle' : 'error' }}
+        </mat-icon>
+        <span class="availability-title">
+          {{ availabilityResult.available ? '✓ Datos Disponibles' : '✗ Datos No Disponibles' }}
+        </span>
+      </div>
+      
+      <div class="availability-details">
+        <p class="message">{{ availabilityResult.message }}</p>
+        
+        <div class="data-quality">
+          <span class="label">Calidad de Datos:</span>
+          <span class="badge" [ngClass]="'quality-' + availabilityResult.dataQuality">
+            {{ availabilityResult.dataQuality | uppercase }}
+          </span>
+        </div>
+
+        <div *ngIf="availabilityResult.availableKeys.length > 0" class="keys-list">
+          <span class="label">Datos Disponibles:</span>
+          <div class="keys">
+            <span *ngFor="let key of availabilityResult.availableKeys" class="key-badge">
+              {{ key }}
+            </span>
+          </div>
+        </div>
+
+        <div *ngIf="availabilityResult.missingKeys.length > 0" class="keys-list missing">
+          <span class="label">Datos Faltantes:</span>
+          <div class="keys">
+            <span *ngFor="let key of availabilityResult.missingKeys" class="key-badge missing">
+              {{ key }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview de Datos -->
+    <div *ngIf="showPreview && periodSummary" class="preview-card">
+      <div class="preview-header">
+        <mat-icon>preview</mat-icon>
+        <span>Preview de Datos</span>
+      </div>
+
+      <div class="preview-content">
+        <div class="gauge-section">
+          <h4>Medición de Apertura</h4>
+          <div class="gauge-data">
+            <div class="data-row">
+              <span class="label">Timestamp:</span>
+              <span class="value">{{ formatTimestamp(periodSummary.startTime) }}</span>
+            </div>
+            <div class="data-row">
+              <span class="label">Nivel Promedio:</span>
+              <span class="value">{{ formatNumber(periodSummary.averageLevel) }} mm</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="gauge-section">
+          <h4>Medición de Cierre</h4>
+          <div class="gauge-data">
+            <div class="data-row">
+              <span class="label">Timestamp:</span>
+              <span class="value">{{ formatTimestamp(periodSummary.endTime) }}</span>
+            </div>
+            <div class="data-row">
+              <span class="label">Cambio de Nivel:</span>
+              <span class="value" [ngClass]="periodSummary.levelChange > 0 ? 'positive' : 'negative'">
+                {{ formatNumber(periodSummary.levelChange) }} mm
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="data-row">
+            <span class="label">Duración:</span>
+            <span class="value">{{ (periodSummary.duration / 3600000) | number:'1.1-1' }} horas</span>
+          </div>
+          <div class="data-row">
+            <span class="label">Puntos de Datos:</span>
+            <span class="value">{{ periodSummary.dataPoints }}</span>
+          </div>
+          <div *ngIf="periodSummary.suggestedBatchType" class="data-row">
+            <span class="label">Tipo Sugerido:</span>
+            <span class="value badge" [ngClass]="'type-' + periodSummary.suggestedBatchType">
+              {{ getBatchTypeLabel(periodSummary.suggestedBatchType) }}
+              ({{ formatNumber(periodSummary.confidence * 100) }}% confianza)
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tipo de Batch -->
+    <div *ngIf="availabilityResult?.available" class="section-title">
+      <mat-icon>category</mat-icon>
+      <span>Tipo de Batch</span>
+    </div>
+
+    <div *ngIf="availabilityResult?.available" class="batch-type-selector">
+      <mat-radio-group formControlName="batchType" class="radio-group">
+        <mat-radio-button value="receiving" class="radio-option">
+          <span class="radio-label">
+            <mat-icon>arrow_downward</mat-icon>
+            Recepción (Nivel Aumenta)
+          </span>
+        </mat-radio-button>
+        <mat-radio-button value="dispensing" class="radio-option">
+          <span class="radio-label">
+            <mat-icon>arrow_upward</mat-icon>
+            Despacho (Nivel Disminuye)
+          </span>
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <!-- Notas Opcionales -->
+    <div *ngIf="availabilityResult?.available" class="section-title">
+      <mat-icon>notes</mat-icon>
+      <span>Notas Adicionales (Opcional)</span>
+    </div>
+
+    <mat-form-field *ngIf="availabilityResult?.available" appearance="outline" class="full-width">
+      <mat-label>Notas</mat-label>
+      <textarea matInput formControlName="notes" rows="3" placeholder="Agregar notas sobre este batch histórico..."></textarea>
+    </mat-form-field>
+
+    <!-- Mensajes de Error/Éxito -->
+    <div *ngIf="errorMessage" class="error-message">
+      <mat-icon>error</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <div *ngIf="successMessage" class="success-message">
+      <mat-icon>check_circle</mat-icon>
+      <span>{{ successMessage }}</span>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="isCreatingBatch">
+    Cancelar
+  </button>
+  <button 
+    mat-raised-button 
+    color="primary" 
+    (click)="createBatch()"
+    [disabled]="!availabilityResult?.available || isCreatingBatch">
+    <mat-icon *ngIf="!isCreatingBatch">add_circle</mat-icon>
+    <mat-spinner *ngIf="isCreatingBatch" diameter="20" class="inline-spinner"></mat-spinner>
+    {{ isCreatingBatch ? 'Creando...' : 'Crear Batch Histórico' }}
+  </button>
+</mat-dialog-actions>

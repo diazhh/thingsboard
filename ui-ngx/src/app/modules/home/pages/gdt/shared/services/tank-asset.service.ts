@@ -222,7 +222,9 @@ export const DEFAULT_TANK_ATTRIBUTES: Partial<TankAttributes> = {
  * Service for managing Tank Assets in ThingsBoard
  * Provides CRUD operations and attribute management
  */
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class TankAssetService {
 
   constructor(private http: HttpClient) {}

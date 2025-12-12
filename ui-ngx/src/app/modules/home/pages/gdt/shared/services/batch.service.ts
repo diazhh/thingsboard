@@ -149,7 +149,9 @@ export class BatchService {
       gov: request.openingLevel * 0.1,
       gsv: request.openingLevel * 0.099,
       nsv: request.openingLevel * 0.098,
-      mass: request.openingLevel * 82,
+      // Mass = NSV × density (kg/bbl). Density calculated from API gravity
+      // API gravity to density: density (kg/L) = 141.5 / (API + 131.5), then × 159 L/bbl
+      mass: (request.openingLevel * 0.098) * (141.5 / (request.openingApiGravity + 131.5)) * 159,
       wia: 0.3
     };
     
@@ -186,6 +188,18 @@ export class BatchService {
     const attributeKey = `batch_${batch.id}`;
     const attributeValue = JSON.stringify(batch);
     
+    console.log('[BatchService] Saving batch to tank attributes:', {
+      attributeKey,
+      batchNumber: batch.batchNumber,
+      status: batch.status,
+      hasClosing: !!batch.closing,
+      closingData: batch.closing ? {
+        level: batch.closing.level,
+        temperature: batch.closing.temperature,
+        timestamp: batch.closing.timestamp
+      } : null
+    });
+    
     // Create EntityId for the tank
     const tankEntityId = {
       id: batch.tankId,
@@ -197,7 +211,19 @@ export class BatchService {
       AttributeScope.SERVER_SCOPE,
       [{ key: attributeKey, value: attributeValue }]
     ).pipe(
-      map(() => batch),
+      tap(() => {
+        console.log('[BatchService] Batch saved successfully to tank attributes');
+        console.log('[BatchService] Saved batch data:', {
+          batchNumber: batch.batchNumber,
+          status: batch.status,
+          hasClosing: !!batch.closing,
+          transferredNSV: batch.transferredNSV
+        });
+      }),
+      map(() => {
+        // Return the complete batch object
+        return batch;
+      }),
       catchError(error => {
         console.error('Error saving batch to tank:', error);
         throw error;
@@ -229,14 +255,18 @@ export class BatchService {
    * Close batch and update in tank attributes
    */
   private closeBatchPersistent(request: CloseBatchRequest): Observable<Batch> {
+    console.log('[BatchService] closeBatchPersistent - Closing batch:', request.batchId);
+    
     const batches = this.batchesSubject.value;
     const batchIndex = batches.findIndex(b => b.id === request.batchId);
     
     if (batchIndex === -1) {
+      console.error('[BatchService] Batch not found:', request.batchId);
       return throwError(() => new Error('Batch not found'));
     }
     
     const batch = batches[batchIndex];
+    console.log('[BatchService] Found batch to close:', batch.batchNumber);
     
     // Calculate closing gauge
     const closing: GaugeReading = {
@@ -251,9 +281,15 @@ export class BatchService {
       gov: request.closingLevel * 0.1,
       gsv: request.closingLevel * 0.099,
       nsv: request.closingLevel * 0.098,
-      mass: request.closingLevel * 82,
-      wia: 0.3
+      // Mass = NSV × density (kg/bbl). Density calculated from API gravity
+      // API gravity to density: density (kg/L) = 141.5 / (API + 131.5), then × 159 L/bbl
+      mass: (request.closingLevel * 0.098) * (141.5 / (request.closingApiGravity + 131.5)) * 159,
+      wia: 0.3,
+      captureMethod: 'automatic',
+      dataSource: 'telemetry'
     };
+    
+    console.log('[BatchService] Closing gauge data:', closing);
     
     // Calculate transferred quantities
     const transferredNSV = Math.abs(batch.opening.nsv - closing.nsv);
@@ -273,13 +309,20 @@ export class BatchService {
       notes: request.notes || batch.notes
     };
     
+    console.log('[BatchService] Updated batch before saving:', updatedBatch);
+    
     // Save to tank attributes
     return this.saveBatchToTank(updatedBatch).pipe(
       tap(() => {
+        console.log('[BatchService] Batch saved successfully');
         const updatedBatches = [...batches];
         updatedBatches[batchIndex] = updatedBatch;
         this.batchesSubject.next(updatedBatches);
         this.updateStatistics();
+      }),
+      catchError(error => {
+        console.error('[BatchService] Error saving batch:', error);
+        throw error;
       })
     );
   }
@@ -317,8 +360,9 @@ export class BatchService {
     
     const batch = batches[batchIndex];
     
-    if (batch.status !== 'closed') {
-      return throwError(() => new Error('Only closed batches can be recalculated'));
+    // Allow recalculation of both 'closed' and 'recalculated' batches
+    if (batch.status !== 'closed' && batch.status !== 'recalculated') {
+      return throwError(() => new Error('Only closed or recalculated batches can be recalculated'));
     }
     
     // Update opening gauge with new values if provided
@@ -334,7 +378,8 @@ export class BatchService {
     updatedOpening.gov = updatedOpening.level * 0.1;
     updatedOpening.gsv = updatedOpening.level * 0.099;
     updatedOpening.nsv = updatedOpening.level * 0.098;
-    updatedOpening.mass = updatedOpening.level * 82;
+    // Mass = NSV × density (kg/bbl). Density calculated from API gravity
+    updatedOpening.mass = updatedOpening.nsv * (141.5 / (updatedOpening.apiGravity + 131.5)) * 159;
     
     // Update closing gauge with new values if provided
     const updatedClosing: GaugeReading = {
@@ -349,7 +394,8 @@ export class BatchService {
     updatedClosing.gov = updatedClosing.level * 0.1;
     updatedClosing.gsv = updatedClosing.level * 0.099;
     updatedClosing.nsv = updatedClosing.level * 0.098;
-    updatedClosing.mass = updatedClosing.level * 82;
+    // Mass = NSV × density (kg/bbl). Density calculated from API gravity
+    updatedClosing.mass = updatedClosing.nsv * (141.5 / (updatedClosing.apiGravity + 131.5)) * 159;
     
     // Recalculate transferred quantities
     const transferredNSV = Math.abs(updatedOpening.nsv - updatedClosing.nsv);
@@ -466,6 +512,16 @@ export class BatchService {
             if (key.startsWith('batch_')) {
               try {
                 const batchData = JSON.parse(attributes[key]);
+                console.log(`[BatchService] Parsed batch from attribute ${key}:`, {
+                  batchNumber: batchData.batchNumber,
+                  status: batchData.status,
+                  hasClosing: !!batchData.closing,
+                  closingData: batchData.closing ? {
+                    level: batchData.closing.level,
+                    temperature: batchData.closing.temperature,
+                    timestamp: batchData.closing.timestamp
+                  } : null
+                });
                 allBatches.push(batchData as Batch);
               } catch (error) {
                 console.error(`[BatchService] Error parsing batch from attribute ${key}:`, error);
@@ -710,6 +766,93 @@ export class BatchService {
       valid: errors.length === 0,
       errors
     };
+  }
+
+  /**
+   * Create batch from date range (historical batch)
+   */
+  createBatchFromDateRange(params: {
+    tankId: string;
+    tankName?: string;
+    startTime: number;
+    endTime: number;
+    batchType: BatchType;
+    notes?: string;
+    startTemperature?: number;
+    endTemperature?: number;
+  }): Observable<Batch> {
+    console.log('[BatchService] Creating batch from date range:', params);
+
+    const batchNumber = `BATCH-${new Date().getFullYear()}-${String(this.nextBatchNumber++).padStart(3, '0')}`;
+    const batchId = `batch-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Create opening gauge with historical data
+    const opening: GaugeReading = {
+      timestamp: params.startTime,
+      operator: 'Historical',
+      level: 0, // Will be filled from historical data
+      temperature: params.startTemperature || 25, // Use provided temperature (already averaged from temp_19-24)
+      apiGravity: 35.0,
+      bsw: 0,
+      tov: 0,
+      gov: 0,
+      gsv: 0,
+      nsv: 0,
+      mass: 0,
+      wia: 0.3,
+      captureMethod: 'historical',
+      dataSource: 'telemetry_history'
+    };
+
+    // Create closing gauge with historical data
+    const closing: GaugeReading = {
+      timestamp: params.endTime,
+      operator: 'Historical',
+      level: 0, // Will be filled from historical data
+      temperature: params.endTemperature || 25, // Use provided temperature (already averaged from temp_19-24)
+      apiGravity: 35.0,
+      bsw: 0,
+      tov: 0,
+      gov: 0,
+      gsv: 0,
+      nsv: 0,
+      mass: 0,
+      wia: 0.3,
+      captureMethod: 'historical',
+      dataSource: 'telemetry_history'
+    };
+
+    // Create batch (already closed since it's historical)
+    const batch: Batch = {
+      id: batchId,
+      batchNumber,
+      tankId: params.tankId,
+      tankName: params.tankName || 'Unknown Tank',
+      batchType: params.batchType,
+      status: 'closed',
+      opening,
+      closing,
+      transferredNSV: 0,
+      transferredMass: 0,
+      transferredWIA: 0,
+      notes: params.notes || `Historical batch created from ${new Date(params.startTime).toISOString()} to ${new Date(params.endTime).toISOString()}`,
+      createdAt: Date.now(),
+      closedAt: params.endTime,
+      createdBy: 'Historical',
+      closedBy: 'Historical'
+    };
+
+    console.log('[BatchService] Historical batch created:', batch);
+
+    // Save to tank attributes
+    return this.saveBatchToTank(batch).pipe(
+      tap(() => {
+        console.log('[BatchService] Historical batch saved successfully');
+        const currentBatches = this.batchesSubject.value;
+        this.batchesSubject.next([...currentBatches, batch]);
+        this.updateStatistics();
+      })
+    );
   }
 
   /**
